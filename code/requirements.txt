@@ -1,0 +1,16 @@
+connexion == 2.6.0
+python_dateutil == 2.6.0
+setuptools >= 21.0.0
+swagger-ui-bundle == 0.0.6
+zipp == 3.1.0
+rarfile == 3.1
+Flask==1.1.2
+six==1.15.0
+kubernetes==11.0.0
+psycopg2==2.8.5
+redis==3.5.3
+Flask-Session==0.3.2
+APScheduler==3.6.3
+docker == 4.2.1
+
+
