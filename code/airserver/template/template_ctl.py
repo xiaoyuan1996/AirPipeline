@@ -17,7 +17,6 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     image_id: int 镜像id
     code_path: str 代码路径
     model_path: str 模型路径
-    data_path: str 数据路径
     description: str 描述信息 optional
 
     :return: bool 成功标志
@@ -53,17 +52,10 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     util.create_dir_if_not_exist(own_model)
 
     # 拷贝文件
-    util.copy_compress_to_dir(code, own_code)
+    util.copy_compress_to_dir(code_path, own_code)
 
-    # util.copy_dir(
-    #     code_path,
-    #     own_code
-    # )
-    # util.copy_dir(
-    #     model_path,
-    #     own_model
-    # )
-    shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
+    if model_path != None:
+        shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
 
     # 更新表单
     update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code, own_model, template_id)

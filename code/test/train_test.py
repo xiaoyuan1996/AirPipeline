@@ -14,12 +14,39 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "train_name": "train1117",
-            "template_id": 3,
-            "dataset": "/mnt/mfs/develop_code/retrievalSystem",
-            "dist": False,
-            "description": "airstudio"
+            "token": "NmI4NmIyNzNmZjM0ZmNlMTlkNmI4MDRlZmY1YTNmNTc0N2FkYTRlYWEyMmYxZDQ5YzAxZTUyZGRiNzg3NWI0YjM1ODk2MWQzYzdkNzI5NzAwOGY1YmJhMWY1MTY2ODMwMDA4MjcxMGQ2NzRjZTU2ZGI1YzQzZTM1MDU1MjA0Y2MtMQ==",
+            "train_name": "train_dist",
+            "template_id": 9,
+            "dataset": "/mnt/mfs/pytorch_voc/data/VOC2007-mini.tar",
+            "dist": True,
+            "description": "airstudio dist test",
+            "params": {
+                        "spec_model" : None,
+
+                        "framework": "pytorch",
+                        "job_command": "python /app/mnist.py",
+                        "job_args": "----batch_size=8",
+
+                        "master_replicas": 1,
+                        "worker_replicas": 1,
+                        "restart_policy": "Never",
+                        "selector": [
+                            {
+                                "key": "kubernetes.ro/hostname",
+                                "operator": "IN",
+                                "values": ["dell-nf5468m5"]
+                                }
+                            ]
+                            
+                        
+
+                        # "gpu_num": 2,
+                        # "cpu": 2,
+                        # "memory": 4,
+                        # "cuda_type": "10.0",
+                        # "gpu_type": "2080ti",
+                        # "node_host_name": "192.168.14.11"
+                        }
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_create/'
 
@@ -116,15 +143,17 @@ class TrainTest(object):
 
 
 if __name__=="__main__":
-    t = TrainTest()
+    # t = TrainTest()
 
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    t.train_get_visual()
+    # t.train_get_visual()
     # t.train_create()
     # t.train_start()
     # t.train_delete()
     # t.train_query()
 
+    a = NaN
+    print(a)
 

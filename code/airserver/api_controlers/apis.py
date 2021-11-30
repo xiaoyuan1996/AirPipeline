@@ -441,10 +441,7 @@ def api_run():
         else:
             code_path = request_data["code_path"]
 
-        if "model_path" not in request_data.keys():
-            return util.get_stand_return(False, "template_create: model_path must be required.")
-        else:
-            model_path = request_data["model_path"]
+        model_path = request_data["model_path"] if "model_path" in request_data.keys() else None
 
         description = request_data["description"] if "description" in request_data.keys() else None
 
@@ -629,11 +626,12 @@ def api_run():
             dist = request_data["dist"]
 
         description = request_data["description"] if "description" in request_data.keys() else None
+        params = request_data["params"] if "params" in request_data.keys() else {}
 
         logger.info("train_create: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = train_ctl.train_create(token, train_name, template_id, dataset, dist, description)
+        flag, info = train_ctl.train_create(token, train_name, template_id, dataset, dist, description, params)
 
         return util.get_stand_return(flag, info)
 

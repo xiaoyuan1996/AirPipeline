@@ -11,4 +11,5 @@ def image_from_id_to_name(id):
 
     logger.info("image_from_id_to_name: Request image id:{}".format(id))
 
-    return str(id) + ":" + str(id)
+    # return str(id) + ":" + str(id)
+    return "www.registry.cyber.ai/airproject/kubeflow/pytorch-dist-voc-test:1.0"

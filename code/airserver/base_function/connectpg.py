@@ -77,7 +77,8 @@ class pg_db(object):
         create_time TEXT NOT NULL,       
         status_id INT NOT NULL,
         dist  BOOL NOT NULL,
-        description TEXT
+        description TEXT,
+        params JSON
         );
         ''')
 
@@ -119,7 +120,7 @@ class pg_db(object):
         user_id INT NOT NULL,
         image_id INT NOT NULL,
         code_path TEXT NOT NULL,
-        model_path TEXT NOT NULL,
+        model_path TEXT ,
         create_time TEXT NOT NULL,
         privilege INT NOT NULL,
         description TEXT

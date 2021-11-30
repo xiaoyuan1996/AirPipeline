@@ -5,11 +5,10 @@ class TemplateTest(object):
         # 删除notebook
         data = {
             "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "template_name": "template_test",
+            "template_name": "template_real_dist",
             "image_id": 5,
-            "code_path": "/mnt/mfs/fake/code",
-            "model_path": "/mnt/mfs/fake/model",
-            "data_path": "/mnt/mfs/fake/model",
+            "code_path": "/mnt/mfs/pytorch_voc/code/PytorchSSD-0.4.tar",
+            # "model_path": "/mnt/mfs/fake/model",
             "description": "hello"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_create/'
@@ -90,7 +89,8 @@ class TemplateTest(object):
 if __name__=="__main__":
     t = TemplateTest()
 
-    t.template_generate_from_train()
+    # t.template_generate_from_train()
+    t.template_create()
     # template_delete()
     # template_query()
     # template_edit()

@@ -2,21 +2,13 @@ import globalvar
 from base_function import k8s_ctl, image_ctl, user_ctl
 import time, os, shutil
 import util
-
+import json
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
-
-# train
-# train_id
-# code data model visual
-# status:
-
-
-
-def train_create(token, train_name, template_id, dataset, dist, description):
+def train_create(token, train_name, template_id, dataset, dist, description, params):
     """
     token: str 用户验证信息
     train_name: train 名称
@@ -44,8 +36,8 @@ def train_create(token, train_name, template_id, dataset, dist, description):
 
     #数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}')".format(
-        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist,  description)
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}')".format(
+        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist,  description, json.dumps(params))
 
     flag, data = DB.insert(sql)
 
@@ -73,33 +65,57 @@ def train_create(token, train_name, template_id, dataset, dist, description):
     util.create_dir_if_not_exist(visual_own)
 
     # 创建挂载
-    volumeMounts = {}
+    volumeMounts = []
     if dataset != None:
         # util.copy_dir(dataset, data_own)
         util.copy_compress_to_dir(dataset, data_own)
-        volumeMounts["/dataset"] = data_own
+        volumeMounts.append({
+                "host_path": data_own,
+                "mount_path": "/dataset"
+            })
+
     if code_path != None:
-        # util.copy_dir(code_path, code_own)
-        util.copy_compress_to_dir(code_path, code_own)
-        volumeMounts["/app"] = code_own
-    if model_path != None:
-        # util.copy_dir(model_path, model_own)
-        shutil.copy(model_path, os.path.join(model_own, "cur_model.pth"))
+        util.copy_dir(code_path, code_own)
+        # util.copy_compress_to_dir(code_path, code_own)
+        volumeMounts.append({
+                "host_path": code_own,
+                "mount_path": "/app"
+            })
+    if (model_path != None) and (params["spec_model"] != None):
+        shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
 
-    volumeMounts["/data/model"] = model_own
-    volumeMounts["/data/log"] = visual_own
+    volumeMounts.append({
+        "host_path": model_own,
+        "mount_path": "/data/model"
+    })
+    volumeMounts.append({
+        "host_path": visual_own,
+        "mount_path": "/data/log"
+    })
 
-    flag, info = k8s_ctl.k8s_create(
-        pod_name = str(train_id)+"_"+train_name,
-        image_name = image_name,
-        lables = "airstudio-train",
-        volumeMounts = volumeMounts,
-    )
+    if not dist:
+        #　非分布式
+        flag, info = k8s_ctl.k8s_create(
+            pod_name = str(train_id)+"_"+train_name,
+            image_name = image_name,
+            lables = "airstudio-train",
+            volumeMounts = volumeMounts,
+        )
+    else:
+        # 分布式
+        flag, info = k8s_ctl.k8s_create_dist(
+            pod_name = str(train_id)+"_"+train_name,
+            image_name = image_name,
+            lables = "airstudio-train",
+            volumeMounts = volumeMounts,
+            params=params,
+            token=token
+        )
 
     status_id = 200 if flag else 400
     # 更新表单
     update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}' where id = {5}".format(status_id, code_own, data_own, model_own, visual_own, train_id)
-    flag, info = DB.update(update_sql)
+    _, _ = DB.update(update_sql)
 
     return flag, info
 
@@ -123,6 +139,7 @@ def train_start(token, train_id):
         return False, "train_start: train not exists."
     else:
         if int(info[0]) == user_id:
+
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
                 pod_name=str(train_id)+"_"+info[1],
@@ -196,7 +213,8 @@ def train_query(token):
                 "create_time": item[8],
                 "status_id": item[9],
                 "dist": item[10],
-                "description": item[11]
+                "description": item[11],
+                "params": item[12]
             }
         )
 
