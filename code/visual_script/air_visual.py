@@ -14,6 +14,12 @@ _savepath_global = "/data/logs/visual"
 
 ################## SCHEDULE ###############################
 
+def create_file(save_path):
+    src_path = os.path.abspath(save_path)
+    if not os.path.exists(src_path):
+        os.makedirs(src_path)
+    os.system("touch {}".format(save_path))
+
 def log_schedule(schedule, params, save_path="/data/log/schedule.pkl"):
     # save schedule, loss, accuracy to save_path
     schedule = float(schedule)
@@ -24,7 +30,7 @@ def log_schedule(schedule, params, save_path="/data/log/schedule.pkl"):
 
     # if not exist
     if not os.path.exists(save_path):
-        os.system("touch {}".format(save_path))
+        create_file(save_path)
         data = {}
     else:
         with open(save_path,'rb') as f:
@@ -162,14 +168,15 @@ if __name__=="__main__":
 
     # Use schedule
 
-    schedule = 0.3
-    loss = 0.1
-    acc = 0.9
-    save_path = "air.pkl"
-    log_schedule(schedule, loss, acc, save_path)
+    #schedule = 0.3
 
-    data = load_schedule(save_path)
-    print(data)
+    #loss = 0.1
+    #acc = 0.9
+    #save_path = "air.pkl"
+    #log_schedule(schedule, loss, acc, save_path)
+
+    #data = load_schedule(save_path)
+    #print(data)
 
     # Use airvisual
 
@@ -180,4 +187,5 @@ if __name__=="__main__":
     # writer.add_scalar(tag="tag", scalar_value=2)
     # writer.close()
 
-
+    save_path = "data/log/schedule.pkl"
+    create_file(save_path)
