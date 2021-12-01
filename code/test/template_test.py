@@ -4,8 +4,8 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "template_name": "template_real_dist",
+            "token": "jc5M2Y5ZTI2NmNlNmViZDk2Mzg2MzE1NTNhOTUyZjBmODNmOWVmZGM5NTVkZDY3ODlhYWUwYmQzMzJmYmVmMjRiOGEyYmRjZTdkYTViYTJjNzhlOTdjMTY4MzFmYmM0N2EzMzQzOTQzODdhNTFkODQ4YTNiYWNjZmYwYTNhZWItMTgzOQ==",
+            "template_name": "template_real_tokenaa",
             "image_id": 5,
             "code_path": "/mnt/mfs/pytorch_voc/code/PytorchSSD-0.4.tar",
             # "model_path": "/mnt/mfs/fake/model",

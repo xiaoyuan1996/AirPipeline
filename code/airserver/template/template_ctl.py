@@ -24,6 +24,8 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
 
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:
+        return False, "template_create： user check failed."
 
     #数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -75,18 +77,17 @@ def template_edit(token, template_id, edit_code, edit_model):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:
+        return False, "template_edit： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
     flag, info = DB.query_one(read_sql)
-
-    if info == None: return False, "template_delete: template not exists."
-
-    print(info)
+    if info == None: return False, "template_edit: template not exists."
+    if int(info[0]) != user_id: return False, "template_edit: template not belong to user {}.".format(user_id)
 
     # 如果编辑代码，则将代码挂进k8s进行编辑
     if edit_code:
-
         # 获取镜像名称
         image_id = get_config("image", "default_notebook_image_id")
         image_name = image_ctl.image_from_id_to_name(image_id)
@@ -113,9 +114,6 @@ def template_edit(token, template_id, edit_code, edit_model):
 
     return False, "no things need to be edit."
 
-
-
-
 def template_delete(token, template_id):
     """
     根据template_id 删除 template
@@ -126,6 +124,7 @@ def template_delete(token, template_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "template_delete： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_templatetab where id={0}".format(template_id)
@@ -159,6 +158,7 @@ def template_query(token):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "template_query： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where user_id={0} or privilege=0".format(user_id)
@@ -195,6 +195,7 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "template_generate_from_train： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where user_id={0} and id={1}".format(user_id, train_id)

@@ -22,6 +22,8 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
 
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_create： user check failed."
+
 
     # 查表拿到模板信息
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
@@ -130,6 +132,8 @@ def train_start(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_start： user check failed."
+
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
@@ -161,13 +165,15 @@ def train_delete(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_delete： user check failed."
+
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
 
     if info == None:
-        return False, "notebook_delete: notebook not exists."
+        return False, "train_delete: notebook not exists."
     else:
         if int(info[0]) == user_id:
             # 删除k8s
@@ -193,6 +199,7 @@ def train_query(token):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_query： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where user_id={0}".format(user_id)
@@ -230,6 +237,8 @@ def train_pause(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_pause： user check failed."
+
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
@@ -261,6 +270,7 @@ def train_stop(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_stop： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
@@ -291,6 +301,7 @@ def train_get_schedule(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_get_schedule： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where id={0} and user_id={1}".format(train_id, user_id)
@@ -326,6 +337,7 @@ def train_get_visual(token, train_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1: return False, "train_get_visual： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where id={0} and user_id={1}".format(train_id, user_id)

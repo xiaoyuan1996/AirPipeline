@@ -1,6 +1,7 @@
+import json, requests
 import globalvar
 logger = globalvar.get_value("logger")
-
+get_config = globalvar.get_value("get_config")
 
 def user_from_token_to_id(token):
     """
@@ -9,6 +10,12 @@ def user_from_token_to_id(token):
     :return: 用户id
     """
 
-    logger.info("user_from_token_to_id: Request user token:{}".format(token))
+    response = requests.get(url=get_config('user', 'usr_url'), headers={"token":token})
 
-    return 18
+    infos = json.loads(response.text)
+
+    if infos['code'] != 0:
+        logger.info("user_from_token_to_id: Error:{}".format(infos))
+        return -1
+    else:
+        return infos['data']['id']

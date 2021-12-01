@@ -143,7 +143,7 @@ class TrainTest(object):
 
 
 if __name__=="__main__":
-    # t = TrainTest()
+    t = TrainTest()
 
     # t.train_pause()
     # t.train_stop()
@@ -154,6 +154,4 @@ if __name__=="__main__":
     # t.train_delete()
     # t.train_query()
 
-    a = NaN
-    print(a)
 

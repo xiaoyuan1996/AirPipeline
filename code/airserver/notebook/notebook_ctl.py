@@ -23,6 +23,7 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
 
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_create： user check failed."
 
     # 获取镜像名称
     image_name = image_ctl.image_from_id_to_name(image_id)
@@ -92,6 +93,7 @@ def notebook_delete(token, notebook_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_delete： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_notebooktab where id={0}".format(notebook_id)
@@ -125,6 +127,7 @@ def notebook_start(token, notebook_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_start： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_notebooktab where id={0}".format(notebook_id)
@@ -156,11 +159,11 @@ def notebook_pause(token, notebook_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_pause： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_notebooktab where id={0}".format(notebook_id)
     flag, info = DB.query_one(read_sql)
-    print(info)
 
     if info == None:
         return False, "notebook_pause: notebook not exists."
@@ -187,6 +190,7 @@ def notebook_stop(token, notebook_id):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_stop： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_notebooktab where id={0}".format(notebook_id)
@@ -217,6 +221,7 @@ def notebook_query(token):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "notebook_query： user check failed."
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_notebooktab where user_id={0}".format(user_id)
