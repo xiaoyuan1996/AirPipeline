@@ -39,5 +39,14 @@ class ApisDefinition(object):
         self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "POST", "api_run.train_get_schedule")
         self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "POST", "api_run.train_get_visual")
 
+        # ====================== INFERENCE ==============================
+        # 推理任务定义
+        self.inference_create_from_train = self.apis_demo("/airserver-2.0/inference_create_from_train/", "POST", "api_run.inference_create_from_train")
+        self.inference_create_from_upload = self.apis_demo("/airserver-2.0/inference_create_from_upload/", "POST", "api_run.inference_create_from_upload")
+
+        # ====================== ASSIST ==============================
+        # 辅助接口
+        self.get_spec_dir = self.apis_demo("/airserver-2.0/get_spec_dir/", "POST", "api_run.get_spec_dir")
+
     def apis_demo(self, url, method, func):
         return {"url": url, "method": [method], "func": func}

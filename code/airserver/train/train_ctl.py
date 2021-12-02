@@ -313,17 +313,16 @@ def train_get_schedule(token, train_id):
         visual_path = info[6]
 
         # TODO: 可视化
-        # visual = utils.load_from.....
+        visual_data = util.load_schedule(os.path.join(visual_path, "airvisual.pkl"))
 
-        acc = [0.19,0.28,0.37,0.46]
-        loss = [0.9,0.8,0.7,0.6]
-        schedule = [0.23]
-
-        sche_info = {
-            "acc":acc,
-            "loss":loss,
-            "schedule":schedule
-        }
+        sche_info = {'schedule':[]}
+        for k,v in visual_data.items():
+            sche_info['schedule'].append(k)
+            for item, value in v.items():
+                if item not in sche_info.keys():
+                    sche_info[item] = [value]
+                else:
+                    sche_info[item].append(value)
 
         return True, sche_info
 

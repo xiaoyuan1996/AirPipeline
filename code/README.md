@@ -42,7 +42,10 @@ Airserver-2.0 负责训练、推理等流程服务，重点在于代码编码及
 * [Inference](#inference)
     * I1. 根据训练任务创建推理模型（Note: 支持选定预训练模型）
     * I2. 根据上传代码创建推理模型 
-    
+
+* [ASSIST](#assist)
+    * A1. 输入文件路径输出文件夹下的文件
+
 * [TODO](#todo)
     * TD1: 加入训练后模型选择机制
     * TD2: 推断思考怎么写
@@ -407,7 +410,6 @@ def train_delete(token, train_id):
     """
 ```
 
-
 #### T6. 查看Train
 ```
 Apis: /airserver-2.0/train_query/
@@ -441,6 +443,22 @@ def train_get_schedule(token):
 ```
 
 ### Inference
+
+### Assist
+```
+Apis: /airserver-2.0/get_spec_dir/
+Method: POST
+FUNC:   api_run.get_spec_dir
+
+def get_spec_dir(token):
+    """
+    查询特定路径下的文件
+    Args:
+        query_path: 查询路径
+    Returns: 查询得到的文件
+        {"files": files}
+    """
+```
 
 --------------------
 Under Update
