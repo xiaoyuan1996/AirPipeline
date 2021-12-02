@@ -25,7 +25,8 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
     user_id = user_ctl.user_from_token_to_id(token)
 
     # 获取镜像名称
-    image_name = image_ctl.image_from_id_to_name(image_id)
+    flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
+    if not flag: return False, "debug_create： image_name check failed."
 
     status_id = 100
 

@@ -13,12 +13,14 @@ class TrainTest(object):
 
         :return: bool 成功标志
         """
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "NmI4NmIyNzNmZjM0ZmNlMTlkNmI4MDRlZmY1YTNmNTc0N2FkYTRlYWEyMmYxZDQ5YzAxZTUyZGRiNzg3NWI0YjM1ODk2MWQzYzdkNzI5NzAwOGY1YmJhMWY1MTY2ODMwMDA4MjcxMGQ2NzRjZTU2ZGI1YzQzZTM1MDU1MjA0Y2MtMQ==",
-            "train_name": "train_dist",
-            "template_id": 9,
+            "train_name": "train_dist11",
+            "template_id": 2,
             "dataset": "/mnt/mfs/pytorch_voc/data/VOC2007-mini.tar",
-            "dist": True,
+            "dist": False,
             "description": "airstudio dist test",
             "params": {
                         "spec_model" : None,
@@ -50,7 +52,7 @@ class TrainTest(object):
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_create/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_start(self):
@@ -62,46 +64,54 @@ class TrainTest(object):
 
         :return: bool 成功标志
         """
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_start/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_delete(self):
         # 删除train
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_delete/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_pause(self):
         # 暂停train
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 3,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_pause/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_stop(self):
         # 停止train
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 2,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_stop/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_query(self):
@@ -111,34 +121,39 @@ class TrainTest(object):
 
         :return: 查询到的train信息
         """
-        data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
         }
+
         url = 'http://0.0.0.0:5000/airserver-2.0/train_query/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, headers=header)
         print(r.json())
 
     def train_get_schedule(self):
         # 得到训练train进度
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 2,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_get_schedule/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_get_visual(self):
         # 得到训练train进度
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "train_id": 2,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_get_visual/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
 
@@ -148,7 +163,7 @@ if __name__=="__main__":
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    # t.train_get_visual()
+    t.train_get_visual()
     # t.train_create()
     # t.train_start()
     # t.train_delete()

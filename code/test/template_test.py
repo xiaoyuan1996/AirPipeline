@@ -3,17 +3,19 @@ import requests, json
 class TemplateTest(object):
     def template_create(self):
         # 删除notebook
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "jc5M2Y5ZTI2NmNlNmViZDk2Mzg2MzE1NTNhOTUyZjBmODNmOWVmZGM5NTVkZDY3ODlhYWUwYmQzMzJmYmVmMjRiOGEyYmRjZTdkYTViYTJjNzhlOTdjMTY4MzFmYmM0N2EzMzQzOTQzODdhNTFkODQ4YTNiYWNjZmYwYTNhZWItMTgzOQ==",
-            "template_name": "template_real_tokenaa",
-            "image_id": 5,
+            "template_name": "template_token",
+            "image_id": 1,
             "code_path": "/mnt/mfs/pytorch_voc/code/PytorchSSD-0.4.tar",
             # "model_path": "/mnt/mfs/fake/model",
             "description": "hello"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_create/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def template_edit(self):
@@ -26,26 +28,30 @@ class TemplateTest(object):
 
         :return: bool 成功标志
         """
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "template_id": 3,
+            "template_id": 1,
             "edit_code": True,
             "edit_model": "/mnt/mfs/160-112-home/evaluate_v3.py"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_edit/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def template_delete(self):
         # 删除template
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "template_id": 2,
+            "template_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_delete/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def template_query(self):
@@ -55,12 +61,13 @@ class TemplateTest(object):
 
         :return: 查询到的template信息
         """
-        data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
         }
+
         url = 'http://0.0.0.0:5000/airserver-2.0/template_query/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, headers=header)
         print(r.json())
 
     def template_generate_from_train(self):
@@ -73,8 +80,10 @@ class TemplateTest(object):
 
         :return: bool 成功标志
         """
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "template_name": "template_generate_from_train",
             "train_id": 2,
             "model_name": "model.py",
@@ -82,7 +91,7 @@ class TemplateTest(object):
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_generate_from_train/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
 
@@ -91,7 +100,7 @@ if __name__=="__main__":
 
     # t.template_generate_from_train()
     t.template_create()
-    # template_delete()
-    # template_query()
-    # template_edit()
+    # t.template_delete()
+    # t.template_query()
+    # t.template_edit()
 

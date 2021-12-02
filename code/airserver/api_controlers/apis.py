@@ -41,10 +41,7 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_create: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "notebook_name" not in request_data.keys():
             return util.get_stand_return(False, "notebook_create: notebook_name must be required.")
@@ -81,10 +78,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_start: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "notebook_id" not in request_data.keys():
             return util.get_stand_return(False, "notebook_start: notebook_id must be required.")
@@ -112,10 +106,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_pause: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "notebook_id" not in request_data.keys():
             return util.get_stand_return(False, "notebook_pause: notebook_id must be required.")
@@ -142,10 +133,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_stop: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "notebook_id" not in request_data.keys():
             return util.get_stand_return(False, "notebook_stop: notebook_id must be required.")
@@ -171,10 +159,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_delete: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "notebook_id" not in request_data.keys():
             return util.get_stand_return(False, "notebook_delete: notebook_id must be required.")
         else:
@@ -197,15 +183,9 @@ def api_run():
         :return: 查询到的notebook信息
         """
         logger.info("notebook_query: request verify...")
-        request_data = json.loads(request.data.decode('utf-8'))
+        token = request.headers["token"]
 
-        # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_query: token must be required.")
-        else:
-            token = request_data["token"]
-
-        logger.info("notebook_query: request data: {}".format(request_data))
+        logger.info("notebook_query: request data: {}".format(token))
 
         # 开始处理
         flag, info = notebook_ctl.notebook_query(token)
@@ -232,10 +212,7 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "notebook_create: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "debug_name" not in request_data.keys():
             return util.get_stand_return(False, "notebook_create: debug_name must be required.")
@@ -272,10 +249,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "debug_start: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "debug_id" not in request_data.keys():
             return util.get_stand_return(False, "debug_start: debug_id must be required.")
@@ -302,10 +276,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "debug_pause: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "debug_id" not in request_data.keys():
             return util.get_stand_return(False, "debug_pause: debug_id must be required.")
@@ -332,10 +303,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "debug_stop: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "debug_id" not in request_data.keys():
             return util.get_stand_return(False, "debug_stop: debug_id must be required.")
@@ -361,10 +329,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "debug_delete: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "debug_id" not in request_data.keys():
             return util.get_stand_return(False, "debug_delete: debug_id must be required.")
         else:
@@ -387,15 +353,11 @@ def api_run():
         :return: 查询到的Debug信息
         """
         logger.info("debug_query: request verify...")
-        request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "debug_query: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
-        logger.info("debug_query: request data: {}".format(request_data))
+        logger.info("debug_query: request data: {}".format(token))
 
         # 开始处理
         flag, info = debug_ctl.debug_query(token)
@@ -421,10 +383,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "template_create: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
 
         if "template_name" not in request_data.keys():
             return util.get_stand_return(False, "template_create: template_name must be required.")
@@ -467,10 +427,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "template_edit: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "template_id" not in request_data.keys():
             return util.get_stand_return(False, "template_edit: template_id must be required.")
         else:
@@ -499,10 +457,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "template_delete: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "template_id" not in request_data.keys():
             return util.get_stand_return(False, "template_delete: template_id must be required.")
         else:
@@ -525,15 +481,11 @@ def api_run():
         :return: 查询到的template信息
         """
         logger.info("template_query: request verify...")
-        request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "template_query: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
-        logger.info("template_query: request data: {}".format(request_data))
+        logger.info("template_query: request data: {}".format(token))
 
         # 开始处理
         flag, info = template_ctl.template_query(token)
@@ -556,10 +508,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "template_generate_from_train: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "template_name" not in request_data.keys():
             return util.get_stand_return(False, "template_generate_from_train: template_name must be required.")
         else:
@@ -600,10 +550,7 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_create: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "train_name" not in request_data.keys():
             return util.get_stand_return(False, "train_create: train_name must be required.")
@@ -650,10 +597,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_start: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_start: train_id must be required.")
@@ -679,10 +623,8 @@ def api_run():
         request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_delete: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_delete: notebook_id must be required.")
         else:
@@ -709,10 +651,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_pause: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_pause: train_id must be required.")
@@ -739,10 +678,8 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_stop: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
+
 
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_stop: train_id must be required.")
@@ -765,15 +702,11 @@ def api_run():
         :return: 查询到的train信息
         """
         logger.info("train_query: request verify...")
-        request_data = json.loads(request.data.decode('utf-8'))
 
         # 请求验证
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_query: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
-        logger.info("train_query: request data: {}".format(request_data))
+        logger.info("train_query: request data: {}".format(token))
 
         # 开始处理
         flag, info = train_ctl.train_query(token)
@@ -795,10 +728,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_get_schedule: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_get_schedule: train_id must be required.")
@@ -825,10 +755,7 @@ def api_run():
         # 请求验证
         request_data = json.loads(request.data.decode('utf-8'))
 
-        if "token" not in request_data.keys():
-            return util.get_stand_return(False, "train_get_visual: token must be required.")
-        else:
-            token = request_data["token"]
+        token = request.headers["token"]
 
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_get_visual: train_id must be required.")

@@ -90,7 +90,7 @@ def template_edit(token, template_id, edit_code, edit_model):
     if edit_code:
         # 获取镜像名称
         image_id = get_config("image", "default_notebook_image_id")
-        image_name = image_ctl.image_from_id_to_name(image_id)
+        image_name = image_ctl.image_from_id_to_name(image_id, token)
 
         # TODO: 需要加默认端口
         flag, info = k8s_ctl.k8s_create(

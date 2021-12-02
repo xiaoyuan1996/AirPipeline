@@ -26,7 +26,8 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
     if user_id == -1:   return False, "notebook_create： user check failed."
 
     # 获取镜像名称
-    image_name = image_ctl.image_from_id_to_name(image_id)
+    flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
+    if not flag: return False, "notebook_create： image_name check failed."
 
     status_id = 100
 

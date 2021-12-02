@@ -14,14 +14,13 @@ def image_from_id_to_name(id, token):
     response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token":token})
 
     infos = json.loads(response.text)
+    print(infos)
 
-    if infos['code'] != 0:
+    if infos['code'] != 0 :
         logger.info("image_from_id_to_name: Error:{}".format(infos))
-        return -1
+        return False, -1
+    elif infos['data'] == None:
+        logger.info("image_from_id_to_name: Error:{}".format(infos))
+        return False, -1
     else:
-        return infos['data']['name']
-
-    # logger.info("image_from_id_to_name: Request image id:{}".format(id))
-
-    # return str(id) + ":" + str(id)
-    # return "www.registry.cyber.ai/airproject/kubeflow/pytorch-dist-voc-test:1.0"
+        return True, infos['data']['image_id']

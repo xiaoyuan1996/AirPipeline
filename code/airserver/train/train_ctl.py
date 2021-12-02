@@ -33,7 +33,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     model_path = info[5]
 
     # 获取镜像名称
-    image_name = image_ctl.image_from_id_to_name(image_id)
+    image_name = image_ctl.image_from_id_to_name(image_id, token)
     status_id = 100
 
     #数据库插入

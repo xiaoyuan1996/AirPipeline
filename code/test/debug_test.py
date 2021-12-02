@@ -5,50 +5,58 @@ class DebugTest(object):
     def debug_create(self):
         # 创建debug
         # image_id: file_path
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
-            "debug_name": "test1117",
-            "image_id": 4,
-            "dataset": "/mnt/mfs/develop_code/retrievalSystem",
-            "code": "/mnt/mfs/develop_code/AirStudio",
+            "debug_name": "debug-test",
+            "image_id": 1,
+            "dataset": "/mnt/mfs/hongkong_BIO.zip",
+            "code": "/mnt/mfs/hongkong_BIO.zip",
             "description": "airstudio"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_create/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def debug_delete(self):
         # 删除debug
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "debug_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_delete/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def debug_start(self):
         # 启动notebook
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "debug_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_start/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def debug_pause(self):
         # 暂停notebook
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "debug_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_pause/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def debug_stop(self):
@@ -59,13 +67,15 @@ class DebugTest(object):
 
         :return: bool 成功标志
         """
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+        }
         data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
             "debug_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_stop/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def debug_query(self):
@@ -75,12 +85,12 @@ class DebugTest(object):
 
         :return: 查询到的template信息
         """
-        data = {
-            "token": "asdasdsadasfddsfwerfwefdsadsf",
+        header = {
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_query/'
 
-        r = requests.post(url, data=json.dumps(data))
+        r = requests.post(url, headers=header)
         print(r.json())
 
 if __name__ == "__main__":
