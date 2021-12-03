@@ -1,5 +1,6 @@
 import requests, json
 
+
 class TemplateTest(object):
     def template_create(self):
         # 删除notebook
@@ -95,7 +96,7 @@ class TemplateTest(object):
         print(r.json())
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     t = TemplateTest()
 
     # t.template_generate_from_train()
@@ -103,4 +104,3 @@ if __name__=="__main__":
     # t.template_delete()
     # t.template_query()
     # t.template_edit()
-

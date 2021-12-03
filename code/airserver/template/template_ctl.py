@@ -4,7 +4,6 @@ import time, os
 import util
 import shutil
 
-
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
@@ -27,14 +26,14 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     if user_id == -1:
         return False, "template_create： user check failed."
 
-    #数据库插入
+    # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
     sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
         template_name, user_id, image_id, code_path, model_path, create_time, "1", description)
 
     code, data = DB.insert(sql)
 
-    #查询插入的id
+    # 查询插入的id
     read_sql = "select id from airpipline_templatetab"
     flag, info = DB.query_all(read_sql)
     if info == None:
@@ -46,11 +45,15 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
     util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template" ))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id) ))
-    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id), "code" )
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template"))
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id)))
+    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                            str(template_id), "code")
     util.create_dir_if_not_exist(own_code)
-    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id), "model" )
+    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                             str(template_id), "model")
     util.create_dir_if_not_exist(own_model)
 
     # 拷贝文件
@@ -60,7 +63,9 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
         shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
 
     # 更新表单
-    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code, own_model, template_id)
+    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code,
+                                                                                                               own_model,
+                                                                                                               template_id)
     flag, info = DB.update(update_sql)
 
     return flag, info
@@ -94,8 +99,8 @@ def template_edit(token, template_id, edit_code, edit_model):
 
         # TODO: 需要加默认端口
         flag, info = k8s_ctl.k8s_create(
-            pod_name=str(template_id)+"_"+"edit",
-            image_id = image_id,
+            pod_name=str(template_id) + "_" + "edit",
+            image_id=image_id,
             image_name=image_name,
             lables="airstudio-template",
             volumeMounts={
@@ -107,13 +112,14 @@ def template_edit(token, template_id, edit_code, edit_model):
 
         return flag, info
 
-    #　如果改变模型，则将模型进行替换
+    # 　如果改变模型，则将模型进行替换
     if edit_model != None:
-        default_model_name = os.listdir(info[5])[0] # info[4]为model_path
+        default_model_name = os.listdir(info[5])[0]  # info[4]为model_path
         shutil.copy(edit_model, os.path.join(info[5], default_model_name))
         return True, "replace successfully."
 
     return False, "no things need to be edit."
+
 
 def template_delete(token, template_id):
     """
@@ -150,6 +156,7 @@ def template_delete(token, template_id):
             flag, info = DB.delete(delete_sql_image)
             return flag, info
 
+
 def template_query(token):
     """
     根据 user_id 查询 template 信息
@@ -164,7 +171,6 @@ def template_query(token):
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where user_id={0} or privilege=0".format(user_id)
     flag, info = DB.query_all(read_sql)
-
 
     return_info = []
     for item in info:
@@ -183,6 +189,7 @@ def template_query(token):
         )
 
     return True, return_info
+
 
 def template_generate_from_train(token, template_name, train_id, model_name, description):
     """
@@ -212,14 +219,14 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     if not os.path.exists(model_path):
         return False, "template_generate_from_train: {} not exist.".format(model_name)
 
-    #数据库插入
+    # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
     sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
         template_name, user_id, image_id, code_path, model_path, create_time, "1", description)
 
     code, data = DB.insert(sql)
 
-    #查询插入的id
+    # 查询插入的id
     read_sql = "select id from airpipline_templatetab"
     flag, info = DB.query_all(read_sql)
     if info == None:
@@ -231,11 +238,15 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
     util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template" ))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id) ))
-    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id), "code" )
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template"))
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id)))
+    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                            str(template_id), "code")
     util.create_dir_if_not_exist(own_code)
-    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id), "model" )
+    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                             str(template_id), "model")
     util.create_dir_if_not_exist(own_model)
 
     # 拷贝文件
@@ -243,14 +254,12 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
         code_path,
         own_code
     )
-    shutil.copy(model_path, os.path.join(own_model, "cur_model.pth")) # 单独文件
+    shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))  # 单独文件
 
     # 更新表单
-    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code, own_model, template_id)
+    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code,
+                                                                                                               own_model,
+                                                                                                               template_id)
     flag, info = DB.update(update_sql)
 
     return flag, info
-
-
-
-

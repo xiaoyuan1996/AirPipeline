@@ -1,6 +1,7 @@
 import globalvar
 import logging
 import warnings
+
 warnings.filterwarnings("ignore")
 from common.parse_config import get_config
 import util
@@ -22,5 +23,6 @@ if __name__ == '__main__':
 
     # 开启接口
     from api_controlers import apis
+
     logger.info("Start apis and running ...\n")
     apis.api_run()

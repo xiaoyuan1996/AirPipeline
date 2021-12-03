@@ -18,6 +18,7 @@ from api_controlers.apis_definition import ApisDefinition
 # 变量初始化
 logger = globalvar.get_value("logger")
 
+
 # 运行程序
 def api_run():
     app = Flask(__name__)  # Flask 初始化
@@ -90,7 +91,6 @@ def api_run():
         flag, info = notebook_ctl.notebook_start(token, notebook_id)
 
         return util.get_stand_return(flag, info)
-
 
     # 暂停notebook
     @app.route(_apis.notebook_pause['url'], methods=_apis.notebook_pause['method'])
@@ -191,7 +191,6 @@ def api_run():
         flag, info = notebook_ctl.notebook_query(token)
 
         return util.get_stand_return(flag, info)
-
 
     # ====================== Debug ==============================
     # 创建debug
@@ -385,7 +384,6 @@ def api_run():
         # 请求验证
         token = request.headers["token"]
 
-
         if "template_name" not in request_data.keys():
             return util.get_stand_return(False, "template_create: template_name must be required.")
         else:
@@ -408,7 +406,7 @@ def api_run():
         logger.info("notebook_create: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path,  description)
+        flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path, description)
 
         return util.get_stand_return(flag, info)
 
@@ -523,7 +521,6 @@ def api_run():
         else:
             model_name = request_data["model_name"]
         description = request_data["description"] if "description" in request_data.keys() else None
-
 
         logger.info("template_generate_from_train: request data: {}".format(request_data))
 
@@ -680,7 +677,6 @@ def api_run():
 
         token = request.headers["token"]
 
-
         if "train_id" not in request_data.keys():
             return util.get_stand_return(False, "train_stop: train_id must be required.")
         else:
@@ -712,7 +708,6 @@ def api_run():
         flag, info = train_ctl.train_query(token)
 
         return util.get_stand_return(flag, info)
-
 
     # 得到训练train进度
     @app.route(_apis.train_get_schedule['url'], methods=_apis.train_get_schedule['method'])

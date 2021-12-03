@@ -16,7 +16,6 @@ av.log_schedule(schedule, params, save_path)
 data = av.load_schedule(save_path)
 print(data)
 
-
 # Use visual
 av.set_savepath("visual3")
 av.add_scalad(code_type="pytorch", tag="test", scalar_value=4)

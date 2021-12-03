@@ -10,7 +10,6 @@ class ApisDefinition(object):
         self.notebook_delete = self.apis_demo("/airserver-2.0/notebook_delete/", "POST", "api_run.notebook_delete")
         self.notebook_query = self.apis_demo("/airserver-2.0/notebook_query/", "POST", "api_run.notebook_query")
 
-
         # ====================== DEBUG ==============================
         # DEBUG定义
         self.debug_create = self.apis_demo("/airserver-2.0/debug_create/", "POST", "api_run.debug_create")
@@ -26,7 +25,8 @@ class ApisDefinition(object):
         self.template_edit = self.apis_demo("/airserver-2.0/template_edit/", "POST", "api_run.template_edit")
         self.template_delete = self.apis_demo("/airserver-2.0/template_delete/", "POST", "api_run.template_delete")
         self.template_query = self.apis_demo("/airserver-2.0/template_query/", "POST", "api_run.template_query")
-        self.template_generate_from_train = self.apis_demo("/airserver-2.0/template_generate_from_train/", "POST", "api_run.template_generate_from_train")
+        self.template_generate_from_train = self.apis_demo("/airserver-2.0/template_generate_from_train/", "POST",
+                                                           "api_run.template_generate_from_train")
 
         # ====================== TRAIN ==============================
         # 训练任务定义
@@ -36,13 +36,16 @@ class ApisDefinition(object):
         self.train_stop = self.apis_demo("/airserver-2.0/train_stop/", "POST", "api_run.train_stop")
         self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "POST", "api_run.train_delete")
         self.train_query = self.apis_demo("/airserver-2.0/train_query/", "POST", "api_run.train_query")
-        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "POST", "api_run.train_get_schedule")
+        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "POST",
+                                                 "api_run.train_get_schedule")
         self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "POST", "api_run.train_get_visual")
 
         # ====================== INFERENCE ==============================
         # 推理任务定义
-        self.inference_create_from_train = self.apis_demo("/airserver-2.0/inference_create_from_train/", "POST", "api_run.inference_create_from_train")
-        self.inference_create_from_upload = self.apis_demo("/airserver-2.0/inference_create_from_upload/", "POST", "api_run.inference_create_from_upload")
+        self.inference_create_from_train = self.apis_demo("/airserver-2.0/inference_create_from_train/", "POST",
+                                                          "api_run.inference_create_from_train")
+        self.inference_create_from_upload = self.apis_demo("/airserver-2.0/inference_create_from_upload/", "POST",
+                                                           "api_run.inference_create_from_upload")
 
         # ====================== ASSIST ==============================
         # 辅助接口

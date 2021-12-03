@@ -1,7 +1,9 @@
 import json, requests
 import globalvar
+
 logger = globalvar.get_value("logger")
 get_config = globalvar.get_value("get_config")
+
 
 class request_to_k8s_create():
     def __init__(self):
@@ -60,7 +62,8 @@ class request_to_k8s_create():
         self.task_info['running_config'] = json.dumps(self.service_data)
         return self.task_info
 
-def k8s_create( pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
+
+def k8s_create(pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -122,7 +125,8 @@ def k8s_create( pod_name, image_id, image_name, lables, volumeMounts=None, port_
 
     return True, "k8s_create: {}.".format(return_info)
 
-def k8s_delete( pod_name, lables):
+
+def k8s_delete(pod_name, lables):
     """
     delete k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -135,6 +139,7 @@ def k8s_delete( pod_name, lables):
     logger.info("lables:{}".format(lables))
 
     return True, "k8s_delete: delete successful."
+
 
 def k8s_start(pod_name, lables):
     """
@@ -150,6 +155,7 @@ def k8s_start(pod_name, lables):
 
     return True, "k8s_start: start successful."
 
+
 def k8s_pause(pod_name, lables):
     """
     pause k8s instance
@@ -163,6 +169,7 @@ def k8s_pause(pod_name, lables):
     logger.info("lables:{}".format(lables))
 
     return True, "k8s_pause: pause successful."
+
 
 def k8s_stop(pod_name, lables):
     """
@@ -178,7 +185,8 @@ def k8s_stop(pod_name, lables):
 
     return True, "k8s_stop: stop successful."
 
-def k8s_create_dist( pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None, token=None):
+
+def k8s_create_dist(pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None, token=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -238,11 +246,9 @@ def k8s_create_dist( pod_name, image_name, lables, volumeMounts=None, port_map=N
     params['volume'] = volumeMounts
     params['image'] = image_name
 
-    response = requests.post(url=get_config('k8s', 'k8s_dist_create'), data=json.dumps(params), headers={"token":token})
+    response = requests.post(url=get_config('k8s', 'k8s_dist_create'), data=json.dumps(params),
+                             headers={"token": token})
     return True, "k8s_create_dist: {}.".format(response)
-
-    
-
 
 # {'task_info':
 #      {'spec_model': None,

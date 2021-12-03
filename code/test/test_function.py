@@ -1,13 +1,15 @@
 import json
 import time, os
 import shutil
-import zipfile,pickle
+import zipfile, pickle
 import rarfile
 import tarfile
+
 
 # 得到上一级路径
 def get_super_dir(path):
     return os.path.split(path)[0]
+
 
 def uncompress(src_file, dest_dir):
     file_name, file_type = os.path.splitext(src_file)
@@ -33,6 +35,7 @@ def uncompress(src_file, dest_dir):
     #     return False, str(ex)
     # return True, 'success'
 
+
 # 拷贝压缩文件到文件夹
 def copy_compress_to_dir(compress_file, out_dir):
     tmp_name = get_super_dir(out_dir)
@@ -54,7 +57,7 @@ def copy_compress_to_dir(compress_file, out_dir):
         os.system("rm -rf {}".format(os.path.join(out_dir, all_files[0])))
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     copy_compress_to_dir(
         "./code.zip",
         "./dst"

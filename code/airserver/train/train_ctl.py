@@ -8,6 +8,7 @@ logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
+
 def train_create(token, train_name, template_id, dataset, dist, description, params):
     """
     token: str 用户验证信息
@@ -24,7 +25,6 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     user_id = user_ctl.user_from_token_to_id(token)
     if user_id == -1: return False, "train_create： user check failed."
 
-
     # 查表拿到模板信息
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
     flag, info = DB.query_one(read_sql)
@@ -36,14 +36,15 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     image_name = image_ctl.image_from_id_to_name(image_id, token)
     status_id = 100
 
-    #数据库插入
+    # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
     sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}')".format(
-        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist,  description, json.dumps(params))
+        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist, description,
+        json.dumps(params))
 
     flag, data = DB.insert(sql)
 
-    #查询插入的id
+    # 查询插入的id
     read_sql = "select id from airpipline_trainjobtab"
     flag, info = DB.query_all(read_sql)
     if info == None:
@@ -55,15 +56,20 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     # ========== 创建文件夹
     # external文件夹下创建对应用户的train文件夹
     util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train" ))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id) ))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id), "code" )
+    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train"))
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
+    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+                            "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id), "data" )
+    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+                            "data")
     util.create_dir_if_not_exist(data_own)
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id), "model" )
+    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+                             "model")
     util.create_dir_if_not_exist(model_own)
-    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id), "visual" )
+    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+                              "visual")
     util.create_dir_if_not_exist(visual_own)
 
     # 创建挂载
@@ -72,17 +78,17 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
         # util.copy_dir(dataset, data_own)
         util.copy_compress_to_dir(dataset, data_own)
         volumeMounts.append({
-                "host_path": data_own,
-                "mount_path": "/dataset"
-            })
+            "host_path": data_own,
+            "mount_path": "/dataset"
+        })
 
     if code_path != None:
         util.copy_dir(code_path, code_own)
         # util.copy_compress_to_dir(code_path, code_own)
         volumeMounts.append({
-                "host_path": code_own,
-                "mount_path": "/app"
-            })
+            "host_path": code_own,
+            "mount_path": "/app"
+        })
     if (model_path != None) and (params["spec_model"] != None):
         shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
 
@@ -96,28 +102,29 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     })
 
     if not dist:
-        #　非分布式
+        # 　非分布式
         flag, info = k8s_ctl.k8s_create(
-            pod_name = str(train_id)+"_"+train_name,
+            pod_name=str(train_id) + "_" + train_name,
             image_id=image_id,
-            image_name = image_name,
-            lables = "airstudio-train",
-            volumeMounts = volumeMounts,
+            image_name=image_name,
+            lables="airstudio-train",
+            volumeMounts=volumeMounts,
         )
     else:
         # 分布式
         flag, info = k8s_ctl.k8s_create_dist(
-            pod_name = str(train_id)+"_"+train_name,
-            image_name = image_name,
-            lables = "airstudio-train",
-            volumeMounts = volumeMounts,
+            pod_name=str(train_id) + "_" + train_name,
+            image_name=image_name,
+            lables="airstudio-train",
+            volumeMounts=volumeMounts,
             params=params,
             token=token
         )
 
     status_id = 200 if flag else 400
     # 更新表单
-    update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}' where id = {5}".format(status_id, code_own, data_own, model_own, visual_own, train_id)
+    update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}' where id = {5}".format(
+        status_id, code_own, data_own, model_own, visual_own, train_id)
     _, _ = DB.update(update_sql)
 
     return flag, info
@@ -135,7 +142,6 @@ def train_start(token, train_id):
     user_id = user_ctl.user_from_token_to_id(token)
     if user_id == -1: return False, "train_start： user check failed."
 
-
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
@@ -144,17 +150,17 @@ def train_start(token, train_id):
         return False, "train_start: train not exists."
     else:
         if int(info[0]) == user_id:
-
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
-                pod_name=str(train_id)+"_"+info[1],
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
 
             # 更新表单
-            update_sql= "update airpipline_trainjobtab set status_id = 200 where id = {0}".format(train_id)
+            update_sql = "update airpipline_trainjobtab set status_id = 200 where id = {0}".format(train_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def train_delete(token, train_id):
     """
@@ -168,7 +174,6 @@ def train_delete(token, train_id):
     user_id = user_ctl.user_from_token_to_id(token)
     if user_id == -1: return False, "train_delete： user check failed."
 
-
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
@@ -179,17 +184,19 @@ def train_delete(token, train_id):
         if int(info[0]) == user_id:
             # 删除k8s
             flag, info = k8s_ctl.k8s_delete(
-                pod_name=str(train_id)+"_"+info[1],
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
 
             # 删除文件
-            util.remove_dir(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
+            util.remove_dir(
+                os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_trainjobtab where id={0}".format(train_id)
             flag, info = DB.delete(delete_sql_image)
             return flag, info
+
 
 def train_query(token):
     """
@@ -228,6 +235,7 @@ def train_query(token):
 
     return True, return_info
 
+
 def train_pause(token, train_id):
     """
     根据train ID 暂停 train
@@ -240,7 +248,6 @@ def train_pause(token, train_id):
     user_id = user_ctl.user_from_token_to_id(token)
     if user_id == -1: return False, "train_pause： user check failed."
 
-
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
@@ -252,14 +259,15 @@ def train_pause(token, train_id):
         if int(info[0]) == user_id:
             # 暂停k8s
             flag, info = k8s_ctl.k8s_pause(
-                pod_name=str(train_id)+"_"+info[1],
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
 
             # 更新表单
-            update_sql= "update airpipline_trainjobtab set status_id = 150 where id = {0}".format(train_id)
+            update_sql = "update airpipline_trainjobtab set status_id = 150 where id = {0}".format(train_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def train_stop(token, train_id):
     """
@@ -284,13 +292,14 @@ def train_stop(token, train_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name=str(train_id)+"_"+info[1],
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
             # 更新表单
-            update_sql= "update airpipline_trainjobtab set status_id = 50 where id = {0}".format(train_id)
+            update_sql = "update airpipline_trainjobtab set status_id = 50 where id = {0}".format(train_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def train_get_schedule(token, train_id):
     """
@@ -316,8 +325,8 @@ def train_get_schedule(token, train_id):
         # TODO: 可视化
         visual_data = util.load_schedule(os.path.join(visual_path, "airvisual.pkl"))
 
-        sche_info = {'schedule':[]}
-        for k,v in visual_data.items():
+        sche_info = {'schedule': []}
+        for k, v in visual_data.items():
             sche_info['schedule'].append(k)
             for item, value in v.items():
                 if item not in sche_info.keys():
@@ -326,6 +335,7 @@ def train_get_schedule(token, train_id):
                     sche_info[item].append(value)
 
         return True, sche_info
+
 
 def train_get_visual(token, train_id):
     """

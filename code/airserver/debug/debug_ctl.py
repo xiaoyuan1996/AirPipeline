@@ -3,7 +3,6 @@ from base_function import k8s_ctl, image_ctl, user_ctl
 import time, os
 import util
 
-
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
@@ -30,17 +29,18 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
 
     status_id = 100
 
-    #数据库插入
+    # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
     debug_user_name = "airpipeline"
     debug_user_pw = util.gen_password()
-    host_port = 0       # TODO 怎样获取闲置的 host_port
+    host_port = 0  # TODO 怎样获取闲置的 host_port
     sql = "insert into airpipline_debugtab (name,user_id,image_id,create_time,status_id,code_path,data_path,description,debug_user_name,debug_user_pw,host_port) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}','{9}',{10})".format(
-        debug_name, user_id, image_id, create_time, status_id, code, dataset, description, debug_user_name, debug_user_pw,  host_port)
+        debug_name, user_id, image_id, create_time, status_id, code, dataset, description, debug_user_name,
+        debug_user_pw, host_port)
 
     flag, data = DB.insert(sql)
 
-    #查询插入的id
+    # 查询插入的id
     read_sql = "select id from airpipline_debugtab"
     flag, info = DB.query_all(read_sql)
     if info == None:
@@ -52,11 +52,14 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
     util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug" ))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id) ))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id), "code" )
+    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug"))
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id)))
+    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id),
+                            "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id), "data" )
+    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id),
+                            "data")
     util.create_dir_if_not_exist(data_own)
 
     # 创建挂载
@@ -73,14 +76,13 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
 
         volumeMounts["/app"] = code_own
 
-
     flag, info = k8s_ctl.k8s_create(
-        pod_name = str(debug_id)+"_"+debug_name,
-        image_id = image_id,
-        image_name = image_name,
-        lables = "airstudio-debug",
-        volumeMounts = volumeMounts,
-        port_map = {
+        pod_name=str(debug_id) + "_" + debug_name,
+        image_id=image_id,
+        image_name=image_name,
+        lables="airstudio-debug",
+        volumeMounts=volumeMounts,
+        port_map={
             host_port: host_port,
             5000: 5000
         },
@@ -92,7 +94,8 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
 
     status_id = 200 if flag else 400
     # 更新表单
-    update_sql = "update airpipline_debugtab set status_id = {0}, code_path = '{1}', data_path = '{2}' where id = {3}".format(status_id, code_own, data_own, debug_id)
+    update_sql = "update airpipline_debugtab set status_id = {0}, code_path = '{1}', data_path = '{2}' where id = {3}".format(
+        status_id, code_own, data_own, debug_id)
     flag, info = DB.update(update_sql)
 
     return flag, info
@@ -120,12 +123,12 @@ def debug_pause(token, debug_id):
         if int(info[0]) == user_id:
             # 暂停k8s
             flag, info = k8s_ctl.k8s_pause(
-                pod_name=str(debug_id)+"_"+info[1],
+                pod_name=str(debug_id) + "_" + info[1],
                 lables="airstudio-debug",
             )
 
             # 更新表单
-            update_sql= "update airpipline_debugtab set status_id = 150 where id = {0}".format(debug_id)
+            update_sql = "update airpipline_debugtab set status_id = 150 where id = {0}".format(debug_id)
             flag, info = DB.update(update_sql)
             return flag, info
 
@@ -152,13 +155,14 @@ def debug_stop(token, debug_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name=str(debug_id)+"_"+info[1],
+                pod_name=str(debug_id) + "_" + info[1],
                 lables="airstudio-debug",
             )
             # 更新表单
-            update_sql= "update airpipline_debugtab set status_id = 50 where id = {0}".format(debug_id)
+            update_sql = "update airpipline_debugtab set status_id = 50 where id = {0}".format(debug_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def debug_start(token, debug_id):
     """
@@ -182,12 +186,12 @@ def debug_start(token, debug_id):
         if int(info[0]) == user_id:
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
-                pod_name=str(debug_id)+"_"+info[1],
+                pod_name=str(debug_id) + "_" + info[1],
                 lables="airstudio-debug",
             )
 
             # 更新表单
-            update_sql= "update airpipline_debugtab set status_id = 200 where id = {0}".format(debug_id)
+            update_sql = "update airpipline_debugtab set status_id = 200 where id = {0}".format(debug_id)
             flag, info = DB.update(update_sql)
             return flag, info
 
@@ -250,12 +254,13 @@ def debug_delete(token, debug_id):
         if int(info[0]) == user_id:
             # 删除k8s
             flag, info = k8s_ctl.k8s_delete(
-                pod_name=str(debug_id)+"_"+info[1],
+                pod_name=str(debug_id) + "_" + info[1],
                 lables="airstudio-debug",
             )
 
             # 删除文件
-            util.remove_dir(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id)))
+            util.remove_dir(
+                os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_debugtab where id={0}".format(debug_id)

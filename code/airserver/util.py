@@ -7,8 +7,9 @@ import requests
 from random import choice
 from flask import request, g
 import tarfile
-import zipfile,pickle
+import zipfile, pickle
 import rarfile
+
 
 def get_uid(func):
     @wraps(func)
@@ -28,6 +29,7 @@ def get_uid(func):
                 return result
         else:
             return result
+
     return decorator
 
 
@@ -35,18 +37,21 @@ def get_uid(func):
 def get_stand_return(flag, message):
     code = 200 if flag else 400
     return_json = {
-        'code':code,
+        'code': code,
         "message": message
     }
     return return_json
+
 
 def create_dir_if_not_exist(path):
     if not os.path.exists(path):
         os.mkdir(path)
 
+
 # 删除文件夹
 def remove_dir(dir_path):
     shutil.rmtree(dir_path)
+
 
 # 拷文件夹
 def copy_dir(src_dir, dst_dir):
@@ -54,9 +59,11 @@ def copy_dir(src_dir, dst_dir):
         shutil.rmtree(dst_dir)
     shutil.copytree(src_dir, dst_dir, symlinks=True)
 
+
 # 得到上一级路径
 def get_super_dir(path):
     return os.path.split(path)[0]
+
 
 # 拷贝压缩文件到文件夹
 def copy_compress_to_dir(compress_file, out_dir):
@@ -78,6 +85,7 @@ def copy_compress_to_dir(compress_file, out_dir):
         ))
         os.system("rm -rf {}".format(os.path.join(out_dir, all_files[0])))
 
+
 # 初始化运行存储
 def init_pipline_data(datapath):
     # 创建总文件夹
@@ -92,11 +100,13 @@ def init_pipline_data(datapath):
     # 创建外部文件，主要存放与用户相关的一些文件
     create_dir_if_not_exist(os.path.join(datapath, "external"))
 
+
 # 读取 json
 def read_json(json_path):
     with open(json_path) as f:
         info = json.load(f)
     return info
+
 
 def gen_password(length=8, chars=string.ascii_letters + string.digits):
     return ''.join([choice(chars) for _ in range(length)])
@@ -125,6 +135,7 @@ def uncompress(src_file, dest_dir):
     # except Exception as ex:
     #     return False, str(ex)
     # return True, 'success'
+
 
 # 加载schedule
 def load_schedule(save_path):

@@ -1,5 +1,6 @@
 import requests, json
 
+
 class TrainTest(object):
     def train_create(self):
         # 创建train
@@ -23,32 +24,30 @@ class TrainTest(object):
             "dist": False,
             "description": "airstudio dist test",
             "params": {
-                        "spec_model" : None,
+                "spec_model": None,
 
-                        "framework": "pytorch",
-                        "job_command": "python /app/mnist.py",
-                        "job_args": "----batch_size=8",
+                "framework": "pytorch",
+                "job_command": "python /app/mnist.py",
+                "job_args": "----batch_size=8",
 
-                        "master_replicas": 1,
-                        "worker_replicas": 1,
-                        "restart_policy": "Never",
-                        "selector": [
-                            {
-                                "key": "kubernetes.ro/hostname",
-                                "operator": "IN",
-                                "values": ["dell-nf5468m5"]
-                                }
-                            ]
-                            
-                        
+                "master_replicas": 1,
+                "worker_replicas": 1,
+                "restart_policy": "Never",
+                "selector": [
+                    {
+                        "key": "kubernetes.ro/hostname",
+                        "operator": "IN",
+                        "values": ["dell-nf5468m5"]
+                    }
+                ]
 
-                        # "gpu_num": 2,
-                        # "cpu": 2,
-                        # "memory": 4,
-                        # "cuda_type": "10.0",
-                        # "gpu_type": "2080ti",
-                        # "node_host_name": "192.168.14.11"
-                        }
+                # "gpu_num": 2,
+                # "cpu": 2,
+                # "memory": 4,
+                # "cuda_type": "10.0",
+                # "gpu_type": "2080ti",
+                # "node_host_name": "192.168.14.11"
+            }
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_create/'
 
@@ -157,7 +156,7 @@ class TrainTest(object):
         print(r.json())
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     t = TrainTest()
 
     # t.train_pause()
@@ -168,5 +167,3 @@ if __name__=="__main__":
     # t.train_start()
     # t.train_delete()
     # t.train_query()
-
-

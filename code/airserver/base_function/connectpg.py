@@ -12,6 +12,7 @@ try:
     from common.parse_config import get_config
 except:
     import sys
+
     sys.path.append("..")
     from common.parse_config import get_config
 
@@ -143,7 +144,7 @@ class pg_db(object):
 
     def add_status_tab(self):
         # 插入状态数据
-        try: # 如果不存在
+        try:  # 如果不存在
             sql = "insert into airpipline_statustab (id, status) values  (0,'privilege-官方')"
             flag, data = self.insert(sql)
             sql = "insert into airpipline_statustab (id, status) values  (1,'privilege-私有')"
@@ -186,21 +187,23 @@ class pg_db(object):
 
             # 读取检查template.json
             template_info = util.read_json(os.path.join(cur_template_path, "template.json"))
-            if ("template_name" not in template_info.keys()) or ("image_name" not in template_info.keys())\
-                or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()):
+            if ("template_name" not in template_info.keys()) or ("image_name" not in template_info.keys()) \
+                    or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()):
                 logger.info("template.json must include: template_name, image_name, image_id and description")
                 continue
 
             # 检查template是否在数据库中
-            read_sql = "select id from airpipline_templatetab where name='{0}' and privilege=0".format(template_info['template_name'])
+            read_sql = "select id from airpipline_templatetab where name='{0}' and privilege=0".format(
+                template_info['template_name'])
             flag, query_info = self.query_one(read_sql)
             if query_info == None:
                 # 插表
                 create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
                 sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
-                    template_info['template_name'], 0, template_info['image_id'], os.path.join(cur_template_path,'code'), os.path.join(cur_template_path,'model'), create_time, "0", template_info['description'])
+                    template_info['template_name'], 0, template_info['image_id'],
+                    os.path.join(cur_template_path, 'code'), os.path.join(cur_template_path, 'model'), create_time, "0",
+                    template_info['description'])
                 code, data = self.insert(sql)
-
 
     def get_instance(self):
         return self.conn_pool.getconn()
@@ -346,9 +349,9 @@ class pg_db(object):
             self.put_instance(conn)
             return flag, info, count
 
+
 DB = pg_db()
 globalvar.set_value("DB", DB)
-
 
 if __name__ == '__main__':
     DB = pg_db()

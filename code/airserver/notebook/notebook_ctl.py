@@ -3,7 +3,6 @@ from base_function import k8s_ctl, image_ctl, user_ctl
 import time, os, shutil
 import util
 
-
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
@@ -31,14 +30,14 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
 
     status_id = 100
 
-    #数据库插入
+    # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
     sql = "insert into airpipline_notebooktab (name,user_id,image_id,create_time,status_id,code_path,data_path,description) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}')".format(
         notebook_name, user_id, image_id, create_time, status_id, code, dataset, description)
 
     flag, data = DB.insert(sql)
 
-    #查询插入的id
+    # 查询插入的id
     read_sql = "select id from airpipline_notebooktab"
     flag, info = DB.query_all(read_sql)
     if info == None:
@@ -50,11 +49,15 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
     util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook" ))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook", str(notebook_id) ))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook", str(notebook_id), "code" )
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook"))
+    util.create_dir_if_not_exist(
+        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook", str(notebook_id)))
+    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook",
+                            str(notebook_id), "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook", str(notebook_id), "data" )
+    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook",
+                            str(notebook_id), "data")
     util.create_dir_if_not_exist(data_own)
 
     # 创建挂载
@@ -68,18 +71,18 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
         util.copy_compress_to_dir(code, code_own)
         volumeMounts["/app"] = code_own
 
-
     flag, info = k8s_ctl.k8s_create(
-        pod_name = str(notebook_id)+"_"+notebook_name,
+        pod_name=str(notebook_id) + "_" + notebook_name,
         image_id=image_id,
-        image_name = image_name,
-        lables = "airstudio-notebook",
-        volumeMounts = volumeMounts,
+        image_name=image_name,
+        lables="airstudio-notebook",
+        volumeMounts=volumeMounts,
     )
 
     status_id = 200 if flag else 400
     # 更新表单
-    update_sql = "update airpipline_notebooktab set status_id = {0}, code_path = '{1}', data_path = '{2}' where id = {3}".format(status_id, code_own, data_own, notebook_id)
+    update_sql = "update airpipline_notebooktab set status_id = {0}, code_path = '{1}', data_path = '{2}' where id = {3}".format(
+        status_id, code_own, data_own, notebook_id)
     flag, info = DB.update(update_sql)
 
     return flag, info
@@ -107,17 +110,19 @@ def notebook_delete(token, notebook_id):
         if int(info[0]) == user_id:
             # 删除k8s
             flag, info = k8s_ctl.k8s_delete(
-                pod_name=str(notebook_id)+"_"+info[1],
+                pod_name=str(notebook_id) + "_" + info[1],
                 lables="airstudio-notebook",
             )
 
             # 删除文件
-            util.remove_dir(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook", str(notebook_id)))
+            util.remove_dir(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "notebook",
+                                         str(notebook_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_notebooktab where id={0}".format(notebook_id)
             flag, info = DB.delete(delete_sql_image)
             return flag, info
+
 
 def notebook_start(token, notebook_id):
     """
@@ -142,14 +147,15 @@ def notebook_start(token, notebook_id):
         if int(info[0]) == user_id:
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
-                pod_name=str(notebook_id)+"_"+info[1],
+                pod_name=str(notebook_id) + "_" + info[1],
                 lables="airstudio-notebook",
             )
 
             # 更新表单
-            update_sql= "update airpipline_notebooktab set status_id = 200 where id = {0}".format(notebook_id)
+            update_sql = "update airpipline_notebooktab set status_id = 200 where id = {0}".format(notebook_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def notebook_pause(token, notebook_id):
     """
@@ -173,14 +179,15 @@ def notebook_pause(token, notebook_id):
         if int(info[0]) == user_id:
             # 暂停k8s
             flag, info = k8s_ctl.k8s_pause(
-                pod_name=str(notebook_id)+"_"+info[1],
+                pod_name=str(notebook_id) + "_" + info[1],
                 lables="airstudio-notebook",
             )
 
             # 更新表单
-            update_sql= "update airpipline_notebooktab set status_id = 150 where id = {0}".format(notebook_id)
+            update_sql = "update airpipline_notebooktab set status_id = 150 where id = {0}".format(notebook_id)
             flag, info = DB.update(update_sql)
             return flag, info
+
 
 def notebook_stop(token, notebook_id):
     """
@@ -205,11 +212,11 @@ def notebook_stop(token, notebook_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name=str(notebook_id)+"_"+info[1],
+                pod_name=str(notebook_id) + "_" + info[1],
                 lables="airstudio-notebook",
             )
             # 更新表单
-            update_sql= "update airpipline_notebooktab set status_id = 50 where id = {0}".format(notebook_id)
+            update_sql = "update airpipline_notebooktab set status_id = 50 where id = {0}".format(notebook_id)
             flag, info = DB.update(update_sql)
             return flag, info
 
