@@ -95,6 +95,7 @@ def template_edit(token, template_id, edit_code, edit_model):
         # TODO: 需要加默认端口
         flag, info = k8s_ctl.k8s_create(
             pod_name=str(template_id)+"_"+"edit",
+            image_id = image_id,
             image_name=image_name,
             lables="airstudio-template",
             volumeMounts={

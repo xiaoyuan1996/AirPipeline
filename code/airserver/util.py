@@ -62,9 +62,21 @@ def get_super_dir(path):
 def copy_compress_to_dir(compress_file, out_dir):
     tmp_name = get_super_dir(out_dir)
     tmp_name = os.path.join(tmp_name, compress_file.split("/")[-1])
-    shutil.copy(compress_file, tmp_name)
+
+    if compress_file != tmp_name:
+        shutil.copy(compress_file, tmp_name)
+
     uncompress(tmp_name, out_dir)
     os.remove(tmp_name)
+
+    # 如果压缩文件夹中只有一个文件，则再往下去一级
+    all_files = [f for f in os.listdir(out_dir) if f[0] != "."]
+    if len(all_files) == 1:
+        os.system("mv {}/* {}".format(
+            os.path.join(out_dir, all_files[0]),
+            out_dir
+        ))
+        os.system("rm -rf {}".format(os.path.join(out_dir, all_files[0])))
 
 # 初始化运行存储
 def init_pipline_data(datapath):

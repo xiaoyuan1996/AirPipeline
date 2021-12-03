@@ -76,6 +76,7 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
 
     flag, info = k8s_ctl.k8s_create(
         pod_name = str(debug_id)+"_"+debug_name,
+        image_id = image_id,
         image_name = image_name,
         lables = "airstudio-debug",
         volumeMounts = volumeMounts,

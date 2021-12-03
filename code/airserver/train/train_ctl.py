@@ -99,6 +99,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
         #　非分布式
         flag, info = k8s_ctl.k8s_create(
             pod_name = str(train_id)+"_"+train_name,
+            image_id=image_id,
             image_name = image_name,
             lables = "airstudio-train",
             volumeMounts = volumeMounts,

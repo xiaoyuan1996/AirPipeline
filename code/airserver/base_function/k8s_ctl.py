@@ -3,21 +3,79 @@ import globalvar
 logger = globalvar.get_value("logger")
 get_config = globalvar.get_value("get_config")
 
-def k8s_create( pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None):
+class request_to_k8s_create():
+    def __init__(self):
+        self.service_data = {
+            'config_file': '',
+            # 'namespace': 'airevaluation',
+            # 'service_name': 'test-deploy-service-ads',
+            'node_port': 32360,
+            'code_port': 5000,
+            'protocol': 'TCP',
+            'volumes': [
+                {
+                    'is_nfs': True,
+                    'server': '',
+                    'path': '',
+                    'mount_path': '/var/nfs/general/evaluation-storage/task_pvc/pvc-f587b630-413a-11ec-91cb-b4055db1b9f6',
+                    'mount_name': ''
+                },
+                {
+                    'is_nfs': False,
+                    'server': '',
+                    'path': '/var/nfs/general/develop_code/iservice',
+                    'mount_path': '/code',
+                    'mount_name': 'code'
+                }
+            ],
+            'pvc': {
+                'pvc_requests': '100Mi',
+                'pvc_limits': '1Gi'
+            },
+            'container_port': 5000,
+            'container_name': 'test-deploy-dry61',
+            # 'image_repo_tag': 'www.registry.cyber.ai/airenv/python-env:v4.0.5',
+            'command': ["python3", "/code/run.py"],
+            'work_dir': '/code',
+        }
+
+        self.task_info = {
+            'name': 'dry-test-61',
+            'server_id': 0,
+            'source_service_id': 0,
+            'running_type': 0,
+            'working_type': 1,
+            'ip': '192.168.9.62',
+            'port_mapping': 5000,
+            'namespace': 'airevaluation',
+            'image_id': None,
+            'image_repo_tag': 'www.registry.cyber.ai/airenv/python-env:v4.0.5',
+            'retry_policy': None,
+            'running_config': None,
+            'events': None,
+            'start_now': True
+        }
+
+    def generate_request(self):
+        self.task_info['running_config'] = json.dumps(self.service_data)
+        return self.task_info
+
+def k8s_create( pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
     :param pod_name: 名称
+    :param image_id: 镜像id
     :param image_name: 镜像名称
     :param volumeMounts: 挂载 list格式 容器位置:宿主机位置
         [
             {
-                "src": "/mnt/mfs",
-                "dst": "/mnt/mfs"
+                "host_path": "/mnt/mfs",
+                "mount_path": "/mnt/mfs"
             }
             {
-                "src": "/usr/src/app",
-                "dst": "/mnt/mfs/code/airserver"
+                "host_path": "/usr/src/app",
+                "mount_path": "/mnt/mfs/code/airserver"
             }
         ]
     :param port_map: 端口映射 list格式 容器端口:宿主机端口
@@ -47,7 +105,22 @@ def k8s_create( pod_name, image_name, lables, volumeMounts=None, port_map=None, 
     logger.info("lables:{}".format(lables))
     logger.info("params:{}".format(params))
 
-    return True, "k8s_create: create successful."
+    # generate request
+    k8s_instance = request_to_k8s_create()
+    k8s_instance.service_data['container_name'] = pod_name + "-container"
+    k8s_instance.service_data['command'] = ["python", "/app/train.py"]
+    k8s_instance.service_data['work_dir'] = "/app"
+
+    k8s_instance.task_info['name'] = pod_name
+    k8s_instance.task_info['namespace'] = lables
+    k8s_instance.task_info['image_id'] = image_id
+    k8s_instance.task_info['image_repo_tag'] = image_name
+    k8s_instance.task_info['start_now'] = False
+
+    request_to_k8s = k8s_instance.generate_request()
+    return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s)
+
+    return True, "k8s_create: {}.".format(return_info)
 
 def k8s_delete( pod_name, lables):
     """

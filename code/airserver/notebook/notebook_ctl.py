@@ -71,6 +71,7 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
 
     flag, info = k8s_ctl.k8s_create(
         pod_name = str(notebook_id)+"_"+notebook_name,
+        image_id=image_id,
         image_name = image_name,
         lables = "airstudio-notebook",
         volumeMounts = volumeMounts,
