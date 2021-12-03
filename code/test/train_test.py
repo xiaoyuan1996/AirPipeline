@@ -14,12 +14,12 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWI4MzFjYTAxNDYxOGJkYTBiYzdjNDY0ZmYzOTZmNDBjMWI2YTE5MmYxMTRiNDkyMWIxMzZhNWJkNDYxZTM1MjQtMg==",
         }
         data = {
-            "train_name": "train_dist11",
-            "template_id": 2,
-            "dataset": "/mnt/mfs/pytorch_voc/data/VOC2007-mini.tar",
+            "train_name": "train_demo",
+            "template_id": 4,
+            "dataset": "/mnt/mfs/airpipeline_demo/airpipeline_data.tar",
             "dist": False,
             "description": "airstudio dist test",
             "params": {
@@ -163,8 +163,8 @@ if __name__=="__main__":
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    t.train_get_visual()
-    # t.train_create()
+    # t.train_get_visual()
+    t.train_create()
     # t.train_start()
     # t.train_delete()
     # t.train_query()

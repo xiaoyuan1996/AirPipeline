@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 _init_visual_global = False
 _writer_global = None
-_savepath_global = "/data/logs/visual"
+_savepath_global = "/data/log/visual"
 
 ################## SCHEDULE ###############################
 

@@ -11,7 +11,7 @@ from notebook import notebook_ctl
 from debug import debug_ctl
 from template import template_ctl
 from train import train_ctl
-
+from assist import assist_ctl
 
 from api_controlers.apis_definition import ApisDefinition
 
@@ -769,6 +769,29 @@ def api_run():
         return util.get_stand_return(flag, info)
 
     # ====================== INFERENCE ==============================
+    # 根据训练任务创建推理任务
+    @app.route(_apis.inference_create_from_train['url'], methods=_apis.inference_create_from_train['method'])
+    def inference_create_from_train(query_path):
+        pass
+
+    # 根据上传数据创建推理任务
+    @app.route(_apis.inference_create_from_upload['url'], methods=_apis.inference_create_from_upload['method'])
+    def inference_create_from_upload(query_path):
+        pass
+
+    # ====================== ASSIST ==============================
+    # 查询特定路径下的文件
+    @app.route(_apis.get_spec_dir['url'], methods=_apis.get_spec_dir['method'])
+    def get_spec_dir(query_path):
+        """
+        查询特定路径下的文件
+        Args:
+            query_path: 查询路径
+        Returns: 查询得到的文件
+            {"files": files}
+        """
+        flag, info = assist_ctl.get_spec_dir(query_path)
+        return util.get_stand_return(flag, info)
 
     app_host = get_config("app_config", "host")
     app_port = get_config("app_config", "port")

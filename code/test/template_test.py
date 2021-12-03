@@ -4,12 +4,12 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWI4MzFjYTAxNDYxOGJkYTBiYzdjNDY0ZmYzOTZmNDBjMWI2YTE5MmYxMTRiNDkyMWIxMzZhNWJkNDYxZTM1MjQtMg==",
         }
         data = {
-            "template_name": "template_token",
-            "image_id": 1,
-            "code_path": "/mnt/mfs/pytorch_voc/code/PytorchSSD-0.4.tar",
+            "template_name": "template_demo",
+            "image_id": 2,
+            "code_path": "/mnt/mfs/airpipeline_demo/airpipeline_code.tar",
             # "model_path": "/mnt/mfs/fake/model",
             "description": "hello"
         }

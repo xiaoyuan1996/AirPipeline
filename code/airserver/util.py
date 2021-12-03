@@ -7,7 +7,7 @@ import requests
 from random import choice
 from flask import request, g
 import tarfile
-import zipfile
+import zipfile,pickle
 import rarfile
 
 def get_uid(func):
@@ -114,4 +114,8 @@ def uncompress(src_file, dest_dir):
     #     return False, str(ex)
     # return True, 'success'
 
-
+# 加载schedule
+def load_schedule(save_path):
+    with open(save_path, 'rb') as f:
+        data = pickle.load(f)
+    return data
