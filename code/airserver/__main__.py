@@ -4,7 +4,7 @@ import warnings
 import globalvar
 
 warnings.filterwarnings("ignore")
-from common.parse_config import get_config
+from common.config_manager import get_config
 import util
 
 if __name__ == '__main__':
@@ -13,6 +13,8 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     globalvar.set_value("logger", logger)
     globalvar.set_value("get_config", get_config)
+
+    name = get_config('tag_dic', 'single_algorithm')
 
     # 注册
 

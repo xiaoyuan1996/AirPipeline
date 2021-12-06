@@ -51,5 +51,7 @@ def set_config(conf_file):
         config = configparser.ConfigParser()
     config.read(conf_file)
 
-def get_config():
-    return config
+set_config("common/config/air.yaml")
+
+def get_config(key, value):
+    return config.get(key, value)
