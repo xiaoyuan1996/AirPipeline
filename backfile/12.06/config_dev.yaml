@@ -1,0 +1,153 @@
+service_ip:
+    USER_RESOURCE_BACKEND_IP: 192.168.2.156:31160
+    USER_BACKEND_IP: 192.168.2.156:31151
+    USER_EXTEND_BACKEND_IP: 192.168.2.156:31153
+    TASK_BACKEND_IP: 192.168.30.14:21185
+    IMAGE_BACKEND_IP: 192.168.2.156:31152
+    TOPIC_BACKEND_IP: 192.168.30.14:21184
+    SAMPLELIB_BACKEND_IP: 192.168.2.156:28001
+    TASK_INDICATOR_FRONTEND_IP: 192.168.2.156:31155
+    TASK_INDICATOR_BACKEND_IP: 192.168.2.156:31154
+    CLUSTER_MONITOR_BACKEND_IP: 192.168.2.156:31156
+    CLUSTER_MANAGER_BACKEND_IP: 192.168.2.156:44400
+    NEW_TASK_INDICATOR_BACKEND_IP: 192.168.2.156:31157
+    SERVICE_MANAGER_BACKEND_IP: 192.168.9.64:30516
+
+database_host:
+    DB_NAME: geodl_iecas
+    DB_USER: iecas
+    DB_PASSWORD: 123456
+    DB_HOST: 192.168.30.14:32189
+    DB_TYPE: postgresql+psycopg2
+    RETRY_TIMES: 2
+    POOL_NUM: 1
+    TABLE_REINIT: False
+
+redis_host:
+    REDIS_HOST: 192.168.2.156
+    REDIS_PORT: 32190
+    REDIS_PASSWORD: ""
+    REDIS_EXPIRE_TIME: 21600 # 6h
+    
+dockerhub:
+    SOCKET: unix://var/run/docker.sock
+    BASE_URL: www.registry.cyber.ai
+    PROJECT: airevaluation
+    USERNAME: admin
+    PASSWORD: Harbor12345
+    API_VERSION: v2
+
+deploy:
+    multiprocess: True
+    VERSION: v1
+    WORKDIR: /var/nfs/general/data/
+    DB_INIT_FILE: ./data.xlsx
+    LOGIN_RESTRICT: False
+    RETRY_TIME: 1
+    PRIVATE_KEY: u8Ku99Jyh85kfh9i
+    STDOUT_LEVEL: logging.INFO
+    NAMESPACE: airevaluation
+    
+image_upload:
+    LOAD_ASYNC: True
+    STANDARD_MD5_SIZE: 256MB
+    DEFAULT_CHUNK_SIZE: 16MB
+    CHUNK_TRANSFER_TIME: 2
+    CHUNK_SIZE_UPPER_BOUND: 1GB
+    CHUNK_SIZE_LOWER_BOUND: 4MB
+    MIN_MD5_ZONE_SIZE: 256KB
+    NETWORK_SPEED_UPPER_BOUND: 1GB
+    NETWORK_SPEED_LOWER_BOUND: 1KB
+    FILE_SHARING_MIN_SIZE: 0MB
+    FILE_MERGE_SPEED: 64MB
+    IMAGE_LOAD_SPEED: 32MB
+    MULTI_THREAD_SIZE: 8
+
+prometheus:
+    PROM_PORT: 32090
+    PROM_CONFIG_FILE: ./prometheus_config.json
+
+task_indicators:
+    TEMPLATE_FILE: ./templates/report_template_combined.docx
+
+url:
+    USER_TOKEN_CHECK: /api/v1/users/token_check
+    SAMPLELIB_GET_ID: /geoapi/V1/sampleset-platform/sampleset/list
+    SAMPLELIB_EXAM_LIST: /geoapi/V1/sampleset-platform/sampleset/sampleTitleInfos
+
+k8s:
+    master_ip: 192.168.30.14
+    sc_name: airevaluation-storage
+    sc_api_version: storage.k8s.io/v1
+    sc_state: Retain
+    provisioner: nfs-client-provisioner
+    pvc_api_version: v1
+    pvc_requests: 100Mi
+    pvc_limits: 1Gi
+    sec_api_version: v1
+
+job:
+    sockitio_port: 21185
+    job_api_version: batch/v1
+    deadlineseconds: 172800
+    completions: 1
+    parallelism: 1
+    backoff_limit: 6
+    ttl_seconds: 60
+    gpu_num: 0
+    cpu: 1
+    memory: 1Gi
+
+topic_service:
+    deployment_api_version: apps/v1
+    cpu: 2
+    memory: 4Gi
+    
+topic_service_kv:
+    visual_frontend: 可视化前端
+    visual_backend: 可视化后端
+    mark_backend: 打分指标生成
+    exam_backend: 智能出题
+    analysis_back: 数据解析
+
+interactive:
+    topics_exam: /api/v1/topics/get/exam_list
+    topics_eval: /api/v1/topics/eval
+    topics_res: /api/v1/topics/res
+    topics_get: /api/v1/topics/get
+    topics_thumb: /api/v1/topics/get/thumb
+    topic_micro_services_kv: /api/v1/topics/micro_services/kv
+    image: /api/v1/images/
+    images_get: /api/v1/images/get
+    users_register_service: /api/v1/users/register_service
+    user_url: /api/v1/users/token_check
+    task_delete_url: /api/v1/task
+    exam_url:  /geoapi/V1/sampleset-platform/sampleset/sampleTitleInfos
+    exam_id_url:  /geoapi/V1/sampleset-platform/sampleset
+    thumb_url: /geoapi/V1/sampleset-platform/sample/list
+    task_indicator_getData: /api/v1/task_indicator/evaluate
+
+indicator_kv:
+    maturity: 技术成熟度总分
+    availability: 可用性 
+    reliability: 可靠性
+    realtime: 实时性
+    maintainability: 可维护性
+    safety: 安全性
+    core_competence: 核心竞争力
+    data_process: 数据处理能力
+    scene_coverage: 类型(场景)覆盖率
+    resource_occupancy_rate: 资源占用率
+    platform_compatibility: 平台兼容性
+    ease_of_operation: 易操作性
+    understandability: 易理解性
+    concurrent_users: 并发用户数
+    exception_handle_ability: 异常处理能力
+    failure_rate: 故障率
+    recoverability: 可恢复性
+    response_time: 响应时间
+    ease_of_diagnose: 易诊断性
+    testability: 易测试性
+    iteration: 软件迭代
+    confidentiality: 机密性
+    reviewability: 可审查性

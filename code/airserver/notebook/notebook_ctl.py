@@ -1,7 +1,9 @@
+import os
+import time
+
 import globalvar
-from base_function import k8s_ctl, image_ctl, user_ctl
-import time, os, shutil
 import util
+from base_function import k8s_ctl, image_ctl, user_ctl
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
@@ -72,6 +74,7 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
         volumeMounts["/app"] = code_own
 
     flag, info = k8s_ctl.k8s_create(
+        token=token,
         pod_name=str(notebook_id) + "_" + notebook_name,
         image_id=image_id,
         image_name=image_name,

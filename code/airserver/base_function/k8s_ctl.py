@@ -1,5 +1,7 @@
-import json, requests
+import json
+
 import globalvar
+import requests
 
 logger = globalvar.get_value("logger")
 get_config = globalvar.get_value("get_config")
@@ -9,49 +11,37 @@ class request_to_k8s_create():
     def __init__(self):
         self.service_data = {
             'config_file': '',
-            # 'namespace': 'airevaluation',
-            # 'service_name': 'test-deploy-service-ads',
-            'node_port': 32360,
-            'code_port': 5000,
-            'protocol': 'TCP',
             'volumes': [
-                {
-                    'is_nfs': True,
-                    'server': '',
-                    'path': '',
-                    'mount_path': '/var/nfs/general/evaluation-storage/task_pvc/pvc-f587b630-413a-11ec-91cb-b4055db1b9f6',
-                    'mount_name': ''
-                },
                 {
                     'is_nfs': False,
                     'server': '',
-                    'path': '/var/nfs/general/develop_code/iservice',
-                    'mount_path': '/code',
-                    'mount_name': 'code'
-                }
-            ],
+                    'path': '/mnt/mfs/data',
+                    'mount_path': '/mnt/mfs/data',
+                    'mount_name': ''
+                }],
+
             'pvc': {
                 'pvc_requests': '100Mi',
                 'pvc_limits': '1Gi'
             },
-            'container_port': 5000,
-            'container_name': 'test-deploy-dry61',
-            # 'image_repo_tag': 'www.registry.cyber.ai/airenv/python-env:v4.0.5',
-            'command': ["python3", "/code/run.py"],
-            'work_dir': '/code',
+            'protocol': 'TCP',
+            # 'container_name': '',
+            'command': ['python3', '/workspace/inference.py', '["/mnt/mfs/data/Airplane/2.tiff"]',
+                        '["/mnt/mfs/data/Airplane/2.test.xml"]'],
+            'cuda_type': ['10.0.130']
         }
 
         self.task_info = {
-            'name': 'dry-test-61',
+            'name': 'aaa123454567',
             'server_id': 0,
             'source_service_id': 0,
             'running_type': 0,
-            'working_type': 1,
+            'working_type': 0,
             'ip': '192.168.9.62',
             'port_mapping': 5000,
             'namespace': 'airevaluation',
             'image_id': None,
-            'image_repo_tag': 'www.registry.cyber.ai/airenv/python-env:v4.0.5',
+            'image_repo_tag': 'onnx:v1.9',
             'retry_policy': None,
             'running_config': None,
             'events': None,
@@ -63,7 +53,7 @@ class request_to_k8s_create():
         return self.task_info
 
 
-def k8s_create(pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
+def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -110,18 +100,25 @@ def k8s_create(pod_name, image_id, image_name, lables, volumeMounts=None, port_m
 
     # generate request
     k8s_instance = request_to_k8s_create()
-    k8s_instance.service_data['container_name'] = pod_name + "-container"
     k8s_instance.service_data['command'] = ["python", "/app/train.py"]
-    k8s_instance.service_data['work_dir'] = "/app"
+    k8s_instance.service_data['volumes'] = []
+    for mount_idx, mount_info in enumerate(volumeMounts):
+        k8s_instance.service_data['volumes'].append({
+            'is_nfs': False,
+            'server': '',
+            'path': mount_info['host_path'],
+            'mount_path': mount_info['mount_path'],
+            'mount_name': 'mountidx{}'.format(mount_idx)
+        })
 
     k8s_instance.task_info['name'] = pod_name
     k8s_instance.task_info['namespace'] = lables
     k8s_instance.task_info['image_id'] = image_id
     k8s_instance.task_info['image_repo_tag'] = image_name
-    k8s_instance.task_info['start_now'] = False
+    # k8s_instance.task_info['start_now'] = False
 
     request_to_k8s = k8s_instance.generate_request()
-    return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s)
+    return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s, headers={"token": token})
 
     return True, "k8s_create: {}.".format(return_info)
 

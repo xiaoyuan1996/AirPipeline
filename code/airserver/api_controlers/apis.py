@@ -1,19 +1,15 @@
-from flask import Flask, request, jsonify
-import json, os
-import _thread
-from threading import Timer
-from common.parse_config import get_config
-import util
-import logging
-import globalvar
+import json
 
-from notebook import notebook_ctl
+import globalvar
+import util
+from api_controlers.apis_definition import ApisDefinition
+from assist import assist_ctl
+from common.parse_config import get_config
 from debug import debug_ctl
+from flask import Flask, request
+from notebook import notebook_ctl
 from template import template_ctl
 from train import train_ctl
-from assist import assist_ctl
-
-from api_controlers.apis_definition import ApisDefinition
 
 # 变量初始化
 logger = globalvar.get_value("logger")
@@ -777,15 +773,38 @@ def api_run():
     # ====================== ASSIST ==============================
     # 查询特定路径下的文件
     @app.route(_apis.get_spec_dir['url'], methods=_apis.get_spec_dir['method'])
-    def get_spec_dir(query_path):
+    def get_spec_dir():
         """
         查询特定路径下的文件
         Args:
-            query_path: 查询路径
+            query_type: 查询方式
+            type_id: 方式id
+            subdir: 文件夹名称
         Returns: 查询得到的文件
             {"files": files}
         """
-        flag, info = assist_ctl.get_spec_dir(query_path)
+        logger.info("get_spec_dir: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        if "query_type" not in request_data.keys():
+            return util.get_stand_return(False, "get_spec_dir: query_type must be required.")
+        else:
+            query_type = request_data["query_type"]
+
+        if "type_id" not in request_data.keys():
+            return util.get_stand_return(False, "get_spec_dir: type_id must be required.")
+        else:
+            type_id = request_data["type_id"]
+
+        if "subdir" not in request_data.keys():
+            return util.get_stand_return(False, "get_spec_dir: subdir must be required.")
+        else:
+            subdir = request_data["subdir"]
+
+        flag, info = assist_ctl.get_spec_dir(query_type, type_id, subdir)
+
         return util.get_stand_return(flag, info)
 
     app_host = get_config("app_config", "host")

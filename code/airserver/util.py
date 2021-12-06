@@ -1,14 +1,15 @@
 import json
-import time, os
+import os
+import pickle
 import shutil
-from functools import wraps
 import string
-import requests
-from random import choice
-from flask import request, g
 import tarfile
-import zipfile, pickle
-import rarfile
+import zipfile
+from functools import wraps
+from random import choice
+
+import requests
+from flask import request, g
 
 
 def get_uid(func):

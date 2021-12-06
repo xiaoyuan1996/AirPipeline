@@ -1,10 +1,11 @@
+import os
+import time
+
+import globalvar
 import psycopg2
 import psycopg2.extras
 import psycopg2.pool
-from psycopg2 import connect
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-import globalvar, util
-import time, os
+import util
 
 logger = globalvar.get_value("logger")
 

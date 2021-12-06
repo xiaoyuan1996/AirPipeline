@@ -1,6 +1,7 @@
-import globalvar
 import logging
 import warnings
+
+import globalvar
 
 warnings.filterwarnings("ignore")
 from common.parse_config import get_config

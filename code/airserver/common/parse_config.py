@@ -1,5 +1,5 @@
-import os
 import configparser
+import os
 
 
 def get_config(section, key):

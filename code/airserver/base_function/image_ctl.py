@@ -1,5 +1,7 @@
-import json, requests
+import json
+
 import globalvar
+import requests
 
 logger = globalvar.get_value("logger")
 get_config = globalvar.get_value("get_config")

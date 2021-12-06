@@ -1,8 +1,11 @@
-import globalvar
-from base_function import k8s_ctl, image_ctl, user_ctl
-import time, os, shutil
-import util
 import json
+import os
+import shutil
+import time
+
+import globalvar
+import util
+from base_function import k8s_ctl, image_ctl, user_ctl
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
@@ -33,7 +36,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     model_path = info[5]
 
     # 获取镜像名称
-    image_name = image_ctl.image_from_id_to_name(image_id, token)
+    flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
     status_id = 100
 
     # 数据库插入
@@ -104,7 +107,8 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     if not dist:
         # 　非分布式
         flag, info = k8s_ctl.k8s_create(
-            pod_name=str(train_id) + "_" + train_name,
+            token=token,
+            pod_name="train-" + str(train_id),
             image_id=image_id,
             image_name=image_name,
             lables="airstudio-train",
@@ -113,7 +117,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     else:
         # 分布式
         flag, info = k8s_ctl.k8s_create_dist(
-            pod_name=str(train_id) + "_" + train_name,
+            pod_name="train-" + str(train_id),
             image_name=image_name,
             lables="airstudio-train",
             volumeMounts=volumeMounts,
@@ -251,7 +255,6 @@ def train_pause(token, train_id):
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
-    print(info)
 
     if info == None:
         return False, "train_pause: notebook not exists."
@@ -323,7 +326,7 @@ def train_get_schedule(token, train_id):
         visual_path = info[6]
 
         # TODO: 可视化
-        visual_data = util.load_schedule(os.path.join(visual_path, "airvisual.pkl"))
+        visual_data = util.load_schedule(os.path.join(visual_path, "schedule.pkl"))
 
         sche_info = {'schedule': []}
         for k, v in visual_data.items():

@@ -1,9 +1,7 @@
-import json
-import time, os
+import os
 import shutil
-import zipfile, pickle
-import rarfile
 import tarfile
+import zipfile
 
 
 # 得到上一级路径

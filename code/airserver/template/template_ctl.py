@@ -1,8 +1,10 @@
-import globalvar
-from base_function import k8s_ctl, image_ctl, user_ctl
-import time, os
-import util
+import os
 import shutil
+import time
+
+import globalvar
+import util
+from base_function import k8s_ctl, image_ctl, user_ctl
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
@@ -99,6 +101,7 @@ def template_edit(token, template_id, edit_code, edit_model):
 
         # TODO: 需要加默认端口
         flag, info = k8s_ctl.k8s_create(
+            token=token,
             pod_name=str(template_id) + "_" + "edit",
             image_id=image_id,
             image_name=image_name,
@@ -208,7 +211,6 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where user_id={0} and id={1}".format(user_id, train_id)
     flag, info = DB.query_all(read_sql)
-    print(info)
 
     if info == None:
         return False, "template_generate_from_train: train id not exist."

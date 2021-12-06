@@ -1,8 +1,4 @@
 import globalvar
-from base_function import k8s_ctl, image_ctl, user_ctl
-import time, os, shutil
-import util
-import json
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")

@@ -2,7 +2,8 @@
 # This is the script of visual model for airstudio.
 # Author: Zhiqiang Yuan
 
-import os, pickle
+import os
+import pickle
 import shutil
 from functools import wraps
 
