@@ -45,7 +45,7 @@ class request_to_k8s_create():
             'retry_policy': None,
             'running_config': None,
             'events': None,
-            'start_now': True
+            'start_now': False
         }
 
     def generate_request(self):
@@ -118,9 +118,14 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     # k8s_instance.task_info['start_now'] = False
 
     request_to_k8s = k8s_instance.generate_request()
-    return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s, headers={"token": token})
 
-    return True, "k8s_create: {}.".format(return_info)
+    try:
+        return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s, headers={"token": token})
+        c_task_id = json.loads(return_info.text)['data'].get('id')
+
+        return c_task_id, "k8s_create: {}.".format(return_info)
+    except:
+        return False, "k8s_create: Failed."
 
 
 def k8s_delete(pod_name, lables):
@@ -138,7 +143,7 @@ def k8s_delete(pod_name, lables):
     return True, "k8s_delete: delete successful."
 
 
-def k8s_start(pod_name, lables):
+def k8s_start(token, pod_name, lables, task_id):
     """
     start k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -149,8 +154,15 @@ def k8s_start(pod_name, lables):
     logger.info("=============== k8s instance start =================")
     logger.info("pod_name:{}".format(pod_name))
     logger.info("lables:{}".format(lables))
+    logger.info("task_id:{}".format(task_id))
 
-    return True, "k8s_start: start successful."
+    print(get_config('k8s', 'k8s_start').format(task_id))
+
+    response = requests.put(url=get_config('k8s', 'k8s_start').format(task_id), headers={"token": token})
+
+    print(response.text)
+
+    return response.status_code, "k8s_start: {}".format(response)
 
 
 def k8s_pause(pod_name, lables):

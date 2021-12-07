@@ -36,6 +36,8 @@ gateway:
 k8s: 
     k8s_dist_create: http://192.168.9.64:33185/api/v1/airengine/distribution/
     k8s_create: http://192.168.9.64:30887/api/v1/airscheduler/task/
+    k8s_start: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/start
+
 
 pvc: 
     prefix_path: /mnt/mfs

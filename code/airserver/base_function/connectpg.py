@@ -80,7 +80,8 @@ class pg_db(object):
         status_id INT NOT NULL,
         dist  BOOL NOT NULL,
         description TEXT,
-        params JSON
+        params JSON,
+        task_id TEXT
         );
         ''')
 

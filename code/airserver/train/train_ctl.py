@@ -41,9 +41,8 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}')".format(
-        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist, description,
-        json.dumps(params))
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}')".format(
+        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist, description, json.dumps(params), 'None')
 
     flag, data = DB.insert(sql)
 
@@ -106,7 +105,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
 
     if not dist:
         # 　非分布式
-        flag, info = k8s_ctl.k8s_create(
+        task_id, info = k8s_ctl.k8s_create(
             token=token,
             pod_name="train-" + str(train_id),
             image_id=image_id,
@@ -116,7 +115,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
         )
     else:
         # 分布式
-        flag, info = k8s_ctl.k8s_create_dist(
+        task_id, info = k8s_ctl.k8s_create_dist(
             pod_name="train-" + str(train_id),
             image_name=image_name,
             lables="airstudio-train",
@@ -125,10 +124,10 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
             token=token
         )
 
-    status_id = 200 if flag else 400
+    status_id = 200 if task_id else 400
     # 更新表单
-    update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}' where id = {5}".format(
-        status_id, code_own, data_own, model_own, visual_own, train_id)
+    update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}', task_id='{5}' where id = {6}".format(
+        status_id, code_own, data_own, model_own, visual_own, task_id, train_id)
     _, _ = DB.update(update_sql)
 
     return flag, info
@@ -147,7 +146,7 @@ def train_start(token, train_id):
     if user_id == -1: return False, "train_start： user check failed."
 
     # 查表 判断该请求是否来自该用户
-    read_sql = "select user_id, name from airpipline_trainjobtab where id={0}".format(train_id)
+    read_sql = "select user_id, name, task_id from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
 
     if info == None:
@@ -156,13 +155,15 @@ def train_start(token, train_id):
         if int(info[0]) == user_id:
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
+                token = token,
                 pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
+                task_id = info[2]
             )
 
             # 更新表单
             update_sql = "update airpipline_trainjobtab set status_id = 200 where id = {0}".format(train_id)
-            flag, info = DB.update(update_sql)
+            _, _ = DB.update(update_sql)
             return flag, info
 
 

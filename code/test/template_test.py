@@ -6,14 +6,14 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTc0ZGYzYTdlZTRkMTc0MWRhYjc2MjBlYzBmNzk1OTJjZGE1YTNlNmEyMzA5MDI5Mjc3Y2QxMmU2NGQyODIyOTktMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRhYTUwOTE2OGIyY2UyMWI5NmJjNDg5Mjk5MjQyZTliNjdmY2ZkMmIzZWQxNWMwZWVlMTNmNzA0YjY1YWE0MzMtMg==",
         }
         data = {
-            "template_name": "template_demo_1203_11",
+            "template_name": "template_demo_1206",
             "image_id": 4,
-            "code_path": "/mnt/mfs/airpipeline_demo/airpipeline_code.tar",
+            "code_path": "/mnt/mfs/airpipeline_demo/airpipeline_code2.0.tar",
             # "model_path": "/mnt/mfs/fake/model",
-            "description": "hello"
+            "description": "hello126"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_create/'
 
@@ -100,8 +100,8 @@ class TemplateTest(object):
 if __name__ == "__main__":
     t = TemplateTest()
 
-    t.template_generate_from_train()
-    # t.template_create()
+    # t.template_generate_from_train()
+    t.template_create()
     # t.template_delete()
     # t.template_query()
     # t.template_edit()
