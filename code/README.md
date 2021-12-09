@@ -37,20 +37,20 @@ Airserver-2.0 负责训练、推理等流程服务，重点在于代码编码及
     * T5. 删除训练任务 √
     * T6. 查看训练任务 √
     * T7. 得到训练任务运行进度（Note: 抓取Loss, 进度等信息） √
-    * T8. 训练可视化界面 (Note: 负责交给前端训练可视化数据)
+    * T8. 训练可视化界面 (Note: 负责交给前端训练可视化数据) √
 
 * [Inference](#inference)
-    * I1. 根据训练任务创建推理模型（Note: 支持选定预训练模型）
+    * I1. 根据训练任务创建推理模型（Note: 支持选定预训练模型）√
     * I2. 根据上传代码创建推理模型 
 
 * [ASSIST](#assist)
-    * A1. 输入文件路径输出文件夹下的文件
+    * A1. 输入文件路径输出文件夹下的文件 √
 
 * [TODO](#todo)
-    * TD1: 加入训练后模型选择机制
+    * TD1: 加入训练后模型选择机制 √
     * TD2: 推断思考怎么写
     * TD3: visual脚本补全
-    * TD4: ...
+    * TD4: 自动调参
     
 
 ## Api Details
@@ -443,6 +443,24 @@ def train_get_schedule(token):
 ```
 
 ### Inference
+
+```
+Apis: /airserver-2.0/inference_create_from_train/
+Method: POST
+FUNC:   api_run.inference_create_from_train
+
+def inference_create_from_train():
+    """
+    token: str 用户验证信息
+    infer_name: str 推理名称
+    train_id: int trainID
+    model_name: str model_name
+    prefix_cmd: str run command
+
+    :return: bool 成功标志
+    """
+```
+
 
 ### Assist
 ```

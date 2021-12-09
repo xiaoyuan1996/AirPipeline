@@ -1,0 +1,15 @@
+FROM {}
+
+RUN rm -rf /app/*
+RUN mkdir -p /app
+COPY {} /app
+
+RUN rm -rf /data
+RUN mkdir -p /data
+RUN mkdir -p /data/model
+COPY {} /data/model/
+
+WORKDIR /app
+
+
+# 测试用例 9.62:/home/dell/yzq_test/test.sh

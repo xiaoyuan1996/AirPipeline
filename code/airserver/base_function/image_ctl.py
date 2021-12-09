@@ -28,3 +28,26 @@ def image_from_id_to_name(id, token):
         return False, -1
     else:
         return True, infos['data']['image_id']
+
+def image_build_from_dockerfile(token, name, description, docker_file, src_image_id):
+    """
+    根据已有镜像建立新镜像
+
+    :param token: token
+    :param name: 建立镜像名称
+    :param description: 镜像描述
+    :param docker_file: docker_file 地址
+    :param src_image_id: 原始镜像id
+    :return:
+    """
+
+    logger.info("==================================")
+    logger.info("image_build_from_dockerfile: ", name)
+    logger.info("image_build_from_dockerfile: ", description)
+    logger.info("image_build_from_dockerfile: ", docker_file)
+    logger.info("image_build_from_dockerfile: ", src_image_id)
+
+    return True, 5
+
+
+

@@ -10,6 +10,7 @@ from flask import Flask, request
 from notebook import notebook_ctl
 from template import template_ctl
 from train import train_ctl
+from inference import inference_ctl
 
 # 变量初始化
 logger = globalvar.get_value("logger")
@@ -762,8 +763,53 @@ def api_run():
     # ====================== INFERENCE ==============================
     # 根据训练任务创建推理任务
     @app.route(_apis.inference_create_from_train['url'], methods=_apis.inference_create_from_train['method'])
-    def inference_create_from_train(query_path):
-        pass
+    def inference_create_from_train():
+        """
+        token: str 用户验证信息
+        infer_name: str 推理名称
+        train_id: int trainID
+        model_name: str model_name
+        prefix_cmd: str run command
+
+        :return: bool 成功标志
+        """
+        logger.info("inference_create_from_train: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        token = request.headers["token"]
+
+        if "infer_name" not in request_data.keys():
+            return util.get_stand_return(False, "inference_create_from_train: infer_name must be required.")
+        else:
+            infer_name = request_data["infer_name"]
+
+        if "train_id" not in request_data.keys():
+            return util.get_stand_return(False, "inference_create_from_train: train_id must be required.")
+        else:
+            train_id = request_data["train_id"]
+
+        if "model_name" not in request_data.keys():
+            return util.get_stand_return(False, "inference_create_from_train: model_name must be required.")
+        else:
+            model_name = request_data["model_name"]
+
+        if "prefix_cmd" not in request_data.keys():
+            return util.get_stand_return(False, "inference_create_from_train: prefix_cmd must be required.")
+        else:
+            prefix_cmd = request_data["prefix_cmd"]
+
+        description = request_data["description"] if "description" in request_data.keys() else None
+        params = request_data["params"] if "params" in request_data.keys() else None
+
+
+        logger.info("inference_create_from_train: request data: {}".format(request_data))
+        # 开始处理
+        flag, info = inference_ctl.inference_create_from_train(token, infer_name, train_id, model_name, prefix_cmd, description, params)
+
+        return util.get_stand_return(flag, info)
+
 
     # 根据上传数据创建推理任务
     @app.route(_apis.inference_create_from_upload['url'], methods=_apis.inference_create_from_upload['method'])

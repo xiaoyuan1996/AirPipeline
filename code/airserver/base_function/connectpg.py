@@ -85,6 +85,22 @@ class pg_db(object):
         );
         ''')
 
+        # 创建airpipline_infertable
+        cur.execute('''CREATE TABLE IF NOT EXISTS airpipline_infertab
+        (id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        user_id INT NOT NULL,
+        code_path TEXT NOT NULL,
+        model_path TEXT NOT NULL,
+        image_id INT NOT NULL,
+        create_time TEXT NOT NULL,       
+        status_id INT NOT NULL,
+        description TEXT,
+        params TEXT,
+        prefix_cmd TEXT NOT NULL
+        );
+        ''')
+
         # 创建airpipline_debugtable
         cur.execute('''CREATE TABLE IF NOT EXISTS airpipline_debugtab
         (id SERIAL PRIMARY KEY,

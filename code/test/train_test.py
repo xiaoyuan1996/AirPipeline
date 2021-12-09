@@ -16,10 +16,10 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRhYTUwOTE2OGIyY2UyMWI5NmJjNDg5Mjk5MjQyZTliNjdmY2ZkMmIzZWQxNWMwZWVlMTNmNzA0YjY1YWE0MzMtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNThlY2UyZjVhMzQ2ODM2ZjkxZmIxZWU5NTliNTM5MTAzYmFjNjRlZjVhZTk2Y2Q0OGQyNjkxYThjZmVlOGM2MTktMg==",
         }
         data = {
-            "train_name": "train-demo-1206-t3",
+            "train_name": "train-demo-1208",
             "template_id": 10,
             "dataset": "/mnt/mfs/airpipeline_demo/airpipeline_data_v2.tar",
             "dist": False,
@@ -164,7 +164,7 @@ if __name__ == "__main__":
     # t.train_stop()
     # t.train_get_schedule()
     # t.train_get_visual()
-    # t.train_create()
-    t.train_start()
+    t.train_create()
+    # t.train_start()
     # t.train_delete()
     # t.train_query()

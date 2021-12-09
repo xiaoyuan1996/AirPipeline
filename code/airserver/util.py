@@ -143,3 +143,14 @@ def load_schedule(save_path):
     with open(save_path, 'rb') as f:
         data = pickle.load(f)
     return data
+
+#　读取txt文件
+def load_from_txt(txt_path):
+    with open(txt_path, 'r') as f:
+        ctxs = f.read()
+    return ctxs
+
+#　写入txt文件
+def log_to_txt(txt_path, ctx):
+    with open(txt_path, 'w') as f:
+        f.write(ctx)
