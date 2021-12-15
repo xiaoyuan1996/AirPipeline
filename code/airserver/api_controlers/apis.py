@@ -778,6 +778,11 @@ def api_run():
         """
         token: str 用户验证信息
         infer_id: int inferID
+        train_name: str 训练名称
+        dataset: 数据集
+        dist: 分布式
+        params: 分布式参数 optional
+        description: 描述信息 optional
 
         :return: bool 成功标志
         """
