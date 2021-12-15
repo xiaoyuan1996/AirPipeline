@@ -16,16 +16,16 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNThlY2UyZjVhMzQ2ODM2ZjkxZmIxZWU5NTliNTM5MTAzYmFjNjRlZjVhZTk2Y2Q0OGQyNjkxYThjZmVlOGM2MTktMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
         }
         data = {
-            "train_name": "train-demo-1208",
-            "template_id": 10,
-            "dataset": "/mnt/mfs/airpipeline_demo/airpipeline_data_v2.tar",
+            "train_name": "train-demo-1214-v3",
+            "template_id": 1,
+            "dataset": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_data.tar",
             "dist": False,
             "description": "airstudio dist test",
             "params": {
-                "spec_model": None,
+                "spec_model": "cur_model.pth",
 
                 "framework": "pytorch",
                 "job_command": "python /app/mnist.py",
@@ -65,10 +65,10 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRhYTUwOTE2OGIyY2UyMWI5NmJjNDg5Mjk5MjQyZTliNjdmY2ZkMmIzZWQxNWMwZWVlMTNmNzA0YjY1YWE0MzMtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWMwMjkwOWNiMmIwNTMyNDQ0YjQ1YzVhNmQyNDdiMzI3ODU1MDI0Y2Q0N2E4YzlkMTk3ZTc5OTFjMmUzY2JkYzctMg==",
         }
         data = {
-            "train_id": 5,
+            "train_id": 7,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_start/'
 

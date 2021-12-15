@@ -144,13 +144,61 @@ def load_schedule(save_path):
         data = pickle.load(f)
     return data
 
-#　读取txt文件
+
+# 　读取全部txt文件
 def load_from_txt(txt_path):
     with open(txt_path, 'r') as f:
         ctxs = f.read()
     return ctxs
 
-#　写入txt文件
+
+# 　分行读取txt文件
+def load_from_txt_lines(txt_path):
+    with open(txt_path, 'r') as f:
+        ctxs = f.readlines()
+    return [i.replace("\n", "") for i in ctxs]
+
+
+# 　写入txt文件
 def log_to_txt(txt_path, ctx):
     with open(txt_path, 'w') as f:
         f.write(ctx)
+
+
+# 统计文件大小 ==================================
+def trans_size_to_suitable_scale(size):
+    size = int(size)
+
+    if size > 1024 * 1024 * 1024:
+        return "{:.2f} Gb".format(size * 1.0 / (1024 * 1024 * 1024))
+    elif size > 1024 * 1024:
+        return "{:.2f} Mb".format(size * 1.0 / (1024 * 1024))
+    elif size > 1024:
+        return "{:.2f} kb".format(size * 1.0 / (1024))
+    else:
+        return "{} b".format(size)
+
+
+def getFileFolderSize(fileOrFolderPath):
+    """get size for file or folder"""
+    totalSize = 0
+
+    if not os.path.exists(fileOrFolderPath):
+        return totalSize
+
+    if os.path.isfile(fileOrFolderPath):
+        totalSize = os.path.getsize(fileOrFolderPath)  # 5041481
+        return totalSize
+
+    if os.path.isdir(fileOrFolderPath):
+        with os.scandir(fileOrFolderPath) as dirEntryList:
+            for curSubEntry in dirEntryList:
+                curSubEntryFullPath = os.path.join(fileOrFolderPath, curSubEntry.name)
+                if curSubEntry.is_dir():
+                    curSubFolderSize = getFileFolderSize(curSubEntryFullPath)  # 5800007
+                    totalSize += curSubFolderSize
+                elif curSubEntry.is_file():
+                    curSubFileSize = os.path.getsize(curSubEntryFullPath)  # 1891
+                    totalSize += curSubFileSize
+
+            return totalSize

@@ -45,6 +45,9 @@ Airserver-2.0 负责训练、推理等流程服务，重点在于代码编码及
 
 * [ASSIST](#assist)
     * A1. 输入文件路径输出文件夹下的文件 √
+    * A2. 输出支持的所有深度学习框架 √
+    * A3. 输出支持的所有深度学习任务 √
+    
 
 * [TODO](#todo)
     * TD1: 加入训练后模型选择机制 √
@@ -475,6 +478,32 @@ def get_spec_dir(token):
         query_path: 查询路径
     Returns: 查询得到的文件
         {"files": files}
+    """
+```
+
+```
+Apis: /airserver-2.0/get_all_frameworks/
+Method: GET
+FUNC:   api_run.get_all_frameworks
+
+def get_all_frameworks():
+    """
+    查询全部框架
+    Returns: 查询得到的框架名称
+        ["TensorFlow-1.0", ...]
+    """
+```
+
+```
+Apis: /airserver-2.0/get_all_tasktypes/
+Method: GET
+FUNC:   api_run.get_all_tasktypes
+
+def get_all_tasktypes():
+    """
+    查询全部框架
+    Returns: 查询得到的任务名称
+        ["目标检测", ...]
     """
 ```
 

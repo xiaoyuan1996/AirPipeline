@@ -1,9 +1,10 @@
 # coding:utf-8
 # Author: Zhiqiang Yuan
 
+import random
+
 import numpy as np
 from bayes_opt import BayesianOptimization
-import random
 
 
 def black_box_function(x, y):
@@ -34,7 +35,7 @@ def grid_search(pbounds, black_box_function, n_iter):
 
     """
 
-    n_params = len(pbounds) # n params
+    n_params = len(pbounds)  # n params
 
 
 # Random Search
@@ -79,15 +80,15 @@ def random_search(pbounds, black_box_function, n_iter):
         # Append to results
         iter_value[idx] = {
             'target': target,
-            'params': {k:v for k,v in zip(pbounds.keys(), random_param)}
+            'params': {k: v for k, v in zip(pbounds.keys(), random_param)}
         }
 
         # > max_target ?
         if target > max_target['target']:
             max_target = {
-            'target': target,
-            'params': {k:v for k,v in zip(pbounds.keys(), random_param)}
-        }
+                'target': target,
+                'params': {k: v for k, v in zip(pbounds.keys(), random_param)}
+            }
 
     return max_target, iter_value
 

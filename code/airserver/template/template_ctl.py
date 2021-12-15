@@ -11,7 +11,7 @@ DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
 
-def template_create(token, template_name, image_id, code_path, model_path, description):
+def template_create(token, template_name, image_id, code_path, model_path, description, task_type, algo_framework):
     """
     token: str 用户验证信息
     template_name: str 模板名称
@@ -19,6 +19,9 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     code_path: str 代码路径
     model_path: str 模型路径
     description: str 描述信息 optional
+
+    task_type： TEXT 任务类型
+    algo_framework： TEXT 算法框架
 
     :return: bool 成功标志
     """
@@ -30,8 +33,9 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
-        template_name, user_id, image_id, code_path, model_path, create_time, "1", description)
+    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}')".format(
+        template_name, user_id, image_id, code_path, model_path, create_time, "1", description, task_type,
+        algo_framework)
 
     code, data = DB.insert(sql)
 
@@ -64,10 +68,25 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     if model_path != None:
         shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
 
+    # 统计文件大小信息　====================================
+
+    # 镜像大小
+    info = image_ctl.image_from_id_to_info(image_id, token)
+    image_size = info['data']['size']
+    image_size = util.trans_size_to_suitable_scale(image_size)
+
+    # 代码大小
+    code_size = util.getFileFolderSize(own_code)
+    code_size = util.trans_size_to_suitable_scale(code_size)
+
+    # 模型大小
+    model_size = util.getFileFolderSize(own_model)
+    model_size = util.trans_size_to_suitable_scale(model_size)
+
     # 更新表单
-    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code,
-                                                                                                               own_model,
-                                                                                                               template_id)
+    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}', image_size='{2}', code_size='{3}', model_size='{4}'  where id = {5}".format(
+        own_code,
+        own_model, image_size, code_size, model_size, template_id)
     flag, info = DB.update(update_sql)
 
     return flag, info
@@ -187,7 +206,13 @@ def template_query(token):
                 "model_path": item[5],
                 "create_time": item[6],
                 "privilege": item[7],
-                "description": item[8]
+                "description": item[8],
+
+                "task_type": item[9],
+                "algo_framework": item[10],
+                "code_size": item[11],
+                "model_size": item[12],
+                "image_size": item[13],
             }
         )
 
@@ -220,11 +245,14 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     model_path = os.path.join(info[0][5], model_name)
     if not os.path.exists(model_path):
         return False, "template_generate_from_train: {} not exist.".format(model_name)
+    task_type = info[0][14]
+    algo_framework = info[0][15]
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
-        template_name, user_id, image_id, code_path, model_path, create_time, "1", description)
+    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description, task_type,algo_framework) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}')".format(
+        template_name, user_id, image_id, code_path, model_path, create_time, "1", description, task_type,
+        algo_framework)
 
     code, data = DB.insert(sql)
 
@@ -258,10 +286,25 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     )
     shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))  # 单独文件
 
+    # 统计文件大小信息　====================================
+
+    # 镜像大小
+    info = image_ctl.image_from_id_to_info(image_id, token)
+    image_size = info['data']['size']
+    image_size = util.trans_size_to_suitable_scale(image_size)
+
+    # 代码大小
+    code_size = util.getFileFolderSize(own_code)
+    code_size = util.trans_size_to_suitable_scale(code_size)
+
+    # 模型大小
+    model_size = util.getFileFolderSize(own_model)
+    model_size = util.trans_size_to_suitable_scale(model_size)
+
     # 更新表单
-    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}' where id = {2}".format(own_code,
-                                                                                                               own_model,
-                                                                                                               template_id)
+    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}', image_size='{2}', code_size='{3}', model_size='{4}' where id = {5}".format(
+        own_code,
+        own_model, image_size, code_size, model_size, template_id)
     flag, info = DB.update(update_sql)
 
     return flag, info

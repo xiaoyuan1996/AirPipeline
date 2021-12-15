@@ -15,12 +15,12 @@ class InferTest(object):
         """
 
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWMzM2U1Yzc5YzllNDc2YjNiZWJhZDJkY2VkZjQzM2NlMzcyNjA4MDJkOWE3NzM1ODdjYzQ2ZTU5YjQ5M2M0NGYtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
         }
         data = {
-            "infer_name": "infer-demo-1209",
-            "train_id": 6,
-            "model_name": "FasterRCNN_5_0.603.pkl",
+            "infer_name": "infer-demo-1211-v4",
+            "train_id": 1,
+            "model_name": "cur_model.pth",
             "prefix_cmd": "python /app/run.py",
             "description": "hahaha",
             "params": {"no":"test"}
@@ -28,8 +28,7 @@ class InferTest(object):
         url = 'http://0.0.0.0:5000/airserver-2.0/inference_create_from_train/'
 
         r = requests.post(url, data=json.dumps(data), headers=header)
-        print(r.json())
-
+        print(r)
 
 if __name__ == "__main__":
     t = InferTest()

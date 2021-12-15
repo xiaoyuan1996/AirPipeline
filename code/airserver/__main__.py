@@ -22,7 +22,6 @@ if __name__ == '__main__':
     util.init_pipline_data(get_config('path', 'airpipline_path'))
 
     # 数据库初始化
-    from base_function import connectpg
 
     # 开启接口
     from api_controlers import apis

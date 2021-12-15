@@ -7,10 +7,10 @@ from assist import assist_ctl
 from common.parse_config import get_config
 from debug import debug_ctl
 from flask import Flask, request
+from inference import inference_ctl
 from notebook import notebook_ctl
 from template import template_ctl
 from train import train_ctl
-from inference import inference_ctl
 
 # 变量初始化
 logger = globalvar.get_value("logger")
@@ -373,6 +373,9 @@ def api_run():
         data_path: str 数据路径
         description: str 描述信息 optional
 
+        task_type： TEXT 任务类型
+        algo_framework： TEXT 算法框架
+
         :return: bool 成功标志
         """
         logger.info("notebook_create: request verify...")
@@ -398,12 +401,20 @@ def api_run():
 
         model_path = request_data["model_path"] if "model_path" in request_data.keys() else None
 
+        task_type = request_data["task_type"] if "task_type" in request_data.keys() else None
+
         description = request_data["description"] if "description" in request_data.keys() else None
+
+        if "algo_framework" not in request_data.keys():
+            return util.get_stand_return(False, "template_create: algo_framework must be required.")
+        else:
+            algo_framework = request_data["algo_framework"]
 
         logger.info("notebook_create: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path, description)
+        flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path, description,
+                                                  task_type, algo_framework)
 
         return util.get_stand_return(flag, info)
 
@@ -567,6 +578,7 @@ def api_run():
             dist = request_data["dist"]
 
         description = request_data["description"] if "description" in request_data.keys() else None
+
         params = request_data["params"] if "params" in request_data.keys() else {}
 
         logger.info("train_create: request data: {}".format(request_data))
@@ -760,6 +772,52 @@ def api_run():
 
         return util.get_stand_return(flag, info)
 
+    # 从推理发布到train
+    @app.route(_apis.train_generate_from_inference['url'], methods=_apis.train_generate_from_inference['method'])
+    def train_generate_from_inference():
+        """
+        token: str 用户验证信息
+        infer_id: int inferID
+
+        :return: bool 成功标志
+        """
+        logger.info("train_generate_from_inference: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        token = request.headers["token"]
+
+        if "train_name" not in request_data.keys():
+            return util.get_stand_return(False, "train_generate_from_inference: train_name must be required.")
+        else:
+            train_name = request_data["train_name"]
+
+        if "dataset" not in request_data.keys():
+            return util.get_stand_return(False, "train_generate_from_inference: dataset must be required.")
+        else:
+            dataset = request_data["dataset"]
+
+        if "dist" not in request_data.keys():
+            return util.get_stand_return(False, "train_generate_from_inference: dist must be required.")
+        else:
+            dist = request_data["dist"]
+
+        if "infer_id" not in request_data.keys():
+            return util.get_stand_return(False, "train_generate_from_inference: infer_id must be required.")
+        else:
+            infer_id = request_data["infer_id"]
+
+        description = request_data["description"] if "description" in request_data.keys() else None
+
+        params = request_data["params"] if "params" in request_data.keys() else {}
+
+        logger.info("train_generate_from_inference: request data: {}".format(request_data))
+        # 开始处理
+        flag, info = train_ctl.train_generate_from_inference(token, infer_id, train_name, dataset, dist, description, params)
+
+        return util.get_stand_return(flag, info)
+
     # ====================== INFERENCE ==============================
     # 根据训练任务创建推理任务
     @app.route(_apis.inference_create_from_train['url'], methods=_apis.inference_create_from_train['method'])
@@ -803,13 +861,12 @@ def api_run():
         description = request_data["description"] if "description" in request_data.keys() else None
         params = request_data["params"] if "params" in request_data.keys() else None
 
-
         logger.info("inference_create_from_train: request data: {}".format(request_data))
         # 开始处理
-        flag, info = inference_ctl.inference_create_from_train(token, infer_name, train_id, model_name, prefix_cmd, description, params)
+        flag, info = inference_ctl.inference_create_from_train(token, infer_name, train_id, model_name, prefix_cmd,
+                                                               description, params)
 
         return util.get_stand_return(flag, info)
-
 
     # 根据上传数据创建推理任务
     @app.route(_apis.inference_create_from_upload['url'], methods=_apis.inference_create_from_upload['method'])
@@ -850,6 +907,32 @@ def api_run():
             subdir = request_data["subdir"]
 
         flag, info = assist_ctl.get_spec_dir(query_type, type_id, subdir)
+
+        return util.get_stand_return(flag, info)
+
+    # 查询全部框架
+    @app.route(_apis.get_all_frameworks['url'], methods=_apis.get_all_frameworks['method'])
+    def get_all_frameworks():
+        """
+        查询全部框架
+        Returns: 查询得到的框架名称
+            ["TensorFlow-1.0", ...]
+        """
+
+        flag, info = assist_ctl.get_all_frameworks()
+
+        return util.get_stand_return(flag, info)
+
+    # 查询全部任务类型
+    @app.route(_apis.get_all_tasktypes['url'], methods=_apis.get_all_tasktypes['method'])
+    def get_all_tasktypes():
+        """
+        查询全部框架
+        Returns: 查询得到的任务名称
+            ["目标检测", ...]
+        """
+
+        flag, info = assist_ctl.get_all_tasktypes()
 
         return util.get_stand_return(flag, info)
 

@@ -81,7 +81,10 @@ class pg_db(object):
         dist  BOOL NOT NULL,
         description TEXT,
         params JSON,
-        task_id TEXT
+        task_id TEXT,
+        
+        task_type TEXT,
+        algo_framework TEXT NOT NULL
         );
         ''')
 
@@ -97,7 +100,10 @@ class pg_db(object):
         status_id INT NOT NULL,
         description TEXT,
         params TEXT,
-        prefix_cmd TEXT NOT NULL
+        prefix_cmd TEXT NOT NULL,
+        src_image INT NOT NULL,
+        task_type TEXT ,
+        algo_framework TEXT NULL     
         );
         ''')
 
@@ -142,7 +148,12 @@ class pg_db(object):
         model_path TEXT ,
         create_time TEXT NOT NULL,
         privilege INT NOT NULL,
-        description TEXT
+        description TEXT,
+        task_type TEXT,
+        algo_framework TEXT NOT NULL,
+        code_size TEXT,
+        model_size TEXT,
+        image_size TEXT    
         );
         ''')
 

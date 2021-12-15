@@ -1,6 +1,7 @@
 import os
 
 import globalvar
+import util
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
@@ -53,3 +54,13 @@ def get_spec_dir(query_type, type_id, subdir):
 
     files = os.listdir(sub_path)
     return True, {"files": files}
+
+
+def get_all_frameworks():
+    algo_frameworks = util.read_json("template/algo_frameworks.json")
+    return True, algo_frameworks
+
+
+def get_all_tasktypes():
+    task_types = util.load_from_txt_lines("template/task_types.txt")
+    return True, task_types

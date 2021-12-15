@@ -1,21 +1,15 @@
 import json
 import requests
+import os
 
-
-class AssistTest(object):
-    def get_spec_dir(self):
-        data = {
-            "query_type": "train",
-            "type_id": 28,
-            "subdir": "model",
-        }
-        url = 'http://0.0.0.0:5000/airserver-2.0/get_spec_dir/'
-
-        r = requests.post(url, data=json.dumps(data))
-        print(r.json())
+def read_json(json_path):
+    with open(json_path) as f:
+        info = json.load(f)
+    return info
 
 
 if __name__ == "__main__":
-    t = AssistTest()
+    size = read_json("../airserver/template/algo_frameworks.json")
+    print(size)
 
-    t.get_spec_dir()
+    print(size.keys())

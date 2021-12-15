@@ -2,12 +2,12 @@ FROM {}
 
 RUN rm -rf /app/*
 RUN mkdir -p /app
-COPY {} /app
+COPY ./code /app
 
 RUN rm -rf /data
 RUN mkdir -p /data
 RUN mkdir -p /data/model
-COPY {} /data/model/
+COPY ./model /data/model/
 
 WORKDIR /app
 

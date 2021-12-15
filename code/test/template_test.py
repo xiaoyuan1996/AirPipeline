@@ -6,14 +6,16 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRhYTUwOTE2OGIyY2UyMWI5NmJjNDg5Mjk5MjQyZTliNjdmY2ZkMmIzZWQxNWMwZWVlMTNmNzA0YjY1YWE0MzMtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
         }
         data = {
-            "template_name": "template_demo_1206",
+            "template_name": "template_demo_1214",
             "image_id": 4,
-            "code_path": "/mnt/mfs/airpipeline_demo/airpipeline_code2.0.tar",
-            # "model_path": "/mnt/mfs/fake/model",
-            "description": "hello126"
+            "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
+            "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
+            "description": "hello126",
+            "task_type": "场景分类",
+            "algo_framework": "Tensorflow_v1.6.0"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_create/'
 
