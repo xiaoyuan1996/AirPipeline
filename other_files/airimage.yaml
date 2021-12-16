@@ -1,0 +1,1080 @@
+swagger: '2.0'
+info:
+  title: AirPlatform-Airimage API（BaseURL:192.168.2.156:31152/api/v1）
+  description: These APIs provide services for AirPlatform-AirImage image-backend project. 新的标准规范：所有单参数存放多个数据的一律使用json.dumps进行转换，比如列表或者字典，接收端使用json.loads获取原始结构。为了提升速度和便捷性，模糊查找一律返回对应列的完整信息，由前端决定是否使用其他信息，由于模糊查找的列可能允许重名，因此是否使用对应的ID需要由前端决定并确保准确性
+  version: 1.0.0
+host: 192.168.2.156:31152
+schemes:
+  - http
+basePath: /api/v1
+tags:
+  - name: "Images"
+    description: 镜像管理后台
+paths:
+  /images/:
+    get:
+      summary: 返回所有镜像的信息
+      description: 依据token确定用户的管理范围，返回管理范围内的经过组织和排序的镜像信息列表
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - name: page_size
+          in: query
+          description: 显示页大小
+          required: true
+          type: integer
+        - name: page_num
+          in: query
+          description: 显示页的编号
+          required: true
+          type: integer
+        - name: rules
+          in: query
+          description: 排序筛选规则对应的字符串表示，是一个字典，包含以下几个key： sort_col（排序列名的列表），sort_order（排序列对应的排序方法列表：DESC/ASC），partial_match_col（执行部分匹配的列名列表），partial_match_input（执行部分匹配查找的列名对应的数值内容的列表），剩余的key对应范围匹配，使用列名作为key，数值存放了查找的范围，一般用于存放日期示例：{"sort_col":["name", "id"],"sort_order":["ASC", "DESC"], "partial_match_col":["name", "realname"], "partial_match_input":["test", "张2"], "upload_time":["2018-06-26 14:59:59", "2018-06-26 14:59:59"]
+          type: string
+        - name: for_micro_service
+          in: query
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: query
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会筛选出所有的镜像
+          required: false
+          type: string
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 镜像信息列表
+          schema:
+            $ref: "#/definitions/ImageInfoList"
+        '500':
+          description: Internal Error
+    put:
+      summary: 修改镜像信息
+      description: 按照给定信息修改镜像数据库数据
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: imgae_id
+          in: formData
+          description: 镜像ID
+          required: true
+          type: integer
+        - name: name
+          in: formData
+          description: 镜像名称
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: shared
+          in: formData
+          description: 设置为公有镜像
+          type: boolean
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/StatusCode"
+        '500':
+          description: Internal Error
+    post:
+      deprecated: true
+      summary: 添加新的镜像（文件直传）
+      description: 按照给定信息设置镜像数据库数据，对镜像进行初始化和加载，直接使用完整镜像上传，不进行分块，该接口目前已经弃用，不确保正确性
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: image_file
+          in: formData
+          description: 镜像文件
+          required: true
+          type: file
+        - name: for_micro_service
+          in: formData
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: formData
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会默认设置为default
+          required: false
+          type: string
+        - name: shared
+          in: formData
+          description: 镜像是否公有
+          required: true
+          type: boolean
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/StatusCode"
+        '500':
+          description: Internal Error
+    delete:
+      summary: 删除多个镜像
+      description: 按照给定ID列表删除单个或者多个镜像
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: image_ids
+          in: query
+          description: 多个镜像ID列表的json字串
+          type: string
+        - name: user_ids
+          in: query
+          description: 多个用户ID列表的json字串，按照用户删除镜像
+          type: string
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: '#/definitions/StatusCode'
+        '500':
+          description: Internal Error
+  /images/remote:
+    post:
+      summary: 远程添加新的镜像
+      description: 按照给定信息设置镜像数据库数据，对镜像进行初始化和加载
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: dockerhub_ip
+          in: formData
+          description: 镜像仓库IP
+          required: true
+          type: string
+        - name: dockerhub_username
+          in: formData
+          description: 镜像仓库用户名
+          required: true
+          type: string
+        - name: dockerhub_password
+          in: formData
+          description: 镜像仓库用户密码
+          required: true
+          type: string
+        - name: image_id
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: for_micro_service
+          in: formData
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: formData
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会设置为default
+          required: false
+          type: string
+        - name: shared
+          in: formData
+          description: 镜像是否公有
+          required: true
+          type: boolean
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: '#/definitions/StatusCode'
+        '500':
+          description: Internal Error
+  /images/get/{image_id}:
+    get:
+      summary: 返回单个镜像的信息
+      description: 依据token确定用户的管理范围，返回管理范围内的经过组织和排序的镜像信息列表
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - name: image_id
+          in: path
+          description: 镜像ID
+          required: true
+          type: integer
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 镜像信息
+          schema:
+            $ref: "#/definitions/ImageInfoSingle"
+        '500':
+          description: Internal Error
+  /images/get:
+    get:
+      summary: 返回单个镜像的信息
+      description: 依据token确定用户的管理范围，返回管理范围内的经过组织和排序的镜像信息列表
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - name: name
+          in: query
+          description: 镜像名称
+          type: string
+        - name: image_ids
+          in: query
+          description: 镜像ID列表的json字串
+          type: string
+        - name: for_micro_service
+          in: query
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: query
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会筛选出所有镜像
+          required: false
+          type: string
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 镜像信息
+          schema:
+            $ref: "#/definitions/ImageInfoList"
+        '500':
+          description: Internal Error
+  /images/check_exist:
+    get:
+      summary: 镜像存在性查找
+      description: 当前的镜像名称，确定是否存在重名，usage_tag相同的禁止重名
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: col_name
+          in: query
+          description: 需要检查信息列名
+          required: true
+          type: string
+        - name: col_value
+          in: query
+          description: 需要检查信息的输入值
+          required: true
+          type: string
+        - name: for_micro_service
+          in: query
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: query
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会筛选出所有的镜像
+          required: false
+          type: string
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 存在性检查的结果
+          schema:
+            $ref: '#/definitions/CheckExistInfo'
+        '500':
+          description: Internal Error
+  /images/find:
+    get:
+      summary: 镜像模糊查找
+      description: 传入键入数值，返回可以一组匹配上的数值名称列表（传输数量由后台决定）
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: col_name
+          in: query
+          description: 需要检查信息列名
+          required: true
+          type: string
+        - name: input_string
+          in: query
+          description: 需要检查信息的输入值
+          required: true
+          type: string
+        - name: for_micro_service
+          in: query
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: query
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会筛选出所有的镜像
+          required: false
+          type: string
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 模糊匹配的结果
+          schema:
+            $ref: '#/definitions/ImageInfoList'
+        '500':
+          description: Internal Error
+  /images/upload/test:
+    post:
+      deprecated: true
+      summary: 上传速度测试
+      description: 提供给前端进行上传网络带宽测试，引接文件上传下载引擎后弃用
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: test_file
+          in: formData
+          description: 用于测试网速的文件
+          type: file
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/StatusCode"
+        '500':
+          description: Internal Error
+  /images/upload/new:
+    post:
+      deprecated: true
+      summary: 分块上传-添加新的镜像上传任务
+      description: 给出文件的基本信息，交由后台创建文件上传记录，引接文件上传下载引擎后弃用
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: file_size
+          in: formData
+          description: 镜像文件大小，单位字节
+          required: true
+          type: integer
+        - name: origin_file_name
+          in: formData
+          description: 镜像文件的原文件名称
+          required: true
+          type: string
+        - name: test_file
+          in: formData
+          description: 用于测试网速的文件
+          type: file
+        - name: for_micro_service
+          in: formData
+          description: 是否查找微服务镜像，为了兼容旧版测评保留，设置该字段为True则usage_tag会被设置为evaluation-micro-service
+          required: false
+          type: boolean
+        - name: usage_tag
+          in: formData
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会设置为default
+          required: false
+          type: string
+        - name: shared
+          in: formData
+          description: 镜像是否公有
+          required: true
+          type: boolean
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/UploadFileFeedback"
+        '500':
+          description: Internal Error
+  /images/upload/update_standard_md5:
+    post:
+      deprecated: true
+      summary: 分块上传-更新标准MD5
+      description: 更新标准的MD5采样结果，测试网速，并获取随机采样MD5方法以及分块大小，引接文件上传下载引擎后弃用
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: file_id
+          in: formData
+          description: 上传文件的ID
+          required: true
+          type: integer
+        - name: standard_md5
+          in: formData
+          description: 文件的标准MD5结果
+          type: string
+          required: true
+        - name: request_time_stamp
+          in: formData
+          description: 请求开始的时间戳，单位毫秒
+          type: integer
+        - name: test_file
+          in: formData
+          description: 用于测试网速的文件
+          type: file
+        - name: network_speed
+          in: formData
+          description: 网速，单位字节/秒
+          type: integer
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/UploadFileFeedback"
+        '500':
+          description: Internal Error
+  /images/upload/update_random_md5:
+    post:
+      deprecated: true
+      summary: 分块上传-更新随机MD5
+      description: 更新随机MD5采样的结果，由后台创建文件块列表，引接文件上传下载引擎后弃用
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: file_id
+          in: formData
+          description: 上传文件的ID
+          required: true
+          type: integer
+        - name: random_md5
+          in: formData
+          description: 文件的随机MD5采样结果
+          type: string
+          required: true
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/UploadFileFeedback"
+        '500':
+          description: Internal Error
+  /images/upload/upload_chunk:
+    post:
+      deprecated: true
+      summary: 分块上传-上传文件块
+      description: 上传一个文件块（也可能不上传），并领取新的上传任务，引接文件上传下载引擎后弃用
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: file_id
+          in: formData
+          description: 上传文件的ID
+          required: true
+          type: integer
+        - name: request_time_stamp
+          in: formData
+          description: 请求开始的时间戳，单位毫秒
+          required: true
+          type: integer
+        - name: chunk_id
+          in: formData
+          description: 上传文件块的ID
+          required: true
+          type: integer        
+        - name: chunk_file
+          in: formData
+          description: 上传的文件块文件
+          required: true
+          type: file
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/UploadChunkFeedback"
+        '500':
+          description: Internal Error
+  /images/stats:
+    get:
+      summary: 镜像统计信息查询
+      description: 获取镜像后端的统计信息以及DockerHarbor的统计信息
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 统计信息查询结果
+          schema:
+            $ref: '#/definitions/ImageStatsInfo'
+        '500':
+          description: Internal Error
+  /images/upload/from_server:
+    post:
+      summary: 添加新的镜像（对接文件上传引擎）
+      description: 经过修改后，由文件上传下载引擎处理上传，然后直接通过文件地址实现镜像加载
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: usage_tag
+          in: formData
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会设置为default
+          required: false
+          type: string
+        - name: shared
+          in: formData
+          description: 镜像是否公有
+          required: true
+          type: boolean
+        - name: src_file
+          in: formData
+          required: true
+          type: string
+          description: 文件上传引擎上传完成后返回的文件服务器地址
+        - name: origin_file_name
+          in: formData
+          required: true
+          type: string
+          description: 文件上传引擎返回的原始文件名称
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/StatusCode"
+        '500':
+          description: Internal Error
+  /images/build:
+    post:
+      summary: 构建镜像，主要用于后台
+      description: 经过修改后，由文件上传下载引擎处理上传，然后直接通过文件地址实现镜像加载
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 镜像名称
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 镜像描述
+          type: string
+        - name: docker_file
+          in: formData
+          description: 构建镜像使用的DockerFile服务器路径
+          required: true
+          type: string
+        - name: build_dir
+          in: formData
+          description: 构建镜像所在的服务器路径，不提供则在DockerFile所在路径构建镜像
+          required: false
+          type: string
+        - name: image_id
+          in: formData
+          description: 目标构建镜像的基础Repo:Tag。如果不给出，则会随机生成；即使给出，为了上传harbor该ID会被标准化处理，因此不代表最终的镜像ID
+          required: false
+          type: string
+        - name: usage_tag
+          in: formData
+          description: 查询时给出对应镜像的使用标签，用于划分不同模块使用的镜像，如果没有给出该字段，那么会设置为default
+          required: false
+          type: string
+        - name: shared
+          in: formData
+          description: 镜像是否公有
+          required: true
+          type: boolean
+        - name: token
+          in: header
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - Images
+      responses:
+        '200':
+          description: 状态码
+          schema:
+            $ref: "#/definitions/StatusCode"
+        '500':
+          description: Internal Error
+
+definitions:
+  StatusCode:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码（成功为0，否则为非0）
+      message:
+        type: string
+        description: 状态信息
+  CheckExistInfo:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码（成功为0，否则为非0）
+      message:
+        type: string
+        description: 状态信息
+      data:
+        type: boolean
+        description: 当前信息对应镜像是否存在
+  ImageInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 镜像ID
+      name:
+        type: string
+        description: 镜像名称
+      user_id:
+        type: integer
+        description: 创建镜像用户ID
+      image_status:
+        type: integer
+        description: 镜像状态
+      user_name:
+        type: string
+        description: 创建镜像的用户名
+      user_real_name:
+        type: string
+        description: 创建镜像的用户真实姓名
+      size:
+        type: integer
+        description: 镜像文件大小（Byte）
+      origin_file_name:
+        type: string
+        description: 原镜像文件名
+      description:
+        type: string
+        description: 描述
+      upload_time:
+        type: integer
+        description: 镜像上传时间
+      file_name:
+        type: string
+        description: 后端的镜像文件名
+      last_run_time:
+        type: string
+        description: 上一次运行该镜像的时间
+      image_id:
+        type: string
+        description: 镜像的REPO:TAG
+      
+      harbor_artifact:
+        type: string
+        description: 镜像在Harbor的Artifact
+      dockerhub_ip:
+        type: string
+        description: 镜像存放库的IP
+      dockerhub_username:
+        type: string
+        description: 镜像私有库用户名
+      dockerhub_password:
+        type: string
+        description: 镜像私有库密码
+      
+      usage_tag:
+        type: string
+        description: 镜像的使用用途标签
+      service_id:
+        type: string
+        description: 绑定的服务ID
+      shared:
+        type: boolean
+        description: 是否为共享镜像
+  ImageInfoList:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码
+      message:
+        type: string
+        description: 状态信息
+      list_size:
+        type: integer
+        description: 显示列表的元素总数
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/ImageInfo'
+      image_status_dict:
+        type: object
+        properties:
+          STATUS_CODE:
+            type: object
+            description: 每一个状态对应的信息
+            properties:
+              status_str:
+                type: string
+                description: 状态对应的中文描述
+              description:
+                type: string
+                description: 状态对应的完整描述信息
+  ImageInfoSingle:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码
+      message:
+        type: string
+        description: 状态信息
+      data:
+        $ref: '#/definitions/ImageInfo'
+  ImageStatsInfo:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码
+      message:
+        type: string
+        description: 状态信息
+      data:
+        type: object
+        properties:
+          platform_info:
+            type: object
+            properties:
+              total_image_count:
+                type: integer
+                description: 镜像总个数
+              failed_image_count:
+                type: integer
+                description: 上传失败的镜像个数
+              ready_image_count:
+                type: integer
+                description: 上传成功的镜像个数
+              shared_image_count:
+                type: integer
+                description: 全局共享镜像的个数
+              image_type_count:
+                type: object
+                properties:
+                  USAGE_TAG:
+                    type: integer
+                    description: 指定usagetag对应的镜像总数
+          project_info:
+            type: object
+            properties:
+              repo_count:
+                type: integer
+                description: 当前Harbor总repo数量
+          storage_info:
+            type: object
+            properties:
+              total:
+                type: integer
+                description: Harbor总容量（单位：字节）
+              free:
+                type: integer
+                description: Harbor空闲容量（单位：字节）
+  UploadFileInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 文件ID
+      file_size:
+        type: string
+        description: 文件大小，单位字节
+      file_save_path:
+        type: string
+        description: 文件的保存路径
+      file_random_md5:
+        type: string
+        description: 文件的随机采样MD5
+      file_random_md5_method:
+        type: string
+        description: 文件的随机采样MD5方法
+      file_standard_md5:
+        type: string
+        description: 文件的标准MD5
+      file_standard_md5_method:
+        type: string
+        description: 文件的标准MD5计算方法
+      chunk_size:
+        type: string
+        description: 文件块大小，单位字节
+      origin_file_name:
+        type: string
+        description: 原始文件名称
+      uploaded_data_size:
+        type: string
+        description: 已经完成上传的数据大小，单位字节
+      user_id:
+        type: integer
+        description: 所属用户ID
+      last_sharing_time:
+        type: string
+        description: 上次被共享的时间
+      shared_file_id:
+        type: integer
+        description: 共享目标文件ID
+      upload_end_time:
+        type: string
+        description: 上传结束的时间
+      chunk_merged:
+        type: boolean
+        description: 是否完成了文件块合并
+      create_time:
+        type: string
+        description: 创建上传文件任务的时间
+  UploadStatus:
+    type: object
+    properties:
+      progress:
+        type: string
+        description: 上传文件进度，0-100的浮点数
+      upload_status:
+        type: string
+        description: 上传状态（显示文字）
+      file_size:
+        type: string
+        description: 当前上传文件的大小，单位字节
+      uploaded_data_size:
+        type: string
+        description: 已经上传的数据大小，单位字节
+      left_upload_time:
+        type: integer
+        description: 剩余的上传时间，单位秒
+      network_speed:
+        type: integer
+        description: 当前的上传速度，单位字节每秒
+      upload_finished:
+        type: boolean
+        description: 上传流程是否可以结束，True表示可以结束
+      upload_finished_status_code:
+        type: integer
+        description: 上传完成后的结束状态码，0表示正确完成
+      upload_finished_status_msg:
+        type: string
+        description: 上传完成后显示的状态信息，错误/正确信息
+  UploadFileFeedback:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码
+      message:
+        type: string
+        description: 状态信息
+      data:
+        type: object
+        properties:
+          file_info:
+            $ref: '#/definitions/UploadFileInfo'
+          upload_status:
+            $ref: '#/definitions/UploadStatus'
+  UploadChunkInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: 文件块ID
+      chunk_offset:
+        type: string
+        description: 当前文件块在文件中的偏移量，单位字节
+      chunk_size:
+        type: string
+        description: 文件块的实际大小，单位字节
+      chunk_file_path:
+        type: string
+        description: 文件块的存储路径
+      file_chunk_id:
+        type: integer
+        description: 文件块在文件内部的相对位置编号
+      chunk_md5:
+        type: string
+        description: 文件块的md5
+      file_id:
+        type: integer
+        description: 所属文件ID
+      upload_breakpoint_offset:
+        type: string
+        description: 文件块的上传断点偏移量，块内偏移量，单位字节
+      shared_chunk_id_list:
+        type: string
+        description: 共享文件块的ID列表
+      upload_start_time:
+        type: string
+        description: 上传开始的时间
+      upload_breakpoint_time:
+        type: string
+        description: 上传中断的时间
+      upload_end_time:
+        type: string
+        description: 上传结束的时间
+      chunk_progress_gap:
+        type: string
+        description: 单个文件块上传所占百分比
+  UploadChunkFeedback:
+    type: object
+    properties:
+      code:
+        type: integer
+        description: 状态码
+      message:
+        type: string
+        description: 状态信息
+      data:
+        type: object
+        properties:
+          new_mission:
+            $ref: '#/definitions/UploadChunkInfo'
+          upload_status:
+            $ref: '#/definitions/UploadStatus'
