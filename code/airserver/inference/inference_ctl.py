@@ -101,7 +101,7 @@ def inference_create_from_train(token, infer_name, train_id, model_name, prefix_
     )
 
     # docker build -t   Return 新 id
-    build_flag, infer_image_id = image_ctl.image_build_from_dockerfile(
+    build_flag, infer_image_id, infer_image_name = image_ctl.image_build_from_dockerfile(
         token=token,
         name=infer_name,
         description=description,
@@ -120,7 +120,7 @@ def inference_create_from_train(token, infer_name, train_id, model_name, prefix_
         "class1": "图像",
         "class3": "典型目标",
         "command": prefix_cmd,
-        "docker_images": image_name}  # 需要更改
+        "docker_images": infer_image_name}  # 需要更改
     flag, status = inference_to_service_shop(send_form, token)
 
     status_id = 200

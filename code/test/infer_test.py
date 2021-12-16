@@ -15,10 +15,10 @@ class InferTest(object):
         """
 
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTA1OGRlZmY2YmFiNDNkM2MzNDI0NjFmYTI3MzYyNWMzNWU4ZjY5NTgxMzliMDAyYmU2ZDUyZmQ5NzA1OTc4MTMtMg==",
         }
         data = {
-            "infer_name": "infer-demo-1211-v4",
+            "infer_name": "infer-demo-1215-v5",
             "train_id": 1,
             "model_name": "cur_model.pth",
             "prefix_cmd": "python /app/run.py",

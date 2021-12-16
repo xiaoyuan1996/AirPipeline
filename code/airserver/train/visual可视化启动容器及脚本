@@ -1,0 +1,15 @@
+启动方式：
+    docker run -it --name airserver-visual -p 33136:22 -p 33137:6006 -v /var/nfs/general/airpipline_all_visual:/visual www.registry.cyber.ai/airevaluation/airpipeline-inference-www.registry.cyber.ai/airevaluation/airpipeline/60b3816cf3/ed876b209e:v1202 /usr/sbin/sshd -D
+
+结构：
+    airpipline_all_visual/
+    └── logs
+        └── a
+
+进入容器 启动 tensorboard:
+    docker exec -it airserver-visual /bin/bash
+    cd /visual
+    tensorboard --logdir=logs
+
+浏览器输入：
+    http://192.168.9.62:33137

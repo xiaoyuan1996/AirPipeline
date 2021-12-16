@@ -10,12 +10,12 @@ import util
 logger = globalvar.get_value("logger")
 
 try:
-    from common.parse_config import get_config
+    from common.config_manager import get_config
 except:
     import sys
 
     sys.path.append("..")
-    from common.parse_config import get_config
+    from common.config_manager import get_config
 
 
 class pg_db(object):
@@ -84,7 +84,9 @@ class pg_db(object):
         task_id TEXT,
         
         task_type TEXT,
-        algo_framework TEXT NOT NULL
+        algo_framework TEXT NOT NULL,
+        
+        status_monitor TEXT
         );
         ''')
 
@@ -120,7 +122,9 @@ class pg_db(object):
         description TEXT,
         debug_user_name TEXT NOT NULL,
         debug_user_pw TEXT NOT NULL,
-        host_port int NOT NULL 
+        host_port int NOT NULL,
+        
+        status_monitor TEXT
         );
         ''')
 
@@ -134,7 +138,9 @@ class pg_db(object):
         status_id INT NOT NULL,
         code_path TEXT,
         data_path TEXT,
-        description TEXT
+        description TEXT,
+        
+        status_monitor TEXT     
         );
         ''')
 

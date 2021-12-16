@@ -1,10 +1,10 @@
 import json
-
+from threading import Timer
 import globalvar
 import util
 from api_controlers.apis_definition import ApisDefinition
-from assist import assist_ctl
-from common.parse_config import get_config
+from assist import assist_ctl, status_monitor
+from common.config_manager import get_config
 from debug import debug_ctl
 from flask import Flask, request
 from inference import inference_ctl
@@ -778,11 +778,6 @@ def api_run():
         """
         token: str 用户验证信息
         infer_id: int inferID
-        train_name: str 训练名称
-        dataset: 数据集
-        dist: 分布式
-        params: 分布式参数 optional
-        description: 描述信息 optional
 
         :return: bool 成功标志
         """
@@ -940,6 +935,12 @@ def api_run():
         flag, info = assist_ctl.get_all_tasktypes()
 
         return util.get_stand_return(flag, info)
+
+    # 定时任务
+    # 循环对k8s返回数据进行解析和状态更新
+    status_monitor_process = Timer(5, status_monitor.status_monitor_runner)
+    status_monitor_process.start()
+
 
     app_host = get_config("app_config", "host")
     app_port = get_config("app_config", "port")

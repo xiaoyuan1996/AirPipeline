@@ -365,6 +365,12 @@ def train_get_visual(token, train_id):
     else:
         visual_path = info[6]
 
+        util.copy_dir(
+            os.path.join(visual_path, "logs"),  # TODO: 检查手册中是否为logs，
+            get_config('path', 'visual_path')
+        )
+
+
         return True, os.path.join(visual_path, ".pkl")
 
 def train_generate_from_inference(token, infer_id, train_name, dataset, dist, description, params):

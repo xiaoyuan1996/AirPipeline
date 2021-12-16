@@ -14,14 +14,13 @@ if __name__ == '__main__':
     globalvar.set_value("logger", logger)
     globalvar.set_value("get_config", get_config)
 
-    name = get_config('tag_dic', 'single_algorithm')
-
     # 注册
 
     # 初始化运行存储
     util.init_pipline_data(get_config('path', 'airpipline_path'))
 
     # 数据库初始化
+    from base_function import connectpg
 
     # 开启接口
     from api_controlers import apis

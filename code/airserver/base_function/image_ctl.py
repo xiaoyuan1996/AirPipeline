@@ -76,9 +76,10 @@ def image_build_from_dockerfile(token, name, description, docker_file, src_image
     response = requests.post(url=get_config('image', 'image_build'), data=form, headers={"token": token})
 
     response = json.dumps(response.json(), ensure_ascii=False)
+    logger.info("image_build_from_dockerfile: {}".format(response))
 
     if json.loads(response)['code'] != 0:
         print("image_build_from_dockerfile: {}".format(response))
-        return False, -1
+        return False, -1, _
     else:
-        return True, json.loads(response)['data']['id']
+        return True, json.loads(response)['data']['id'], json.loads(response)['data']['image_id']

@@ -1,7 +1,7 @@
 database:
   dbhost: 192.168.9.64
   minconn: 5
-  maxconnL: 200
+  maxconn: 200
   user: iecas
   password: 123456
   dbname: geodl_iecas
@@ -49,42 +49,19 @@ path:
   document_path: /mnt/mfs/data/static/assets/airstudio_pdf_manager
   static_path: http://192.168.9.64:31153/api/v1/static/assets/airstudio_pdf_manager
   airpipline_path: /var/nfs/general/airpipline_all_data
+  visual_path: /var/nfs/general/airpipline_all_visual/logs
 
 datasetpath:
   path: /mnt/mfs/data
 
-tab_name:
-  traincodetab: traincodetab
-  usertab: usertab
-  aienginetab: aienginetab
-  paasservicetab: paasservicetab
-  smoketesttab: smoketesttab
-  modeltab: modeltab
+status_monitor:
+  monitor_step_time: 5
 
 job:
   work_dir: /app
   dataset_dir: /dataset
   model_dir: /data/model
   log_dir: /data/log
-
-redis:
-  host: MASTER_IP
-  password:
-  port: 31171
-  db: 0
-
-paas_service:
-  namespace: airpaas
-  smoke_namespace: smokepaas
-  work_dir: /app
-
-intelligent_platform:
-  url: http://MASTER_IP:32295/service
-  job_url: http://MASTER_IP:32295/service
-  update_url: http://MASTER_IP:32295/service/
-
-edge_platform:
-  upload_url: http://173.21.8.26:8002/api/modelSimplify/fileUpload
 
 tag_dic:
   tensorflow: 0

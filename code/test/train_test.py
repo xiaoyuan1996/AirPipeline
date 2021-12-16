@@ -146,10 +146,10 @@ class TrainTest(object):
     def train_get_visual(self):
         # 得到训练train进度
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVlMTA3YjQxYjcxY2FiZjM4YTU5ZTMxMjI3ZmYyZjk2MTliOWMxMmUzMmM3OTIwYzlmZmRiYmI3NDAxNjMzNDAtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWU0NWEwZjliNGE2NGRhOGYwMzkzZTMyMzQ5NDQ0MjRkNTU2YzIwYWMzNGY2ODU5MjEwNWJkZjllYmVjNTlmM2MtMg==",
         }
         data = {
-            "train_id": 28,
+            "train_id": 1,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_get_visual/'
 
@@ -163,8 +163,8 @@ if __name__ == "__main__":
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    # t.train_get_visual()
-    t.train_create()
+    t.train_get_visual()
+    # t.train_create()
     # t.train_start()
     # t.train_delete()
     # t.train_query()
