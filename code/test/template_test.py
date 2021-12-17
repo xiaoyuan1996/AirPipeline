@@ -6,10 +6,10 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWZiZWYxZWNmOGMxOWNkODg1NmFmYTMyZTczZWNmOTUyM2I0Nzc0M2IzMmUzOTQ1ZWY0NDc4NmRmMDM2NDI3NmMtMg==",
         }
         data = {
-            "template_name": "template_demo_1214",
+            "template_name": "template_demo_1217",
             "image_id": 4,
             "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
             "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
@@ -48,14 +48,14 @@ class TemplateTest(object):
     def template_delete(self):
         # 删除template
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWZiZWYxZWNmOGMxOWNkODg1NmFmYTMyZTczZWNmOTUyM2I0Nzc0M2IzMmUzOTQ1ZWY0NDc4NmRmMDM2NDI3NmMtMg==",
         }
         data = {
-            "template_id": 1,
+            "template_id": 4,
         }
-        url = 'http://0.0.0.0:5000/airserver-2.0/template_delete/'
+        url = 'http://192.168.9.64:33135/airserver-2.0/template_delete/'
 
-        r = requests.post(url, data=json.dumps(data), headers=header)
+        r = requests.delete(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def template_query(self):
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     t = TemplateTest()
 
     # t.template_generate_from_train()
-    t.template_create()
-    # t.template_delete()
+    # t.template_create()
+    t.template_delete()
     # t.template_query()
     # t.template_edit()

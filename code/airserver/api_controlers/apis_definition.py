@@ -7,7 +7,7 @@ class ApisDefinition(object):
         self.notebook_start = self.apis_demo("/airserver-2.0/notebook_start/", "POST", "api_run.notebook_start")
         self.notebook_pause = self.apis_demo("/airserver-2.0/notebook_pause/", "POST", "api_run.notebook_pause")
         self.notebook_stop = self.apis_demo("/airserver-2.0/notebook_stop/", "POST", "api_run.notebook_stop")
-        self.notebook_delete = self.apis_demo("/airserver-2.0/notebook_delete/", "POST", "api_run.notebook_delete")
+        self.notebook_delete = self.apis_demo("/airserver-2.0/notebook_delete/", "DELETE", "api_run.notebook_delete")
         self.notebook_query = self.apis_demo("/airserver-2.0/notebook_query/", "POST", "api_run.notebook_query")
 
         # ====================== DEBUG ==============================
@@ -23,7 +23,7 @@ class ApisDefinition(object):
         # TEMPLATE定义
         self.template_create = self.apis_demo("/airserver-2.0/template_create/", "POST", "api_run.template_create")
         self.template_edit = self.apis_demo("/airserver-2.0/template_edit/", "POST", "api_run.template_edit")
-        self.template_delete = self.apis_demo("/airserver-2.0/template_delete/", "POST", "api_run.template_delete")
+        self.template_delete = self.apis_demo("/airserver-2.0/template_delete/", "DELETE", "api_run.template_delete")
         self.template_query = self.apis_demo("/airserver-2.0/template_query/", "POST", "api_run.template_query")
         self.template_generate_from_train = self.apis_demo("/airserver-2.0/template_generate_from_train/", "POST",
                                                            "api_run.template_generate_from_train")
@@ -31,14 +31,14 @@ class ApisDefinition(object):
         # ====================== TRAIN ==============================
         # 训练任务定义
         self.train_create = self.apis_demo("/airserver-2.0/train_create/", "POST", "api_run.train_create")
-        self.train_start = self.apis_demo("/airserver-2.0/train_start/", "POST", "api_run.train_start")
-        self.train_pause = self.apis_demo("/airserver-2.0/train_pause/", "POST", "api_run.train_pause")
+        self.train_start = self.apis_demo("/airserver-2.0/train_start/", "PUT", "api_run.train_start")
+        self.train_pause = self.apis_demo("/airserver-2.0/train_pause/", "PUT", "api_run.train_pause")
         self.train_stop = self.apis_demo("/airserver-2.0/train_stop/", "POST", "api_run.train_stop")
-        self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "POST", "api_run.train_delete")
-        self.train_query = self.apis_demo("/airserver-2.0/train_query/", "POST", "api_run.train_query")
-        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "POST",
+        self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "DELETE", "api_run.train_delete")
+        self.train_query = self.apis_demo("/airserver-2.0/train_query/", "GET", "api_run.train_query")
+        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "GET",
                                                  "api_run.train_get_schedule")
-        self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "POST", "api_run.train_get_visual")
+        self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "GET", "api_run.train_get_visual")
         self.train_generate_from_inference = self.apis_demo("/airserver-2.0/train_generate_from_inference/", "POST", "api_run.train_generate_from_inference")
 
         # ====================== INFERENCE ==============================

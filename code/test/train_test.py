@@ -122,10 +122,10 @@ class TrainTest(object):
         :return: 查询到的train信息
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVlMTA3YjQxYjcxY2FiZjM4YTU5ZTMxMjI3ZmYyZjk2MTliOWMxMmUzMmM3OTIwYzlmZmRiYmI3NDAxNjMzNDAtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWZiZWYxZWNmOGMxOWNkODg1NmFmYTMyZTczZWNmOTUyM2I0Nzc0M2IzMmUzOTQ1ZWY0NDc4NmRmMDM2NDI3NmMtMg==",
         }
 
-        url = 'http://0.0.0.0:5000/airserver-2.0/train_query/'
+        url = 'http://192.168.9.64:33135/airserver-2.0/train_query/'
 
         r = requests.post(url, headers=header)
         print(r.json())
@@ -163,8 +163,8 @@ if __name__ == "__main__":
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    t.train_get_visual()
+    # t.train_get_visual()
     # t.train_create()
     # t.train_start()
     # t.train_delete()
-    # t.train_query()
+    t.train_query()

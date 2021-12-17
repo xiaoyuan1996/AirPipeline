@@ -1,0 +1,553 @@
+swagger: '2.0'
+info:
+  title: AirPlatform-AirPipeline API（BaseURL:192.168.9.64:33135/airserver-2.0）
+  description: These APIs provide services for AirPlatform-AirPipeline backend project.
+  version: 0.7.0
+host: 192.168.9.64:33135
+schemes:
+  - http
+basePath: /airserver-2.0
+tags:
+  - name: "AirPipeline"
+    description: AirPipeline后台
+paths:
+
+  /template_create/:
+    post:
+      summary: 创建模板
+      description: 根据上传和选择文件创建模板
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "template_create"
+          required: true
+          description: "创建模板"
+          schema:
+            $ref: "#/definitions/template_create"
+      tags:
+        - TEMPLATE
+      responses:
+        '200':
+          description: 创建成功
+        '400':
+          description: 创建失败
+        '500':
+          description: Internal Error
+
+  /template_delete/:
+    delete:
+      summary: 删除 template
+      description: 根据template_id 删除 template
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "template_delete"
+          required: true
+          description: "删除 template"
+          schema:
+            $ref: "#/definitions/template_id"
+      tags:
+        - TEMPLATE
+      responses:
+        '200':
+          description: 删除成功
+        '400':
+          description: 删除失败
+        '500':
+          description: Internal Error
+
+  /train_create/:
+    post:
+      summary: 创建训练任务
+      description: 根据模板和数据创建训练任务
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_create"
+          required: true
+          description: "创建训练任务"
+          schema:
+            $ref: "#/definitions/train_create"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 创建成功
+        '400':
+          description: 创建失败
+        '500':
+          description: Internal Error
+
+  /train_start/:
+    put:
+      summary: 启动train
+      description: 根据train_id 启动 train
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_start"
+          required: true
+          description: "启动train"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_delete/:
+    delete:
+      summary: 删除train
+      description: 根据train_id 删除 train
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_delete"
+          required: true
+          description: "删除train"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_pause/:
+    put:
+      summary: 暂停train
+      description: 根据train_id 暂停train
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_pause"
+          required: true
+          description: "暂停train"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_stop/:
+    put:
+      summary: 停止train
+      description: 根据train_id 停止train
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_stop"
+          required: true
+          description: "停止train"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_query/:
+    get:
+      summary: 查询 train 信息
+      description: 根据 user_id 查询 train 信息
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_get_schedule/:
+    get:
+      summary: 得到训练train进度
+      description: 根据train_id 得到训练train进度
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_get_schedule"
+          required: true
+          description: "得到训练train进度"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /train_get_visual/:
+    get:
+      summary: 根据训练任务启可视化服务
+      description: 根据训练任务启可视化服务
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "train_get_visual"
+          required: true
+          description: "根据训练任务启可视化服务"
+          schema:
+            $ref: "#/definitions/train_id"
+      tags:
+        - TRAIN
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+
+  /inference_create_from_train/:
+    post:
+      summary: 根据训练任务创建推理
+      description: 根据训练任务创建推理
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "inference_create_from_train"
+          required: true
+          description: "根据训练任务创建推理"
+          schema:
+            $ref: "#/definitions/inference_create_from_train"
+      tags:
+        - INFERENCE
+      responses:
+        '200':
+          description: 创建成功
+        '400':
+          description: 创建失败
+        '500':
+          description: Internal Error
+
+  /get_spec_dir/:
+    post:
+      summary: 查询特定路径下的文件
+      description: 查询特定路径下的文件
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+        - in: "body"
+          name: "get_spec_dir"
+          required: true
+          description: "查询特定路径下的文件"
+          schema:
+            $ref: "#/definitions/get_spec_dir"
+      tags:
+        - ASSIST
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /get_all_frameworks/:
+    get:
+      summary: 查询全部框架
+      description: 查询得到的框架名称
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - ASSIST
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+  /get_all_tasktypes/:
+    get:
+      summary: 查询全部任务类型
+      description: 查询全部任务类型
+      consumes:
+        - application/json
+      produces:
+        - apllication/json
+      parameters:
+        - in: "header"
+          name: token
+          description: 用户token
+          required: true
+          type: string
+      tags:
+        - ASSIST
+      responses:
+        '200':
+          description: 成功
+        '400':
+          description: 失败
+        '500':
+          description: Internal Error
+
+definitions:
+
+  template_id:
+    type: "object"
+    properties:
+      template_id:
+        type: "integer"
+    example:
+      template_id: 1
+
+  template_create:
+    type: "object"
+    properties:
+      template_name:
+        type: "string"
+      image_id:
+        type: "integer"
+      code_path:
+        type: "string"
+      model_path:
+        type: "string"
+      description:
+        type: "string"
+      task_type:
+        type: "string"
+      algo_framework:
+        type: "string"
+    example:
+      template_name: "template_demo_1214"
+      image_id: 4,
+      code_path: "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar"
+      model_path: "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl"
+      description: "hello126"
+      task_type: "场景分类"
+      algo_framework: "Tensorflow_v1.6.0"
+
+  train_create:
+    type: "object"
+    properties:
+      train_name:
+        type: "string"
+      template_id:
+        type: "integer"
+      dataset:
+        type: "string"
+      dist:
+        type: "boolean"
+      description:
+        type: "string"
+      params:
+        type: "object"
+        items:
+          $ref: "#/definitions/other_params"
+    example:
+      train_name: "train-demo-1214-v3"
+      template_id: 2,
+      dataset: "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_data.tar"
+      dist: False
+      description: "airstudio dist test"
+      params: {
+        "spec_model": "cur_model.pth",
+
+        "framework": "pytorch",
+        "job_command": "python /app/mnist.py",
+        "job_args": "----batch_size=8",
+
+        "master_replicas": 1,
+        "worker_replicas": 1,
+        "restart_policy": "Never",
+      }
+
+  other_params:
+    type: "object"
+    properties:
+      spec_model:
+        type: "string"
+      framework:
+        type: "string"
+      job_command:
+        type: "string"
+      job_args:
+        type: "string"
+      master_replicas:
+        type: "string"
+      worker_replicas:
+        type: "string"
+      restart_policy:
+        type: "string"
+
+  train_id:
+    type: "object"
+    properties:
+      train_id:
+        type: "integer"
+    example:
+      train_id: 1
+
+  inference_create_from_train:
+    type: "object"
+    properties:
+      infer_name:
+        type: "string"
+      train_id:
+        type: "integer"
+      model_name:
+        type: "string"
+      prefix_cmd:
+        type: "boolean"
+      description:
+        type: "string"
+      params:
+        type: "object"
+        items:
+          $ref: "#/definitions/other_params"
+    example:
+      infer_name: "infer-demo-1215-v5"
+      train_id: 2,
+      model_name: "cur_model.pth"
+      prefix_cmd: "python /app/run.py"
+      description: "airstudio dist test"
+      params: {"no":"test"}
+
+  get_spec_dir:
+    type: "object"
+    properties:
+      query_type:
+        type: "string"
+      type_id:
+        type: "integer"
+      subdir:
+        type: "string"
+    example:
+      query_type: "train"
+      type_id: 1
+      subdir: "model"
+

@@ -927,7 +927,7 @@ def api_run():
     @app.route(_apis.get_all_tasktypes['url'], methods=_apis.get_all_tasktypes['method'])
     def get_all_tasktypes():
         """
-        查询全部框架
+        查询全部任务类型
         Returns: 查询得到的任务名称
             ["目标检测", ...]
         """
@@ -938,8 +938,8 @@ def api_run():
 
     # 定时任务
     # 循环对k8s返回数据进行解析和状态更新
-    status_monitor_process = Timer(5, status_monitor.status_monitor_runner)
-    status_monitor_process.start()
+    # status_monitor_process = Timer(5, status_monitor.status_monitor_runner)
+    # status_monitor_process.start()
 
 
     app_host = get_config("app_config", "host")

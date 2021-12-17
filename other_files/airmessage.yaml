@@ -1,0 +1,733 @@
+swagger: '2.0'
+info:
+  description: 全局消息管理接口文档
+  version: v0.0.1
+  title: 全局消息管理接口文档
+host: localhost:8090
+schemes:
+  - https
+basePath: /api/v1
+tags:
+  - name: Message Manager
+    description: 全局消息管理-管理所有消息请求
+paths:
+  /airmessage/message:
+    get:
+      tags:
+        - Message Manager
+      summary: 获取所有消息以及推送阅读情况
+      consumes:
+        - multipart/form-data
+      operationId: getAllMessageInfoUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: pageNum
+          in: query
+          required: false
+          description: 分页参数：当前页
+          type: integer
+        - name: pageSize
+          in: query
+          required: false
+          description: 分页参数：页面大小
+          type: integer
+        - name: notification_level
+          in: query
+          required: false
+          description: 筛选条件：通知级别
+          type: integer
+        - name: notification_title
+          in: query
+          required: false
+          description: 筛选条件：通知标题
+          type: string
+        - name: notification_type
+          in: query
+          required: false
+          description: 筛选条件：通知类型
+          type: string
+        - name: serviceId
+          in: query
+          required: false
+          description: 筛选条件：服务ID
+          type: integer
+        - name: targetUserId
+          in: query
+          required: false
+          description: 筛选条件：目标用户ID
+          type: integer
+        - name: targetUserLevel
+          in: query
+          required: false
+          description: 筛选条件：目标用户等级
+          type: string
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    post:
+      tags:
+        - Message Manager
+      summary: 创建新的消息通知
+      description: 创建新的消息，并且同时创建用户消息实例
+      operationId: createNewMessageExampleUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - in: body
+          name: messageInfo
+          description: 消息详情
+          required: true
+          schema:
+            $ref: '#/definitions/MessageInfo'
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    put:
+      tags:
+        - Message Manager
+      summary: 更新通知以及通知实例
+      description: 根据消息Id更新消息通知，理论上需要传入修改信息
+      operationId: updateMessageByMessageIdUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - in: body
+          name: messageInfo
+          description: 要更新的消息内容，封装为消息实体类对象
+          required: true
+          schema:
+            $ref: '#/definitions/MessageInfo'
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Message Manager
+      summary: 删除多个消息实例
+      description: 根据Id删除消息信息，同时删除对应通知实例(支持单个删除)
+      operationId: removeManyMessageExampleUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - in: body
+          name: messageInfos
+          description: 要删除的消息的id数组，个数没有限制
+          required: true
+          schema:
+            $ref: '#/definitions/ArrayParams'
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /airmessage/message/instance/user/current:
+    get:
+      tags:
+        - Message Manager
+      summary: 获取当前用户的所有消息实例
+      operationId: getUserAllExampleByIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: pageNum
+          in: query
+          required: false
+          description: 分页参数：当前页
+          type: integer
+        - name: pageSize
+          in: query
+          required: false
+          description: 分页参数：页面大小
+          type: integer
+        - name: notification_level
+          in: query
+          required: false
+          description: 筛选条件：通知级别
+          type: integer
+        - name: notification_title
+          in: query
+          required: false
+          description: 筛选条件：通知标题
+          type: string
+        - name: notification_type
+          in: query
+          required: false
+          description: 筛选条件：通知类型
+          type: string
+        - name: serviceId
+          in: query
+          required: false
+          description: 筛选条件：服务ID
+          type: integer
+        - name: targetUserId
+          in: query
+          required: false
+          description: 筛选条件：目标用户ID
+          type: integer
+        - name: targetUserLevel
+          in: query
+          required: false
+          description: 筛选条件：目标用户等级
+          type: string
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /airmessage/message/instance/user/current/latest:
+    get:
+      tags:
+        - Message Manager
+      summary: 获取当前用户的所有最新未读实例，给出一个固定数量的显示
+      operationId: getUserUnreadExampleUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: showNum
+          in: query
+          required: false
+          description: 显示条数
+          type: integer
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/airmessage/message/instance/user/{userId}':
+    get:
+      tags:
+        - Message Manager
+      summary: 获取指定用户的所有消息实例
+      consumes: 
+        - multipart/form-data
+      operationId: getUserAllExampleByIdUsingGET_1
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - in: path
+          description: 指定的用户id
+          name: userId
+          required: true
+          type: integer
+        - name: pageNum
+          in: query
+          required: false
+          description: 分页参数：当前页
+          type: integer
+        - name: pageSize
+          in: query
+          required: false
+          description: 分页参数：页面大小
+          type: integer
+        - name: notification_level
+          in: query
+          required: false
+          description: 筛选条件：通知级别
+          type: integer
+        - name: notification_title
+          in: query
+          required: false
+          description: 筛选条件：通知标题
+          type: string
+        - name: notification_type
+          in: query
+          required: false
+          description: 筛选条件：通知类型
+          type: string
+        - name: serviceId
+          in: query
+          required: false
+          description: 筛选条件：服务ID
+          type: integer
+        - name: targetUserId
+          in: query
+          required: false
+          description: 筛选条件：目标用户ID
+          type: integer
+        - name: targetUserLevel
+          in: query
+          required: false
+          description: 筛选条件：目标用户等级
+          type: string
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/airmessage/message/instance/{instanceId}':
+    put:
+      tags:
+        - Message Manager
+      summary: 根据实例ID更新实例状态
+      operationId: updateInstanceStatusUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: instanceId
+          in: path
+          description: 要更新的实例Id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Message Manager
+      summary: 根据实例ID删除实例
+      operationId: removeInstanceByIdUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: instanceId
+          in: path
+          description: 要删除的实例Id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      deprecated: false
+  /airmessage/message/statis:
+    get:
+      tags:
+        - Message Manager
+      summary: 获取所有消息统计信息
+      description: 统计中级别消息的推送、阅读情况，支持根据时间段进行时间范围查询
+      consumes:
+        - multipart/form-data
+      operationId: getAllMessageInfoStatisUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: startTime
+          in: query
+          required: false
+          description: 搜索参数：开始时间
+          type: string
+        - name: endTime
+          in: query
+          required: false
+          description: 搜索参数：结束时间
+          type: string
+        - name: standard
+          in: query
+          required: false
+          description: 统计标准，可传：DAY、MONTH、WEEK
+          type: string
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/Statis'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/airmessage/message/{messageId}':
+    get:
+      tags:
+        - Message Manager
+      summary: 根据消息Id获取消息详细信息
+      operationId: getMessageInfoByIdUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: token
+          in: header
+          required: true
+          description: 用户token
+          type: string
+        - name: messageId
+          in: path
+          description: 要获取的消息Id
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: 请求码，成功
+          schema:
+            $ref: '#/definitions/ResponseBody'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+definitions:
+  Statis:
+    type: object
+    properties:
+      code:
+        type: string
+      data:
+        type: object
+        properties:
+          0:
+            type: object
+            properties:
+              current:
+                type: integer
+                description: 当前页
+                example: 1
+              total:
+                type: integer
+                description: 总数
+                example: 1
+              pages:
+                type: integer
+                description: 总页数
+                example: 1
+              size:
+                type: integer
+                description: 每页大小
+                example: 1
+              records:
+                type: object
+                description: 数据集合
+          1:
+            type: object
+            description: 数据集合
+      message:
+        type: string
+    title: ResponseBody
+  ArrayParams:
+    type: object
+    description: 删除id数组
+    properties:
+      paramsArr:
+        type: array
+        items:
+          type: integer
+          example: 1
+  JSONObject:
+    type: object
+    title: JSONObject
+    additionalProperties:
+      type: object
+  ResponseBody:
+    type: object
+    properties:
+      code:
+        type: string
+      data:
+        type: array
+        items:
+          type: object
+      message:
+        type: string
+    title: ResponseBody
+  Timestamp:
+    type: object
+    properties:
+      date:
+        type: integer
+        format: int32
+      day:
+        type: integer
+        format: int32
+      hours:
+        type: integer
+        format: int32
+      minutes:
+        type: integer
+        format: int32
+      month:
+        type: integer
+        format: int32
+      nanos:
+        type: integer
+        format: int32
+      seconds:
+        type: integer
+        format: int32
+      time:
+        type: integer
+        format: int64
+      timezoneOffset:
+        type: integer
+        format: int32
+      year:
+        type: integer
+        format: int32
+    title: Timestamp
+  SearchParams:
+    type: object
+    required:
+      - pageNum
+      - pageSize
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 对应各种传入的ID
+      notification_level:
+        type: integer
+        format: int32
+        description: 筛选属性：通知级别
+      notification_title:
+        type: string
+        description: 筛选属性：通知标题
+      notification_type:
+        type: integer
+        format: int32
+        description: 筛选属性：通知类型
+      pageNum:
+        type: integer
+        format: int32
+        description: 分页属性：当前页
+      pageSize:
+        type: integer
+        format: int32
+        description: 分页属性：每页显示数据条数
+      service_id:
+        type: integer
+        format: int32
+        description: 筛选属性：服务ID
+      showNum:
+        type: integer
+        format: int32
+        description: 显示用户固定数量未读实例时，限制显示数量
+      source_user_id:
+        type: integer
+        format: int32
+        description: 筛选属性：创建通知用户ID
+      userId:
+        type: integer
+        format: int32
+        description: 用户ID
+        example: 2
+      userName:
+        type: string
+        description: 用户名字
+    title: 搜索参数实体类
+  MessageInfo:
+    type: object
+    required:
+      - invalidatedTime
+      - notificationContent
+      - notificationLevel
+      - notificationTitle
+      - notificationType
+      - serviceId
+      - sourceUserId
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: 消息ID
+      invalidatedTime:
+        description: 通知有效时间
+        example: '2021-11-25 17:55:39'
+      notificationContent:
+        type: string
+        description: 通知内容
+        example: '系统坏了'
+      notificationLevel:
+        type: integer
+        format: int32
+        description: 通知级别
+        example: 1
+      notificationTitle:
+        type: string
+        example: '重要通知'
+      notificationType:
+        type: string
+        description: 通知类型
+        example: '严重'
+      serviceId:
+        type: integer
+        format: int32
+        description: 服务ID
+        example: '0'
+      sourceUserId:
+        type: integer
+        format: int32
+        description: 创建该消息的用户ID
+      targetUserId:
+        type: integer
+        format: int32
+        description: 通知目标用户ID
+        example: 0
+      targetUserLevel:
+        type: string
+        description: 通知目标用户级别
+        example: '0,1,2'
+    title: 通知消息实体类
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+              
+
+              
+              
+              
+              
+              
+              
+              
+              
+              
+

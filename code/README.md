@@ -52,9 +52,15 @@ Airserver-2.0 负责训练、推理等流程服务，重点在于代码编码及
 * [TODO](#todo)
     * TD1: 加入训练后模型选择机制 √
     * TD2: 多线程调度更新后台状态
-    * TD3: visual创建挂载
+    * TD3: visual创建挂载 √
     * TD4: 自动调参
     * TD5: 和润岩调k8s
+    * TD6: 根据数据集id拿数据集路径
+    * TD7: 创建模板时加入启动train命令和测试命令
+    * TD8: train query 支持批量查询
+    * TD9: query 支持分页
+    * TD10: query时支持筛选
+    * TD11: 拿tensorboard 返url
     
 
 ## Api Details

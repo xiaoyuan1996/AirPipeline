@@ -6,7 +6,7 @@ class AssistTest(object):
     def get_spec_dir(self):
         data = {
             "query_type": "train",
-            "type_id": 28,
+            "type_id": 1,
             "subdir": "model",
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/get_spec_dir/'
