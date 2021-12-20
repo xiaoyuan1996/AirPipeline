@@ -13,12 +13,6 @@ get_config = globalvar.get_value("get_config")
 
 
 def train_create(token, train_name, template_id, dataset_id, dist, description, params):
-    if "automl" not in params.keys():
-        train_create_src(token, train_name, template_id, dataset_id, dist, description, params)
-    else:
-        train_create_automl(token, train_name, template_id, dataset_id, dist, description, params)
-
-def train_create_src(token, train_name, template_id, dataset_id, dist, description, params):
     """
     token: str 用户验证信息
     train_name: train 名称
@@ -32,12 +26,12 @@ def train_create_src(token, train_name, template_id, dataset_id, dist, descripti
 
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1: return False, "train_create_src： user check failed."
+    if user_id == -1: return False, "train_create： user check failed."
 
     # 判断是否存在
     read_sql = "select * from airpipline_trainjobtab where user_id={0} and name='{1}'".format(user_id, train_name)
     flag, info = DB.query_all(read_sql)
-    if info != []: return False, "train_create_src： train_name exists."
+    if info != []: return False, "train_create： train_name exists."
 
     # 查表拿到模板信息
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
@@ -55,9 +49,9 @@ def train_create_src(token, train_name, template_id, dataset_id, dist, descripti
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template,automl) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}',{15},{16})".format(
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}',{15})".format(
         train_name, user_id, image_id, create_time, status_id, code_path, dataset_id, model_path, "", dist, description,
-        json.dumps(params), 'None', task_type, algo_framework, template_id, False)
+        json.dumps(params), 'None', task_type, algo_framework, template_id)
 
     flag, data = DB.insert(sql)
 
@@ -97,10 +91,9 @@ def train_create_src(token, train_name, template_id, dataset_id, dist, descripti
             # 更新表单
             update_sql = "update airpipline_trainjobtab set status_monitor='{0}', status_id=400 where id = {1}".format(dataset, train_id)
             _, _ = DB.update(update_sql)
-            return False, "train_create_src： sampleset query failed."
+            return False, "train_create： sampleset query failed."
 
         util.copy_dir(dataset, data_own)
-
         # util.copy_compress_to_dir(dataset, data_own)
         volumeMounts.append({
             "host_path": data_own,
@@ -114,11 +107,10 @@ def train_create_src(token, train_name, template_id, dataset_id, dist, descripti
             "host_path": code_own,
             "mount_path": "/app"
         })
-
     if (model_path != None) and (params["spec_model"] != None):
         if not os.path.exists(os.path.join(model_path, params["spec_model"])):
             train_delete(token, train_id)
-            return False, "train_create_src： model_path not exists."
+            return False, "train_create： model_path not exists."
 
         # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
         shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own))
@@ -161,7 +153,7 @@ def train_create_src(token, train_name, template_id, dataset_id, dist, descripti
         status_id, code_own, data_own, model_own, visual_own, task_id, train_id)
     _, _ = DB.update(update_sql)
 
-    return flag, "train_create_src： create success."
+    return flag, "train_create： create success."
 
 
 def train_start(token, train_id):
@@ -187,7 +179,7 @@ def train_start(token, train_id):
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
                 token=token,
-                pod_name="train-" + str(train_id),
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
                 task_id=info[2]
             )
@@ -221,7 +213,7 @@ def train_delete(token, train_id):
         if int(info[0]) == user_id:
             # 删除k8s
             flag, info = k8s_ctl.k8s_delete(
-                pod_name="train-" + str(train_id),
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
 
@@ -312,7 +304,7 @@ def train_pause(token, train_id):
         if int(info[0]) == user_id:
             # 暂停k8s
             flag, info = k8s_ctl.k8s_pause(
-                pod_name="train-" + str(train_id),
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
 
@@ -345,7 +337,7 @@ def train_stop(token, train_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name="train-" + str(train_id),
+                pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
             )
             # 更新表单
@@ -533,157 +525,4 @@ def train_generate_from_inference(token, infer_id, train_name, dataset, dist, de
     _, _ = DB.update(update_sql)
 
     return flag, info
-
-def train_create_automl(token, train_name, template_id, dataset_id, dist, description, params):
-    """
-    token: str 用户验证信息
-    train_name: train 名称
-    template_id: int 模板ID
-    dataset_id: str 挂载数据_id
-    dist : bool 是否分布式
-    description: str 描述 optional
-
-    :return: bool 成功标志
-    """
-
-    # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1: return False, "train_create： user check failed."
-
-    # 判断是否存在
-    read_sql = "select * from airpipline_trainjobtab where user_id={0} and name='{1}'".format(user_id, train_name)
-    flag, info = DB.query_all(read_sql)
-    if info != []: return False, "train_create_src： train_name exists."
-
-    # 查表拿到模板信息
-    read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
-    flag, info = DB.query_one(read_sql)
-    image_id = info[3]
-    code_path = info[4]
-    model_path = info[5]
-    task_type = info[9]
-    algo_framework = info[10]
-    train_cmd = info[14]
-
-    # 获取镜像名称
-    flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
-    status_id = 100
-
-    # 数据库插入
-    create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template,automl) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}',{15},{16})".format(
-        train_name, user_id, image_id, create_time, status_id, code_path, dataset_id, model_path, "", dist, description,
-        json.dumps(params), 'None', task_type, algo_framework, template_id, True)
-
-    flag, data = DB.insert(sql)
-
-    # 查询插入的id
-    read_sql = "select id from airpipline_trainjobtab"
-    flag, info = DB.query_all(read_sql)
-    if info == None:
-        train_id = 0
-    else:
-        train_id = info[-1][0]
-
-    # 解析 automl 参数
-    automl_args = params['automl']
-    automl_niters = automl_args['niter']
-    automl_paramters = automl_args['paramters']
-
-    # 创建特定模板
-    # ========== 创建文件夹
-    # external文件夹下创建对应用户的train文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train"))
-    util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                            "code")
-    util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                            "data")
-    util.create_dir_if_not_exist(data_own)
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                             "models")
-    util.create_dir_if_not_exist(model_own)
-    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                              "visuals")
-    util.create_dir_if_not_exist(visual_own)
-
-    # 创建 automl 文件夹
-    for idx in range(automl_niters):
-        model_tmp = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train",
-                                 str(train_id), "models", str(idx + 1))
-        util.create_dir_if_not_exist(model_tmp)
-
-        visual_tmp = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train",
-                                 str(train_id), "visuals", str(idx + 1))
-        util.create_dir_if_not_exist(visual_tmp)
-
-        # 创建挂载
-        volumeMounts = []
-        if dataset_id != None:
-            query_flag, dataset = sampleset_ctl.sampleset_from_id_to_path(token, dataset_id)
-            if not query_flag:
-                # 更新表单
-                update_sql = "update airpipline_trainjobtab set status_monitor='{0}', status_id=400 where id = {1}".format(dataset, train_id)
-                _, _ = DB.update(update_sql)
-                return False, "train_create_automl： sampleset query failed."
-
-            util.copy_dir(dataset, data_own)
-
-            # util.copy_compress_to_dir(dataset, data_own)
-            volumeMounts.append({
-                "host_path": data_own,
-                "mount_path": "/dataset"
-            })
-
-        if (model_path != None) and (params["spec_model"] != None):
-            if not os.path.exists(os.path.join(model_path, params["spec_model"])):
-                train_delete(token, train_id)
-                return False, "train_create_src： model_path not exists."
-
-            # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
-            shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, str(idx + 1)))
-
-        volumeMounts.append({
-            "host_path": os.path.join(model_own, str(idx + 1)),
-            "mount_path": "/data/model"
-        })
-        volumeMounts.append({
-            "host_path": os.path.join(visual_own, str(idx + 1)),
-            "mount_path": "/data/log"
-        })
-
-        # TODO： 完善 AUTOML
-        # if not dist:
-        #     # 　非分布式
-        #     task_id, info = k8s_ctl.k8s_create(
-        #         token=token,
-        #         pod_name="train-automl-" + str(train_id) + "-" +str(idx),
-        #         image_id=image_id,
-        #         image_name=image_name,
-        #         lables="airstudio-train",
-        #         volumeMounts=volumeMounts,
-        #         train_cmd=train_cmd
-        #     )
-        # else:
-        #     # 分布式
-        #     task_id, info = k8s_ctl.k8s_create_dist(
-        #         pod_name="train-automl-" + str(train_id) + "-" +str(idx),
-        #         image_name=image_name,
-        #         lables="airstudio-train",
-        #         volumeMounts=volumeMounts,
-        #         params=params,
-        #         token=token,
-        #         train_cmd=train_cmd
-        #     )
-
-    status_id = 200
-    # 更新表单
-    update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}' where id = {5}".format(
-        status_id, code_own, data_own, model_own, visual_own, train_id)
-    _, _ = DB.update(update_sql)
-
-    return flag, "train_create_automl： create success."
 

@@ -6,10 +6,10 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRiZjFiY2Y4ZjEzZmY2OTk5MWE4NTJhMDhlYjZjZGIxMWVkOTdhNTU0MGNhNzBkNmI4NmFhNzM5YWI1MDEyMWYtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTA0ODcwOWQ2MzljM2FhMjU0NDdkNjg2YWE3OTE3YmRlZGVjMTNlOTY4MzVmMTczOTE0MWE0ZDYyOGQxZmY5YzYtMg==",
         }
         data = {
-            "template_name": "训练模板 -t 1223",
+            "template_name": "训练模板 -t 1224",
             "image_id": 4,
             "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
             "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
@@ -35,12 +35,22 @@ class TemplateTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWYwMWUwZjA2Y2U3NDMwZWE3NWQ0ZjMxZGRiM2ZjZGJjMWQ0NTAxNGRmMGU4YTI1NWZmMmE1YTJmODdmZDdjZTktMg==",
         }
         data = {
-            "template_id": 1,
-            "edit_code": True,
-            "edit_model": "/mnt/mfs/160-112-home/evaluate_v3.py"
+            "template_id": 3,
+
+            "template_name": "更改模板名称",
+            "image_id": 4,
+            "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",  # 如果没上传 写 ""
+            "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl", # 如果没上传 写 ""
+            "description": "hello126wqddwq",
+            "task_type": "场景分类sdfsdf",
+            "algo_framework": "Pytorch_v1.6.0",
+            "train_cmd": "python /app/train.py",
+            "infer_cmd": "python /app/run.py",   # 如果
+
+            "edit_code": False,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/template_edit/'
 
@@ -74,13 +84,14 @@ class TemplateTest(object):
             "page_size": 2,
             "page_num": 1,
             "grep_condition": {
+                "template_id": 3,
                 "framework": "Tensorflow"
             }
         }
 
         url = 'http://0.0.0.0:5000/airserver-2.0/template_query/'
 
-        r = requests.get(url, data=json.dumps(data), headers=header)
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def template_generate_from_train(self):
@@ -114,5 +125,5 @@ if __name__ == "__main__":
     # t.template_generate_from_train()
     # t.template_create()
     # t.template_delete()
-    t.template_query()
-    # t.template_edit()
+    # t.template_query()
+    t.template_edit()

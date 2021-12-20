@@ -40,7 +40,7 @@ class TrainTest(object):
                         "operator": "IN",
                         "values": ["dell-nf5468m5"]
                     }
-                ]
+                ],
 
                 "automl":{
                     "niter": 5,

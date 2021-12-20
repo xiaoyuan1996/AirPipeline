@@ -99,12 +99,25 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     return flag, "template_create： create success."
 
 
-def template_edit(token, template_id, edit_code, edit_model):
+def template_edit(token, template_id, template_name, image_id, code_path, model_path,
+                                                description, task_type, algo_framework, train_cmd, infer_cmd, edit_code):
     """
     token: str 用户验证信息
     template_id: int template ID
     edit_code: bool 编辑代码标志 optional
-    edit_model: str 替换模型路径 optional
+
+    template_name: str 模板名称
+    image_id: int 镜像id
+    code_path: str 代码路径
+    model_path: str 模型路径
+    data_path: str 数据路径
+    description: str 描述信息 optional
+
+    task_type： TEXT 任务类型
+    algo_framework： TEXT 算法框架
+
+    train_cmd: TEXT 训练命令
+    infer_cmd: TEXT 推理命令
 
     :return: bool 成功标志
     """
@@ -115,9 +128,9 @@ def template_edit(token, template_id, edit_code, edit_model):
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
-    flag, info = DB.query_one(read_sql)
-    if info == None: return False, "template_edit: template not exists."
-    if int(info[0]) != user_id: return False, "template_edit: template not belong to user {}.".format(user_id)
+    flag, template_info = DB.query_one(read_sql)
+    if template_info == None: return False, "template_edit: template not exists."
+    if int(template_info[2]) != user_id: return False, "template_edit: template not belong to user {}.".format(user_id)
 
     # 如果编辑代码，则将代码挂进k8s进行编辑
     if edit_code:
@@ -133,7 +146,7 @@ def template_edit(token, template_id, edit_code, edit_model):
             image_name=image_name,
             lables="airstudio-template",
             volumeMounts={
-                "/app": info[4]  # info[4]为code_path
+                "/app": template_info[4]  # info[4]为code_path
             },
         )
 
@@ -141,13 +154,37 @@ def template_edit(token, template_id, edit_code, edit_model):
 
         return flag, info
 
-    # 　如果改变模型，则将模型进行替换
-    if edit_model != None:
-        default_model_name = os.listdir(info[5])[0]  # info[4]为model_path
-        shutil.copy(edit_model, os.path.join(info[5], default_model_name))
-        return True, "replace successfully."
+    # 　如果上传新代码
+    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                            str(template_id), "code")
+    if code_path != "":
+        src_code_path = template_info[4]
+        util.remove_dir(src_code_path)
 
-    return False, "no things need to be edit."
+        util.copy_compress_to_dir(code_path, own_code)
+
+    # 　如果上传新模型
+    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+                             str(template_id), "model")
+    if model_path != "":
+        src_model_path = template_info[5]
+        util.remove_dir(src_model_path)
+        shutil.copy(model_path, own_model)
+
+    # 代码大小
+    code_size = util.getFileFolderSize(own_code)
+    code_size = util.trans_size_to_suitable_scale(code_size)
+
+    # 模型大小
+    model_size = util.getFileFolderSize(own_model)
+    model_size = util.trans_size_to_suitable_scale(model_size)
+
+    # 更新表单
+    update_sql = "update airpipline_templatetab set name = '{0}', image_id={1}, description='{2}', task_type='{3}', algo_framework='{4}', train_cmd='{5}', infer_cmd='{6}', code_size='{7}', model_size='{8}'  where id = {9}".format(
+        template_name, image_id, description, task_type, algo_framework, train_cmd, infer_cmd, code_size, model_size, template_id)
+    flag, info = DB.update(update_sql)
+
+    return True, "template_edit: successful"
 
 
 def template_delete(token, template_id):
@@ -205,6 +242,10 @@ def template_query(token, page_size, page_num, grep_condition):
     for item in info:
 
         # 筛选条件
+        if "template_id" in grep_condition.keys():
+            if grep_condition['template_id'] not in item[0]:
+                continue
+
         if "framework" in grep_condition.keys():
             if grep_condition['framework'] not in item[10]:
                 continue
@@ -230,9 +271,11 @@ def template_query(token, page_size, page_num, grep_condition):
                 "infer_cmd": item[15],
             }
         )
-
+    
+#    print(return_info)
     # 分页
-    return_info = return_info[(page_size-1)*page_num: page_size*page_num]
+    return_info = return_info[(page_num-1)*page_size: page_size*page_num]
+    print(return_info)
 
     return True, return_info
 

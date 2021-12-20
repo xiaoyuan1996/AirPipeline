@@ -435,7 +435,19 @@ def api_run():
         token: str 用户验证信息
         template_id: int template ID
         edit_code: bool 编辑代码标志 optional
-        edit_model: str 替换模型路径 optional
+
+        template_name: str 模板名称
+        image_id: int 镜像id
+        code_path: str 代码路径
+        model_path: str 模型路径
+        data_path: str 数据路径
+        description: str 描述信息 optional
+
+        task_type： TEXT 任务类型
+        algo_framework： TEXT 算法框架
+
+        train_cmd: TEXT 训练命令
+        infer_cmd: TEXT 推理命令
 
         :return: bool 成功标志
         """
@@ -450,13 +462,51 @@ def api_run():
         else:
             template_id = request_data["template_id"]
 
+        if "template_name" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: template_name must be required.")
+        else:
+            template_name = request_data["template_name"]
+
+        if "image_id" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: image_id must be required.")
+        else:
+            image_id = request_data["image_id"]
+
+        if "description" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: description must be required.")
+        else:
+            description = request_data["description"]
+
+        if "task_type" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: task_type must be required.")
+        else:
+            task_type = request_data["task_type"]
+
+        if "algo_framework" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: algo_framework must be required.")
+        else:
+            algo_framework = request_data["algo_framework"]
+
+        if "train_cmd" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: train_cmd must be required.")
+        else:
+            train_cmd = request_data["train_cmd"]
+
+        if "infer_cmd" not in request_data.keys():
+            return util.get_stand_return(False, "template_edit: infer_cmd must be required.")
+        else:
+            infer_cmd = request_data["infer_cmd"]
+
         edit_code = request_data["edit_code"] if "edit_code" in request_data.keys() else None
-        edit_model = request_data["edit_model"] if "edit_model" in request_data.keys() else None
+        code_path = request_data["code_path"] if "code_path" in request_data.keys() else None
+        model_path = request_data["model_path"] if "model_path" in request_data.keys() else None
 
         logger.info("template_edit: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = template_ctl.template_edit(token, template_id, edit_code, edit_model)
+        flag, info = template_ctl.template_edit(token, template_id, template_name, image_id, code_path, model_path,
+                                                description, task_type, algo_framework, train_cmd, infer_cmd, edit_code)
+
 
         return util.get_stand_return(flag, info)
 

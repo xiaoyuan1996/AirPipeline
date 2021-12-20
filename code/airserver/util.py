@@ -37,10 +37,11 @@ def get_uid(func):
 
 # 得到标准返回
 def get_stand_return(flag, message):
-    code = 200 if flag else 400
+    code = 0 if flag else 400
     return_json = {
         'code': code,
-        "message": message
+        "message": "success" if flag else "failure",
+        "data": message
     }
     return return_json
 
