@@ -91,7 +91,8 @@ class pg_db(object):
         start_time TEXT,
         end_time TEXT,
         
-        src_template INT      
+        src_template INT,
+        automl  BOOL NOT NULL,      
         );
         ''')
 

@@ -42,6 +42,20 @@ class TrainTest(object):
                     }
                 ]
 
+                "automl":{
+                    "niter": 5,
+                    "paramters": {
+                        "batch_size": {
+                            "type": "int",
+                            "pounds": (8, 12)
+                        },
+                        "lr": {
+                            "type": "float",
+                            "pounds": (0.0001, 0.0002)
+                        }
+                    }
+                }
+
                 # "gpu_num": 2,
                 # "cpu": 2,
                 # "memory": 4,
