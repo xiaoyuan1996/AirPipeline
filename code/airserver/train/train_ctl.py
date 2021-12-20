@@ -180,7 +180,7 @@ def train_start(token, train_id):
             # 启动k8s
             flag, info = k8s_ctl.k8s_start(
                 token=token,
-                pod_name=str(train_id) + "_" + info[1],
+                pod_name="train-" + str(train_id),
                 lables="airstudio-train",
                 task_id=info[2]
             )
@@ -214,7 +214,7 @@ def train_delete(token, train_id):
         if int(info[0]) == user_id:
             # 删除k8s
             flag, info = k8s_ctl.k8s_delete(
-                pod_name=str(train_id) + "_" + info[1],
+                pod_name="train-" + str(train_id),
                 lables="airstudio-train",
             )
 
@@ -305,7 +305,7 @@ def train_pause(token, train_id):
         if int(info[0]) == user_id:
             # 暂停k8s
             flag, info = k8s_ctl.k8s_pause(
-                pod_name=str(train_id) + "_" + info[1],
+                pod_name="train-" + str(train_id),
                 lables="airstudio-train",
             )
 
@@ -338,7 +338,7 @@ def train_stop(token, train_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name=str(train_id) + "_" + info[1],
+                pod_name="train-" + str(train_id),
                 lables="airstudio-train",
             )
             # 更新表单

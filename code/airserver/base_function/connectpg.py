@@ -230,8 +230,10 @@ class pg_db(object):
             # 读取检查template.json
             template_info = util.read_json(os.path.join(cur_template_path, "template.json"))
             if ("template_name" not in template_info.keys()) or ("image_name" not in template_info.keys()) \
-                    or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()):
-                logger.info("template.json must include: template_name, image_name, image_id and description")
+                    or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()) \
+                    or ("task_type" not in template_info.keys()) or ("algo_framework" not in template_info.keys()) \
+                    or ("infer_cmd" not in template_info.keys()) or ("train_cmd" not in template_info.keys()):
+                logger.info("template.json must include in {}: template_name, image_name, image_id, description, task_type, algo_framework, train_cmd, infer_cmd".format(cur_template_path))
                 continue
 
             # 检查template是否在数据库中
@@ -241,10 +243,11 @@ class pg_db(object):
             if query_info == None:
                 # 插表
                 create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-                sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
+                sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework,train_cmd, infer_cmd) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}')".format(
                     template_info['template_name'], 0, template_info['image_id'],
                     os.path.join(cur_template_path, 'code'), os.path.join(cur_template_path, 'model'), create_time, "0",
-                    template_info['description'])
+                    template_info['description'], template_info['task_type'],template_info['algo_framework'],template_info['train_cmd'],template_info['infer_cmd'])
+
                 code, data = self.insert(sql)
 
     def get_instance(self):

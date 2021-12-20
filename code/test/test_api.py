@@ -1,19 +1,24 @@
-import json
-import requests
+template_info = {
+  "template_name": "task_method_date",
+  "image_name": "image:v1",
+  "image_id": 5,
+  "description": "stand template.",
+  "task_type": "目标检测",
+  "algo_framework": "TensorFlow",
+  "train_cmd": "python /app/train.py",
+  "infer_cmd": "python /app/run.py"
+}
+
+create_time = "aa"
+
 import os
 
+cur_template_path = "asa"
 
-if __name__ == "__main__":
+sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework,train_cmd, infer_cmd) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}')".format(
+    template_info['template_name'], 0, template_info['image_id'],
+    os.path.join(cur_template_path, 'code'), os.path.join(cur_template_path, 'model'), create_time, "0",
+    template_info['description'], template_info['task_type'], template_info['algo_framework'],
+    template_info['train_cmd'], template_info['infer_cmd'])
 
-    token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTgxMjI1YTIwZDVhZjY2MjYwMWM0NGI5Y2FiZmYxYjYyYmUzNzAzMTk0NmU4MTg3MDJmZWI2NGNkNmMyYzI4ZDktMg=="
-    url = "http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}"
-    id = 573
-    class_type = 'IMAGE'
-    response = requests.get(url=url.format(id, class_type), headers={"token": token})
-
-
-    response = json.loads(response.text)
-
-    print(response)
-
-    print(response['data'])
+print(sql)
