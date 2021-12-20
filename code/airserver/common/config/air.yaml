@@ -91,3 +91,7 @@ image:
 
 service_shop:
   create_service: http://192.168.9.64:32295/service
+
+sample_set:
+  prefix: /mnt/mfs/data
+  id2path_url: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}

@@ -376,6 +376,9 @@ def api_run():
         task_type： TEXT 任务类型
         algo_framework： TEXT 算法框架
 
+        train_cmd: TEXT 训练命令
+        infer_cmd: TEXT 推理命令
+
         :return: bool 成功标志
         """
         logger.info("notebook_create: request verify...")
@@ -405,6 +408,13 @@ def api_run():
 
         description = request_data["description"] if "description" in request_data.keys() else None
 
+        infer_cmd = request_data["infer_cmd"] if "infer_cmd" in request_data.keys() else None
+
+        if "train_cmd" not in request_data.keys():
+            return util.get_stand_return(False, "template_create: train_cmd must be required.")
+        else:
+            train_cmd = request_data["train_cmd"]
+
         if "algo_framework" not in request_data.keys():
             return util.get_stand_return(False, "template_create: algo_framework must be required.")
         else:
@@ -414,7 +424,7 @@ def api_run():
 
         # 开始处理
         flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path, description,
-                                                  task_type, algo_framework)
+                                                  task_type, algo_framework, train_cmd, infer_cmd)
 
         return util.get_stand_return(flag, info)
 
@@ -491,10 +501,24 @@ def api_run():
         # 请求验证
         token = request.headers["token"]
 
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        if "page_size" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_size must be required.")
+        else:
+            page_size = request_data["page_size"]
+
+        if "page_num" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_num must be required.")
+        else:
+            page_num = request_data["page_num"]
+
+        grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
+
         logger.info("template_query: request data: {}".format(token))
 
         # 开始处理
-        flag, info = template_ctl.template_query(token)
+        flag, info = template_ctl.template_query(token, page_size, page_num, grep_condition)
 
         return util.get_stand_return(flag, info)
 
@@ -711,10 +735,23 @@ def api_run():
         # 请求验证
         token = request.headers["token"]
 
-        logger.info("train_query: request data: {}".format(token))
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        logger.info("train_query: request data: {}".format(request_data))
+
+        if "page_size" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_size must be required.")
+        else:
+            page_size = request_data["page_size"]
+
+        if "page_num" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_num must be required.")
+        else:
+            page_num = request_data["page_num"]
 
         # 开始处理
-        flag, info = train_ctl.train_query(token)
+        flag, info = train_ctl.train_query(token, page_size, page_num)
 
         return util.get_stand_return(flag, info)
 
@@ -734,14 +771,14 @@ def api_run():
 
         token = request.headers["token"]
 
-        if "train_id" not in request_data.keys():
-            return util.get_stand_return(False, "train_get_schedule: train_id must be required.")
+        if "train_ids" not in request_data.keys():
+            return util.get_stand_return(False, "train_get_schedule: train_ids must be required.")
         else:
-            train_id = request_data["train_id"]
+            train_ids = request_data["train_ids"]
 
         logger.info("train_get_schedule: request data: {}".format(request_data))
         # 开始处理
-        flag, info = train_ctl.train_get_schedule(token, train_id)
+        flag, info = train_ctl.train_get_schedule(token, train_ids)
 
         return util.get_stand_return(flag, info)
 

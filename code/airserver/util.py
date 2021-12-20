@@ -7,6 +7,7 @@ import tarfile
 import zipfile
 from functools import wraps
 from random import choice
+import time
 
 import requests
 from flask import request, g
@@ -140,9 +141,15 @@ def uncompress(src_file, dest_dir):
 
 # 加载schedule
 def load_schedule(save_path):
+    if not os.path.exists(save_path):
+        return {}, 0
+
     with open(save_path, 'rb') as f:
         data = pickle.load(f)
-    return data
+
+    max_schedule = max(data.keys())
+
+    return data, max_schedule
 
 
 # 　读取全部txt文件
@@ -202,3 +209,37 @@ def getFileFolderSize(fileOrFolderPath):
                     totalSize += curSubFileSize
 
             return totalSize
+
+def get_string_time_diff(str1, str2):
+    t_be = time.mktime(time.strptime(str1, '%Y-%m-%d %H:%M:%S'))
+
+    t_af = time.mktime(time.strptime(str2, '%Y-%m-%d %H:%M:%S'))
+
+    t_dif = t_af - t_be
+
+    if t_dif > 24 * 60 * 60:
+        day = t_dif // (24 * 60 * 60)
+    else:
+        day = 0
+
+    if t_dif > 60 * 60:
+        hour = (t_dif - (day * 24 * 60 * 60) ) // (60 * 60)
+    else:
+        hour = 0
+
+    if t_dif > 60:
+        min = int((t_dif - day * 24 * 60 * 60 - hour * 60 * 60)  // 60)
+    else:
+        min = 0
+
+    return "{}d {}h {}m".format(day, hour, min)
+
+def get_running_time(start_time, end_time, now_time):
+
+    if start_time == None:
+        runing_time = "-"
+    elif end_time != None:
+        runing_time = get_string_time_diff(start_time, end_time)
+    else:
+        runing_time = get_string_time_diff(start_time, now_time)
+    return runing_time

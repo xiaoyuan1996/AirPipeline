@@ -5,19 +5,19 @@ import time
 
 import globalvar
 import util
-from base_function import k8s_ctl, image_ctl, user_ctl
+from base_function import k8s_ctl, image_ctl, user_ctl, sampleset_ctl
 
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
 
-def train_create(token, train_name, template_id, dataset, dist, description, params):
+def train_create(token, train_name, template_id, dataset_id, dist, description, params):
     """
     token: str 用户验证信息
     train_name: train 名称
     template_id: int 模板ID
-    dataset: str 挂载数据
+    dataset_id: str 挂载数据_id
     dist : bool 是否分布式
     description: str 描述 optional
 
@@ -28,6 +28,11 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     user_id = user_ctl.user_from_token_to_id(token)
     if user_id == -1: return False, "train_create： user check failed."
 
+    # 判断是否存在
+    read_sql = "select * from airpipline_trainjobtab where user_id={0} and name='{1}'".format(user_id, train_name)
+    flag, info = DB.query_all(read_sql)
+    if info != []: return False, "train_create： train_name exists."
+
     # 查表拿到模板信息
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
     flag, info = DB.query_one(read_sql)
@@ -36,6 +41,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
     model_path = info[5]
     task_type = info[9]
     algo_framework = info[10]
+    train_cmd = info[14]
 
     # 获取镜像名称
     flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
@@ -43,9 +49,9 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}')".format(
-        train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist, description,
-        json.dumps(params), 'None', task_type, algo_framework)
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}',{15})".format(
+        train_name, user_id, image_id, create_time, status_id, code_path, dataset_id, model_path, "", dist, description,
+        json.dumps(params), 'None', task_type, algo_framework, template_id)
 
     flag, data = DB.insert(sql)
 
@@ -79,9 +85,17 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
 
     # 创建挂载
     volumeMounts = []
-    if dataset != None:
-        # util.copy_dir(dataset, data_own)
-        util.copy_compress_to_dir(dataset, data_own)
+    if dataset_id != None:
+        query_flag, dataset = sampleset_ctl.sampleset_from_id_to_path(token, dataset_id)
+        if not query_flag:
+            # 更新表单
+            update_sql = "update airpipline_trainjobtab set status_monitor='{0}', status_id=400 where id = {1}".format(dataset, train_id)
+            _, _ = DB.update(update_sql)
+            return False, "train_create： sampleset query failed."
+
+        util.copy_dir(dataset, data_own)
+
+        # util.copy_compress_to_dir(dataset, data_own)
         volumeMounts.append({
             "host_path": data_own,
             "mount_path": "/dataset"
@@ -95,7 +109,12 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
             "mount_path": "/app"
         })
     if (model_path != None) and (params["spec_model"] != None):
-        shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
+        if not os.path.exists(os.path.join(model_path, params["spec_model"])):
+            train_delete(token, train_id)
+            return False, "train_create： model_path not exists."
+
+        # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
+        shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own))
 
     volumeMounts.append({
         "host_path": model_own,
@@ -115,6 +134,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
             image_name=image_name,
             lables="airstudio-train",
             volumeMounts=volumeMounts,
+            train_cmd=train_cmd
         )
     else:
         # 分布式
@@ -124,7 +144,8 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
             lables="airstudio-train",
             volumeMounts=volumeMounts,
             params=params,
-            token=token
+            token=token,
+            train_cmd=train_cmd
         )
 
     status_id = 200 if task_id else 400
@@ -133,7 +154,7 @@ def train_create(token, train_name, template_id, dataset, dist, description, par
         status_id, code_own, data_own, model_own, visual_own, task_id, train_id)
     _, _ = DB.update(update_sql)
 
-    return flag, info
+    return flag, "train_create： create success."
 
 
 def train_start(token, train_id):
@@ -165,7 +186,8 @@ def train_start(token, train_id):
             )
 
             # 更新表单
-            update_sql = "update airpipline_trainjobtab set status_id = 200 where id = {0}".format(train_id)
+            start_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
+            update_sql = "update airpipline_trainjobtab set status_id = 200, start_time = '{0}' where id = {1}".format(start_time, train_id)
             _, _ = DB.update(update_sql)
             return flag, info
 
@@ -206,7 +228,7 @@ def train_delete(token, train_id):
             return flag, info
 
 
-def train_query(token):
+def train_query(token, page_size, page_num):
     """
     根据 user_id 查询 train 信息
     token: str 用户验证信息
@@ -221,8 +243,19 @@ def train_query(token):
     read_sql = "select * from airpipline_trainjobtab where user_id={0}".format(user_id)
     flag, info = DB.query_all(read_sql)
 
+    # 分页
+    info = info[(page_size-1)*page_num: page_size*page_num]
+
+    # 当前时间
+    now_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
+
     return_info = []
     for item in info:
+
+        # 获取运行时间
+        start_time, end_time = item[17], item[18]
+        runing_time = util.get_running_time(start_time, end_time, now_time)
+
         return_info.append(
             {
                 "train_id": item[0],
@@ -237,7 +270,13 @@ def train_query(token):
                 "status_id": item[9],
                 "dist": item[10],
                 "description": item[11],
-                "params": item[12]
+                "params": item[12],
+                "k8s_id": item[13],
+                "task_type": item[14],
+                "algo_framework": item[15],
+                "status_monitor": item[16],
+                "schedule": util.load_schedule(os.path.join(item[6], "schedule.pkl"))[1],
+                "runing_time": runing_time
             }
         )
 
@@ -312,16 +351,13 @@ def train_get_schedule(token, train_id):
     """
     根据train ID 获得 train进度
     token: str 用户验证信息
-    :param train_id: train ID
+    :param train_ids: train ID
 
     :return: bool 成功标志
     """
-    # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1: return False, "train_get_schedule： user check failed."
 
     # 查表 判断该请求是否来自该用户
-    read_sql = "select * from airpipline_trainjobtab where id={0} and user_id={1}".format(train_id, user_id)
+    read_sql = "select * from airpipline_trainjobtab where id={0}".format(train_id)
     flag, info = DB.query_one(read_sql)
 
     if info == None:
@@ -329,8 +365,7 @@ def train_get_schedule(token, train_id):
     else:
         visual_path = info[6]
 
-        # TODO: 可视化
-        visual_data = util.load_schedule(os.path.join(visual_path, "schedule.pkl"))
+        visual_data, _ = util.load_schedule(os.path.join(visual_path, "schedule.pkl"))
 
         sche_info = {'schedule': []}
         for k, v in visual_data.items():
@@ -341,7 +376,7 @@ def train_get_schedule(token, train_id):
                 else:
                     sche_info[item].append(value)
 
-        return True, sche_info
+        return True, json.dumps(sche_info)
 
 
 def train_get_visual(token, train_id):

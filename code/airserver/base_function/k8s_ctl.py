@@ -53,7 +53,7 @@ class request_to_k8s_create():
         return self.task_info
 
 
-def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None):
+def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None, train_cmd=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -195,7 +195,7 @@ def k8s_stop(pod_name, lables):
     return True, "k8s_stop: stop successful."
 
 
-def k8s_create_dist(pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None, token=None):
+def k8s_create_dist(pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None, token=None, train_cmd=None):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等

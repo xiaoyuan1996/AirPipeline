@@ -86,7 +86,12 @@ class pg_db(object):
         task_type TEXT,
         algo_framework TEXT NOT NULL,
         
-        status_monitor TEXT
+        status_monitor TEXT,
+        
+        start_time TEXT,
+        end_time TEXT,
+        
+        src_template INT      
         );
         ''')
 
@@ -159,7 +164,9 @@ class pg_db(object):
         algo_framework TEXT NOT NULL,
         code_size TEXT,
         model_size TEXT,
-        image_size TEXT    
+        image_size TEXT,
+        train_cmd TEXT NOT NULL,
+        infer_cmd TEXT            
         );
         ''')
 

@@ -16,16 +16,16 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWNiYTFiNzE0OGJlMDhiMzc3NTYzOWU0ZGNhMmJlMDY3M2M0MzllNDE5OWI4ZWU2Mjk5NjM5MTk2MDFmNjE3NjAtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRiZjFiY2Y4ZjEzZmY2OTk5MWE4NTJhMDhlYjZjZGIxMWVkOTdhNTU0MGNhNzBkNmI4NmFhNzM5YWI1MDEyMWYtMg==",
         }
         data = {
-            "train_name": "train-demo-1214-v3",
-            "template_id": 1,
-            "dataset": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_data.tar",
+            "train_name": "训练1223",
+            "template_id": 3,
+            "dataset": 21,
             "dist": False,
             "description": "airstudio dist test",
             "params": {
-                "spec_model": "cur_model.pth",
+                "spec_model": "pretrainmodel.pkl",
 
                 "framework": "pytorch",
                 "job_command": "python /app/mnist.py",
@@ -122,12 +122,18 @@ class TrainTest(object):
         :return: 查询到的train信息
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWZiZWYxZWNmOGMxOWNkODg1NmFmYTMyZTczZWNmOTUyM2I0Nzc0M2IzMmUzOTQ1ZWY0NDc4NmRmMDM2NDI3NmMtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTgxMjI1YTIwZDVhZjY2MjYwMWM0NGI5Y2FiZmYxYjYyYmUzNzAzMTk0NmU4MTg3MDJmZWI2NGNkNmMyYzI4ZDktMg==",
+        }
+        data = {
+            "page_size": 1,
+            "page_num": 10,
+
+            "grep_condition": {}
         }
 
         url = 'http://192.168.9.64:33135/airserver-2.0/train_query/'
 
-        r = requests.post(url, headers=header)
+        r = requests.get(url, headers=header, data=json.dumps(data),)
         print(r.json())
 
     def train_get_schedule(self):
@@ -164,7 +170,7 @@ if __name__ == "__main__":
     # t.train_stop()
     # t.train_get_schedule()
     # t.train_get_visual()
-    # t.train_create()
+    t.train_create()
     # t.train_start()
     # t.train_delete()
-    t.train_query()
+    # t.train_query()

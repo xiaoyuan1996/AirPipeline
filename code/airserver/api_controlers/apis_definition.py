@@ -24,7 +24,7 @@ class ApisDefinition(object):
         self.template_create = self.apis_demo("/airserver-2.0/template_create/", "POST", "api_run.template_create")
         self.template_edit = self.apis_demo("/airserver-2.0/template_edit/", "POST", "api_run.template_edit")
         self.template_delete = self.apis_demo("/airserver-2.0/template_delete/", "DELETE", "api_run.template_delete")
-        self.template_query = self.apis_demo("/airserver-2.0/template_query/", "POST", "api_run.template_query")
+        self.template_query = self.apis_demo("/airserver-2.0/template_query/", "GET", "api_run.template_query")
         self.template_generate_from_train = self.apis_demo("/airserver-2.0/template_generate_from_train/", "POST",
                                                            "api_run.template_generate_from_train")
 

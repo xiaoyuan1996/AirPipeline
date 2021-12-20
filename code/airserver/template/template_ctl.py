@@ -11,7 +11,7 @@ DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
 
-def template_create(token, template_name, image_id, code_path, model_path, description, task_type, algo_framework):
+def template_create(token, template_name, image_id, code_path, model_path, description, task_type, algo_framework, train_cmd, infer_cmd):
     """
     token: str 用户验证信息
     template_name: str 模板名称
@@ -23,6 +23,9 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     task_type： TEXT 任务类型
     algo_framework： TEXT 算法框架
 
+    train_cmd: TEXT 训练命令
+    infer_cmd: TEXT 推理命令
+
     :return: bool 成功标志
     """
 
@@ -31,12 +34,15 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     if user_id == -1:
         return False, "template_create： user check failed."
 
+    # 判断是否存在
+    read_sql = "select * from airpipline_templatetab where user_id={0} and name='{1}'".format(user_id, template_name)
+    flag, info = DB.query_all(read_sql)
+    if info != []: return False, "template_create： template_name exists."
+
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}')".format(
-        template_name, user_id, image_id, code_path, model_path, create_time, "1", description, task_type,
-        algo_framework)
-
+    sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework,train_cmd, infer_cmd) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}')".format(
+        template_name, user_id, image_id, code_path, model_path, create_time, "1", description, task_type, algo_framework, train_cmd, infer_cmd)
     code, data = DB.insert(sql)
 
     # 查询插入的id
@@ -66,7 +72,8 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     util.copy_compress_to_dir(code_path, own_code)
 
     if model_path != None:
-        shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
+        # shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
+        shutil.copy(model_path, own_model)
 
     # 统计文件大小信息　====================================
 
@@ -89,7 +96,7 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
         own_model, image_size, code_size, model_size, template_id)
     flag, info = DB.update(update_sql)
 
-    return flag, info
+    return flag, "template_create： create success."
 
 
 def template_edit(token, template_id, edit_code, edit_model):
@@ -176,10 +183,10 @@ def template_delete(token, template_id):
             # 删除表单
             delete_sql_image = "delete from airpipline_templatetab where id={0}".format(template_id)
             flag, info = DB.delete(delete_sql_image)
-            return flag, info
+            return flag, "template_delete: delete success."
 
 
-def template_query(token):
+def template_query(token, page_size, page_num, grep_condition):
     """
     根据 user_id 查询 template 信息
     token: str 用户验证信息
@@ -188,14 +195,20 @@ def template_query(token):
     """
     # 获取用户id
     user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:   return False, "template_query： user check failed."
+    if user_id == -1: return False, "template_query： user check failed."
 
-    # 查表 判断该请求是否来自该用户
+    # 查表
     read_sql = "select * from airpipline_templatetab where user_id={0} or privilege=0".format(user_id)
     flag, info = DB.query_all(read_sql)
 
     return_info = []
     for item in info:
+
+        # 筛选条件
+        if "framework" in grep_condition.keys():
+            if grep_condition['framework'] not in item[10]:
+                continue
+
         return_info.append(
             {
                 "template_id": item[0],
@@ -213,8 +226,13 @@ def template_query(token):
                 "code_size": item[11],
                 "model_size": item[12],
                 "image_size": item[13],
+                "train_cmd": item[14],
+                "infer_cmd": item[15],
             }
         )
+
+    # 分页
+    return_info = return_info[(page_size-1)*page_num: page_size*page_num]
 
     return True, return_info
 
