@@ -244,3 +244,11 @@ def get_running_time(start_time, end_time, now_time):
     else:
         runing_time = get_string_time_diff(start_time, now_time)
     return runing_time
+
+import re
+
+def find_most_similar(query_text, text_database):
+    text_database = set(text_database)
+    r = re.compile(".*{}.*".format(query_text))
+    candidate_words = list(filter(r.match, text_database))
+    return candidate_words

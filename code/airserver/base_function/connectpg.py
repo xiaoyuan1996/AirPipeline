@@ -177,7 +177,6 @@ class pg_db(object):
         );
         ''')
 
-        # 创建DebugTableTable
         # 创建ModelTable
 
         conn.commit()

@@ -55,12 +55,19 @@ def get_spec_dir(query_type, type_id, subdir):
     files = os.listdir(sub_path)
     return True, {"files": files}
 
-
 def get_all_frameworks():
     algo_frameworks = util.read_json("template/algo_frameworks.json")
     return True, algo_frameworks
 
-
-def get_all_tasktypes():
+def get_all_tasktypes(query_text):
     task_types = util.load_from_txt_lines("template/task_types.txt")
-    return True, task_types
+
+    # 读数据库
+    read_sql = "select task_type from airpipline_templatetab"
+    flag, info = DB.query_all(read_sql)
+
+    # TODO: 求和
+
+    word_candidates = util.find_most_similar(query_text, task_types)
+
+    return True, word_candidates
