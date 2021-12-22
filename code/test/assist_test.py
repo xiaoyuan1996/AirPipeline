@@ -21,8 +21,11 @@ class AssistTest(object):
 
     def get_all_tasktypes(self):
         url = 'http://0.0.0.0:5000/airserver-2.0/get_all_tasktypes/'
-        r = requests.get(url)
-        print(json.loads(r.text)['message'])
+        data = {
+            "query_text": "文本",
+        }
+        r = requests.post(url, data=json.dumps(data))
+        print(json.loads(r.text)['data'])
 
 
 if __name__ == "__main__":

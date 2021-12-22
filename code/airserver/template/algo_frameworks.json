@@ -1,16 +1,28 @@
 {
-  "TensorFlow": [
+  "Tensorflow": [
     "1.6",
     "0.3"
   ],
-  "PyTorch": [
+  "Pytorch": [
     "0.3",
     "1.7"
   ],
-  "Caffee": [
+  "Caffe": [
     "1.2"
   ],
-  "Paddle": [
+  "PaddlePaddle": [
+    "1.0"
+  ],
+  "MXNet": [
+    "1.0"
+  ],
+  "MindSpore": [
+    "1.0"
+  ],
+  "Caffe2" : [
+    "1.0"
+  ],
+  "Jittor" : [
     "1.0"
   ]
 }

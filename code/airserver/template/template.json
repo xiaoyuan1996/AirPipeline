@@ -1,6 +1,10 @@
 {
   "template_name": "task_method_date",
-  "image_name": "image:v1",
-  "image_id": 5,
-  "description": "stand template."
+  "image_id": 4,
+  "image_size": "8.82 Gb",
+  "description": "stand template.",
+  "task_type": "目标检测",
+  "algo_framework": "Pytorch_v1.0",
+  "train_cmd": "python /app/train.py",
+  "infer_cmd": "python /app/run.py"
 }

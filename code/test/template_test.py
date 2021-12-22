@@ -6,10 +6,10 @@ class TemplateTest(object):
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTA0ODcwOWQ2MzljM2FhMjU0NDdkNjg2YWE3OTE3YmRlZGVjMTNlOTY4MzVmMTczOTE0MWE0ZDYyOGQxZmY5YzYtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWExMzUxODQ1YjRjMjQ5NzY2ZWNmYjE4ZTZlNjUyMzUxYmEwNDc1MmM2MDVlMjcxYzA0NDE5YTc0YzMyN2UyNmUtMg==",
         }
         data = {
-            "template_name": "训练模板 -t 1224",
+            "template_name": "训练模板 -t 1221 -v 1.0",
             "image_id": 4,
             "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
             "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
@@ -78,14 +78,16 @@ class TemplateTest(object):
         :return: 查询到的template信息
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRiZjFiY2Y4ZjEzZmY2OTk5MWE4NTJhMDhlYjZjZGIxMWVkOTdhNTU0MGNhNzBkNmI4NmFhNzM5YWI1MDEyMWYtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVkYjA4Nzk2NjJmZDgyODNjOWNiOWI2NTJmOGM1NWY1NDJhZDM0MmM4MDc0MmZiMDU1Njc0ZWE0ODViZjI5NTAtMg==",
         }
         data = {
             "page_size": 2,
             "page_num": 1,
             "grep_condition": {
-                "template_id": 3,
-                "framework": "Tensorflow"
+              #  "template_id": 3,
+                "framework": "Tensorflow",
+                "name_search": "模板",
+                "label_search": "分类"
             }
         }
 
@@ -123,7 +125,7 @@ if __name__ == "__main__":
     t = TemplateTest()
 
     # t.template_generate_from_train()
-    # t.template_create()
+    #t.template_create()
     # t.template_delete()
-    # t.template_query()
-    t.template_edit()
+    t.template_query()
+    # t.template_edit()

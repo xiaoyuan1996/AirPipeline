@@ -800,8 +800,10 @@ def api_run():
         else:
             page_num = request_data["page_num"]
 
+        grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
+
         # 开始处理
-        flag, info = train_ctl.train_query(token, page_size, page_num)
+        flag, info = train_ctl.train_query(token, page_size, page_num, query_condition)
 
         return util.get_stand_return(flag, info)
 
@@ -1018,8 +1020,16 @@ def api_run():
         Returns: 查询得到的任务名称
             ["目标检测", ...]
         """
+        logger.info("get_all_tasktypes: request verify...")
 
-        flag, info = assist_ctl.get_all_tasktypes()
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+
+        query_text = request_data["query_text"] if "query_text" in request_data.keys() else None
+
+
+        flag, info = assist_ctl.get_all_tasktypes(query_text)
 
         return util.get_stand_return(flag, info)
 

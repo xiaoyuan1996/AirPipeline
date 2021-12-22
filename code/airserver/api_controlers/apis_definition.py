@@ -31,7 +31,7 @@ class ApisDefinition(object):
         # ====================== TRAIN ==============================
         # 训练任务定义
         self.train_create = self.apis_demo("/airserver-2.0/train_create/", "POST", "api_run.train_create")
-        self.train_start = self.apis_demo("/airserver-2.0/train_start/", "PUT", "api_run.train_start")
+        self.train_start = self.apis_demo("/airserver-2.0/train_start/", "POST", "api_run.train_start")
         self.train_pause = self.apis_demo("/airserver-2.0/train_pause/", "PUT", "api_run.train_pause")
         self.train_stop = self.apis_demo("/airserver-2.0/train_stop/", "POST", "api_run.train_stop")
         self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "DELETE", "api_run.train_delete")
@@ -53,7 +53,7 @@ class ApisDefinition(object):
         self.get_spec_dir = self.apis_demo("/airserver-2.0/get_spec_dir/", "POST", "api_run.get_spec_dir")
         self.get_all_frameworks = self.apis_demo("/airserver-2.0/get_all_frameworks/", "GET",
                                                  "api_run.get_all_frameworks")
-        self.get_all_tasktypes = self.apis_demo("/airserver-2.0/get_all_tasktypes/", "GET", "api_run.get_all_tasktypes")
+        self.get_all_tasktypes = self.apis_demo("/airserver-2.0/get_all_tasktypes/", "POST", "api_run.get_all_tasktypes")
 
     def apis_demo(self, url, method, func):
         return {"url": url, "method": [method], "func": func}

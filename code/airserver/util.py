@@ -178,13 +178,13 @@ def trans_size_to_suitable_scale(size):
     size = int(size)
 
     if size > 1024 * 1024 * 1024:
-        return "{:.2f} Gb".format(size * 1.0 / (1024 * 1024 * 1024))
+        return "{:.2f} GB".format(size * 1.0 / (1024 * 1024 * 1024))
     elif size > 1024 * 1024:
-        return "{:.2f} Mb".format(size * 1.0 / (1024 * 1024))
+        return "{:.2f} MB".format(size * 1.0 / (1024 * 1024))
     elif size > 1024:
-        return "{:.2f} kb".format(size * 1.0 / (1024))
+        return "{:.2f} kB".format(size * 1.0 / (1024))
     else:
-        return "{} b".format(size)
+        return "{} B".format(size)
 
 
 def getFileFolderSize(fileOrFolderPath):

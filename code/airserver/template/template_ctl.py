@@ -73,7 +73,7 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
 
     if model_path != None:
         # shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
-        shutil.copy(model_path, own_model)
+        shutil.copy(model_path, os.path.join(own_model, model_path.split("/")[-1]))
 
     # 统计文件大小信息　====================================
 
@@ -169,7 +169,8 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
     if model_path != "":
         src_model_path = template_info[5]
         util.remove_dir(src_model_path)
-        shutil.copy(model_path, own_model)
+        shutil.copy(model_path, os.path.join(own_model, model_path.split("/")[-1]))
+
 
     # 代码大小
     code_size = util.getFileFolderSize(own_code)
@@ -243,12 +244,21 @@ def template_query(token, page_size, page_num, grep_condition):
 
         # 筛选条件
         if "template_id" in grep_condition.keys():
-            if grep_condition['template_id'] not in item[0]:
+            if grep_condition['template_id'] != item[0]:
                 continue
 
         if "framework" in grep_condition.keys():
             if grep_condition['framework'] not in item[10]:
                 continue
+
+        if "name_search" in grep_condition.keys():
+            if grep_condition['name_search'] not in item[1]:
+                continue
+
+        if "label_search" in grep_condition.keys():
+            if grep_condition['label_search'] not in item[9]:
+                continue
+
 
         return_info.append(
             {

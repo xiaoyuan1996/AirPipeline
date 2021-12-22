@@ -16,12 +16,12 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRiZjFiY2Y4ZjEzZmY2OTk5MWE4NTJhMDhlYjZjZGIxMWVkOTdhNTU0MGNhNzBkNmI4NmFhNzM5YWI1MDEyMWYtMg==",
+            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWExMzUxODQ1YjRjMjQ5NzY2ZWNmYjE4ZTZlNjUyMzUxYmEwNDc1MmM2MDVlMjcxYzA0NDE5YTc0YzMyN2UyNmUtMg==",
         }
         data = {
-            "train_name": "训练1223",
-            "template_id": 3,
-            "dataset": 21,
+            "train_name": "训练1221 -v 1.3",
+            "template_id": 6,
+            "dataset": 587,
             "dist": False,
             "description": "airstudio dist test",
             "params": {
@@ -79,10 +79,11 @@ class TrainTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWMwMjkwOWNiMmIwNTMyNDQ0YjQ1YzVhNmQyNDdiMzI3ODU1MDI0Y2Q0N2E4YzlkMTk3ZTc5OTFjMmUzY2JkYzctMg==",
-        }
+                "token":"ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVkYjA4Nzk2NjJmZDgyODNjOWNiOWI2NTJmOGM1NWY1NDJhZDM0MmM4MDc0MmZiMDU1Njc0ZWE0ODViZjI5NTAtMg=="
+                }
+
         data = {
-            "train_id": 7,
+                "train_id": 12,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_start/'
 
@@ -142,7 +143,15 @@ class TrainTest(object):
             "page_size": 1,
             "page_num": 10,
 
-            "grep_condition": {}
+            "grep_condition": {
+                {
+                      #  "train_id": 3,
+                      "framework": "Tensorflow",
+                      "name_search": "模板",
+                      "label_search": "分类"
+                }
+                
+            }
         }
 
         url = 'http://192.168.9.64:33135/airserver-2.0/train_query/'
@@ -184,7 +193,7 @@ if __name__ == "__main__":
     # t.train_stop()
     # t.train_get_schedule()
     # t.train_get_visual()
-    t.train_create()
-    # t.train_start()
+    #t.train_create()
+    t.train_start()
     # t.train_delete()
     # t.train_query()

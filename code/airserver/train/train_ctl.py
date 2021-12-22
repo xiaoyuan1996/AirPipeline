@@ -88,9 +88,9 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     if dataset_id != None:
         query_flag, dataset = sampleset_ctl.sampleset_from_id_to_path(token, dataset_id)
         if not query_flag:
-            # 更新表单
-            update_sql = "update airpipline_trainjobtab set status_monitor='{0}', status_id=400 where id = {1}".format(dataset, train_id)
-            _, _ = DB.update(update_sql)
+            # 删除表单
+            delete_sql_image = "delete from airpipline_trainjobtab where id={0}".format(train_id)
+            flag, info = DB.delete(delete_sql_image)
             return False, "train_create： sampleset query failed."
 
         util.copy_dir(dataset, data_own)
@@ -110,7 +110,7 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     if (model_path != None) and (params["spec_model"] != None):
         if not os.path.exists(os.path.join(model_path, params["spec_model"])):
             train_delete(token, train_id)
-            return False, "train_create： model_path not exists."
+            return False, "train_create： model_path not exists in {}.".format(os.path.join(model_path, params["spec_model"]))
 
         # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
         shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own))
@@ -135,6 +135,8 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
             volumeMounts=volumeMounts,
             train_cmd=train_cmd
         )
+        logger.info("train_create: {},{}".format(task_id, info))
+
     else:
         # 分布式
         task_id, info = k8s_ctl.k8s_create_dist(
@@ -146,6 +148,8 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
             token=token,
             train_cmd=train_cmd
         )
+        logger.info("train_create: {},{}".format(task_id, info))
+
 
     status_id = 200 if task_id else 400
     # 更新表单
@@ -227,7 +231,7 @@ def train_delete(token, train_id):
             return flag, info
 
 
-def train_query(token, page_size, page_num):
+def train_query(token, page_size, page_num, grep_condition):
     """
     根据 user_id 查询 train 信息
     token: str 用户验证信息
@@ -243,7 +247,7 @@ def train_query(token, page_size, page_num):
     flag, info = DB.query_all(read_sql)
 
     # 分页
-    info = info[(page_size-1)*page_num: page_size*page_num]
+    info = info[(page_num-1)*page_size: page_size*page_num]
 
     # 当前时间
     now_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))

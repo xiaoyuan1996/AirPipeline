@@ -65,9 +65,15 @@ def get_all_tasktypes(query_text):
     # 读数据库
     read_sql = "select task_type from airpipline_templatetab"
     flag, info = DB.query_all(read_sql)
+    for item in info:
+        type_string = item[0].split(",")
+        task_types.extend(type_string)
 
     # TODO: 求和
 
-    word_candidates = util.find_most_similar(query_text, task_types)
+    if query_text != None:
+        word_candidates = util.find_most_similar(query_text, task_types)
+    else:
+        word_candidates = set(task_types)
 
     return True, word_candidates

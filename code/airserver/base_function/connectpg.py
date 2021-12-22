@@ -82,15 +82,15 @@ class pg_db(object):
         description TEXT,
         params JSON,
         task_id TEXT,
-        
+
         task_type TEXT,
         algo_framework TEXT NOT NULL,
-        
+
         status_monitor TEXT,
-        
+
         start_time TEXT,
         end_time TEXT,
-        
+
         src_template INT      
         );
         ''')
@@ -128,7 +128,7 @@ class pg_db(object):
         debug_user_name TEXT NOT NULL,
         debug_user_pw TEXT NOT NULL,
         host_port int NOT NULL,
-        
+
         status_monitor TEXT
         );
         ''')
@@ -144,7 +144,7 @@ class pg_db(object):
         code_path TEXT,
         data_path TEXT,
         description TEXT,
-        
+
         status_monitor TEXT     
         );
         ''')
@@ -228,10 +228,21 @@ class pg_db(object):
 
             # 读取检查template.json
             template_info = util.read_json(os.path.join(cur_template_path, "template.json"))
-            if ("template_name" not in template_info.keys()) or ("image_name" not in template_info.keys()) \
-                    or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()):
-                logger.info("template.json must include: template_name, image_name, image_id and description")
+            if ("template_name" not in template_info.keys()) or ("image_size" not in template_info.keys()) \
+                or ("image_id" not in template_info.keys()) or ("description" not in template_info.keys()) \
+                or ("task_type" not in template_info.keys()) or ("algo_framework" not in template_info.keys()) \
+                or ("infer_cmd" not in template_info.keys()) or ("train_cmd" not in template_info.keys()):
+                logger.info("template.json must include in {}: template_name, image_name, image_id, description, task_type, algo_framework, train_cmd, infer_cmd".format(cur_template_path))
                 continue
+
+            # 代码大小
+            code_size = util.getFileFolderSize(os.path.join(cur_template_path, 'code'))
+            code_size = util.trans_size_to_suitable_scale(code_size)
+
+            # 模型大小
+            model_size = util.getFileFolderSize(os.path.join(cur_template_path, 'model'))
+            model_size = util.trans_size_to_suitable_scale(model_size)
+
 
             # 检查template是否在数据库中
             read_sql = "select id from airpipline_templatetab where name='{0}' and privilege=0".format(
@@ -240,11 +251,13 @@ class pg_db(object):
             if query_info == None:
                 # 插表
                 create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-                sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}')".format(
+                sql = "insert into airpipline_templatetab (name,user_id,image_id,code_path,model_path,create_time,privilege,description,task_type,algo_framework,train_cmd, infer_cmd, code_size, model_size, image_size) values  ('{0}',{1},{2},'{3}','{4}','{5}',{6},'{7}','{8}','{9}','{10}','{11}','{12}','{13}','{14}')".format(
                     template_info['template_name'], 0, template_info['image_id'],
                     os.path.join(cur_template_path, 'code'), os.path.join(cur_template_path, 'model'), create_time, "0",
-                    template_info['description'])
+                    template_info['description'], template_info['task_type'],template_info['algo_framework'],template_info['train_cmd'],template_info['infer_cmd'], code_size, model_size, template_info['image_size'] )
                 code, data = self.insert(sql)
+
+
 
     def get_instance(self):
         return self.conn_pool.getconn()
