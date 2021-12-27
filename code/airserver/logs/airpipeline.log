@@ -1,0 +1,22 @@
+2021-12-27 09:12:19,152 - __main__ - INFO - Start apis and running ...
+
+2021-12-27 09:12:19,178 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2021-12-27 09:12:19,178 - werkzeug - INFO -  * Running on http://172.17.0.6:5000/ (Press CTRL+C to quit)
+2021-12-27 09:13:16,813 - __main__ - INFO - train_query: request verify...
+2021-12-27 09:13:16,814 - __main__ - INFO - train_query: request data: {'page_size': 10, 'page_num': 1, 'grep_condition': {'time_range': {'start': '2021-12-21 00:00:00', 'end': '2021-12-22 00:00:00'}}}
+2021-12-27 09:13:16,872 - werkzeug - INFO - 172.17.0.1 - - [27/Dec/2021 09:13:16] "GET /airserver-2.0/train_query/ HTTP/1.1" 200 -
+2021-12-27 09:13:39,424 - __main__ - INFO - train_create: request verify...
+2021-12-27 09:13:39,425 - __main__ - INFO - train_create: request data: {'train_name': '训练1224 -v 2.8', 'template_id': 6, 'dataset': 634, 'dist': False, 'description': 'airstudio dist test', 'params': {'resource_info': '{"cpu_count": 4, "mem_size": 4294967296, "gpu_dict": "{\\"GeForce RTX 2080 Ti\\": 1}", "shm_size": "4Gi"}', 'spec_model': 'pretrainmodel.pkl', 'framework': 'pytorch', 'job_command': 'python /app/mnist.py', 'job_args': '----batch_size=8', 'master_replicas': 1, 'worker_replicas': 1, 'restart_policy': 'Never', 'selector': [{'key': 'kubernetes.ro/hostname', 'operator': 'IN', 'values': ['dell-nf5468m5']}], 'automl': {'niter': 1, 'paramters': {'batch_size': {'type': 'int', 'pounds': [8, 12]}, 'lr': {'type': 'float', 'pounds': [0.0001, 0.0002]}}}}}
+2021-12-27 09:13:39,543 - __main__ - INFO - image_from_id_to_name: infos:{'code': 0, 'data': {'description': '用于airpipeline的标准镜像', 'dockerhub_ip': 'www.registry.cyber.ai', 'dockerhub_password': None, 'dockerhub_username': None, 'file_name': '73963189c56be55c5cdf8e11a6c5a707.bin', 'harbor_artifact': 'sha256:1c64491c41f5982c73e8b7fb1c6725825fec3e32b9a85fd9e4fa9fa8d38465d0', 'id': 4, 'image_id': 'www.registry.cyber.ai/airevaluation/airpipeline/60b3816cf3:v1202', 'image_status': 0, 'last_run_time': None, 'name': 'airpipeline-demo', 'origin_file_name': 'airpipeline_image.tar', 'service_id': 0, 'shared': False, 'size': '9470456320', 'upload_time': 'Thu, 02 Dec 2021 21:09:00 GMT', 'usage_tag': 'default', 'user_id': 2}, 'message': 'Success'}
+2021-12-27 09:13:40,527 - __main__ - INFO - sampleset_from_id_to_path: 634
+2021-12-27 09:13:40,685 - __main__ - INFO - sampleset_from_id_to_path: <Response [200]>
+2021-12-27 09:13:41,769 - __main__ - INFO - =============== k8s instance create =================
+2021-12-27 09:13:41,769 - __main__ - INFO - pod_name:train-30-0
+2021-12-27 09:13:41,770 - __main__ - INFO - volumeMounts:[{'host_path': '/var/nfs/general/airpipline_all_data/external/2/train/30/data', 'mount_path': '/dataset'}, {'host_path': '/var/nfs/general/airpipline_all_data/external/2/train/30/code', 'mount_path': '/app'}, {'host_path': '/var/nfs/general/airpipline_all_data/external/2/train/30/model/0', 'mount_path': '/data/model'}, {'host_path': '/var/nfs/general/airpipline_all_data/external/2/train/30/visual/0', 'mount_path': '/data/log'}]
+2021-12-27 09:13:41,770 - __main__ - INFO - port_map:None
+2021-12-27 09:13:41,770 - __main__ - INFO - image_name:www.registry.cyber.ai/airevaluation/airpipeline/60b3816cf3:v1202
+2021-12-27 09:13:41,770 - __main__ - INFO - lables:airstudio-train
+2021-12-27 09:13:41,770 - __main__ - INFO - params:{'resource_info': '{"cpu_count": 4, "mem_size": 4294967296, "gpu_dict": "{\\"GeForce RTX 2080 Ti\\": 1}", "shm_size": "4Gi"}', 'spec_model': 'pretrainmodel.pkl', 'framework': 'pytorch', 'job_command': 'python /app/mnist.py', 'job_args': '----batch_size=8', 'master_replicas': 1, 'worker_replicas': 1, 'restart_policy': 'Never', 'selector': [{'key': 'kubernetes.ro/hostname', 'operator': 'IN', 'values': ['dell-nf5468m5']}], 'automl': {'niter': 1, 'paramters': {'batch_size': {'type': 'int', 'pounds': [8, 12]}, 'lr': {'type': 'float', 'pounds': [0.0001, 0.0002]}}}}
+2021-12-27 09:13:41,869 - __main__ - INFO - train_create: 33,k8s_create: <Response [200]>.
+2021-12-27 09:13:41,873 - werkzeug - INFO - 127.0.0.1 - - [27/Dec/2021 09:13:41] "POST /airserver-2.0/train_create/ HTTP/1.1" 200 -

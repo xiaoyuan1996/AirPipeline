@@ -9,7 +9,12 @@ import util
 
 if __name__ == '__main__':
     # 记录设置
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        # filename='logs/airpipeline.log',
+        # filemode='a'
+    )
     logger = logging.getLogger(__name__)
     globalvar.set_value("logger", logger)
     globalvar.set_value("get_config", get_config)

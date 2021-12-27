@@ -3,13 +3,16 @@ import requests
 
 
 class TemplateTest(object):
+    def __init__(self):
+        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRmNDQ3ZmI3Y2U2ZjNlMDNjOGQyMjUzYzUxNzNjZDA0OWU3OTE1ODkzOWM5OGYwNTVhMDJhMjRlNmFjNTU2NTEtMg=="
+
     def template_create(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWExMzUxODQ1YjRjMjQ5NzY2ZWNmYjE4ZTZlNjUyMzUxYmEwNDc1MmM2MDVlMjcxYzA0NDE5YTc0YzMyN2UyNmUtMg==",
+            "token" : self.token
         }
         data = {
-            "template_name": "训练模板 -t 1221 -v 1.0",
+            "template_name": "训练模板 -t 1221 -v 1.3",
             "image_id": 4,
             "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
             "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
@@ -35,7 +38,7 @@ class TemplateTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWYwMWUwZjA2Y2U3NDMwZWE3NWQ0ZjMxZGRiM2ZjZGJjMWQ0NTAxNGRmMGU4YTI1NWZmMmE1YTJmODdmZDdjZTktMg==",
+            "token": self.token
         }
         data = {
             "template_id": 3,
@@ -60,7 +63,7 @@ class TemplateTest(object):
     def template_delete(self):
         # 删除template
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRiZjFiY2Y4ZjEzZmY2OTk5MWE4NTJhMDhlYjZjZGIxMWVkOTdhNTU0MGNhNzBkNmI4NmFhNzM5YWI1MDEyMWYtMg==",
+            "token": self.token
         }
         data = {
             "template_id": 2,
@@ -78,16 +81,16 @@ class TemplateTest(object):
         :return: 查询到的template信息
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVkYjA4Nzk2NjJmZDgyODNjOWNiOWI2NTJmOGM1NWY1NDJhZDM0MmM4MDc0MmZiMDU1Njc0ZWE0ODViZjI5NTAtMg==",
+            "token": self.token
         }
         data = {
             "page_size": 2,
             "page_num": 1,
             "grep_condition": {
-              #  "template_id": 3,
-                "framework": "Tensorflow",
-                "name_search": "模板",
-                "label_search": "分类"
+               # "template_id": 3,
+                # "framework": "Tensorflow",
+                # "name_search": "模板",
+                # "label_search": "分类"
             }
         }
 
@@ -107,7 +110,7 @@ class TemplateTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTQ1NTk3MzM4MGJhYWRiMDZiNDU1NGVlNTUwYTYxYzQwZWZhMDY4ZDZmZjRmNDhiOGZlYzNlMmE3YTM3NTA4NTUtMg==",
+            "token": self.token
         }
         data = {
             "template_name": "template_generate_from_train",
@@ -120,12 +123,32 @@ class TemplateTest(object):
         r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
+    def template_save_params(self):
+        """
+        token: str 用户验证信息
+        template_id: str 模板id
+        params: str 配置信息
+
+        :return: bool 成功标志
+        """
+        header = {
+            "token": self.token
+        }
+        data = {
+            "template_id": 17,
+            "params": json.dumps([1,1,2])
+        }
+        url = 'http://0.0.0.0:5000/airserver-2.0/template_save_params/'
+
+        r = requests.post(url, data=json.dumps(data), params={"template_id": 17,}, headers=header)
+        print(r.json())
 
 if __name__ == "__main__":
     t = TemplateTest()
 
     # t.template_generate_from_train()
-    #t.template_create()
+    # t.template_create()
     # t.template_delete()
     t.template_query()
     # t.template_edit()
+    # t.template_save_params()

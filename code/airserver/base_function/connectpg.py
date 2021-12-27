@@ -91,7 +91,8 @@ class pg_db(object):
         start_time TEXT,
         end_time TEXT,
 
-        src_template INT      
+        src_template INT,
+        src_dataset INT      
         );
         ''')
 
@@ -166,7 +167,11 @@ class pg_db(object):
         model_size TEXT,
         image_size TEXT,
         train_cmd TEXT NOT NULL,
-        infer_cmd TEXT            
+        infer_cmd TEXT,
+        edit_time TEXT,
+        
+        params TEXT,            
+        jpg_path TEXT            
         );
         ''')
 
@@ -199,6 +204,8 @@ class pg_db(object):
             sql = "insert into airpipline_statustab (id, status) values  (150,'暂停')"
             flag, data = self.insert(sql)
             sql = "insert into airpipline_statustab (id, status) values  (200,'运行正常')"
+            flag, data = self.insert(sql)
+            sql = "insert into airpipline_statustab (id, status) values  (300,'已完成')"
             flag, data = self.insert(sql)
             sql = "insert into airpipline_statustab (id, status) values  (400,'运行失败')"
             flag, data = self.insert(sql)

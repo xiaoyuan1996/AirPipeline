@@ -434,7 +434,6 @@ def api_run():
         """
         token: str 用户验证信息
         template_id: int template ID
-        edit_code: bool 编辑代码标志 optional
 
         template_name: str 模板名称
         image_id: int 镜像id
@@ -497,7 +496,6 @@ def api_run():
         else:
             infer_cmd = request_data["infer_cmd"]
 
-        edit_code = request_data["edit_code"] if "edit_code" in request_data.keys() else None
         code_path = request_data["code_path"] if "code_path" in request_data.keys() else None
         model_path = request_data["model_path"] if "model_path" in request_data.keys() else None
 
@@ -505,7 +503,7 @@ def api_run():
 
         # 开始处理
         flag, info = template_ctl.template_edit(token, template_id, template_name, image_id, code_path, model_path,
-                                                description, task_type, algo_framework, train_cmd, infer_cmd, edit_code)
+                                                description, task_type, algo_framework, train_cmd, infer_cmd)
 
 
         return util.get_stand_return(flag, info)
@@ -565,7 +563,7 @@ def api_run():
 
         grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
 
-        logger.info("template_query: request data: {}".format(token))
+        logger.info("template_query: request data: {}".format(request_data))
 
         # 开始处理
         flag, info = template_ctl.template_query(token, page_size, page_num, grep_condition)
@@ -608,6 +606,63 @@ def api_run():
 
         # 开始处理
         flag, info = template_ctl.template_generate_from_train(token, template_name, train_id, model_name, description)
+
+        return util.get_stand_return(flag, info)
+
+    # 保存template参数配置
+    @app.route(_apis.template_save_params['url'], methods=_apis.template_save_params['method'])
+    def template_save_params():
+        """
+        token: str 用户验证信息
+        template_id: str 模板id
+        params: str 配置信息
+
+        :return: bool 成功标志
+        """
+        logger.info("template_save_params: request verify...")
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        # 请求验证
+        token = request.headers["token"]
+
+        if "template_id" not in request_data.keys():
+            return util.get_stand_return(False, "template_save_params: template_id must be required.")
+        else:
+            template_id = request_data["template_id"]
+
+        if "params" not in request_data.keys():
+            return util.get_stand_return(False, "params: template_id must be required.")
+        else:
+            params = request_data["params"]
+
+        logger.info("template_save_params: request data: {}".format(request_data))
+
+        # 开始处理
+        flag, info = template_ctl.template_save_params(token, template_id, params)
+
+        return util.get_stand_return(flag, info)
+
+
+    # 保存template参数配置
+    @app.route(_apis.template_save_jpg['url'], methods=_apis.template_save_jpg['method'])
+    def template_save_jpg():
+        """
+        token: str 用户验证信息
+        template_id: str 模板id
+        formdata: str 配置信息
+
+        :return: bool 成功标志
+        """
+        logger.info("template_save_jpg: request verify...")
+
+        # 请求验证
+        token = request.headers["token"]
+
+
+        logger.info("template_save_jpg: request data: {}".format(request))
+
+        # 开始处理
+        flag, info = template_ctl.template_save_jpg(token, request)
 
         return util.get_stand_return(flag, info)
 
@@ -803,7 +858,7 @@ def api_run():
         grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
 
         # 开始处理
-        flag, info = train_ctl.train_query(token, page_size, page_num, query_condition)
+        flag, info = train_ctl.train_query(token, page_size, page_num, grep_condition)
 
         return util.get_stand_return(flag, info)
 

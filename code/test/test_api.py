@@ -1,16 +1,24 @@
 import json
+
 import requests
-import os
 
 
-if __name__ == "__main__":
+def k8s_observe_object(token, task_id):
+    """
+    task_id: 某个任务id
+    base_url: airscheduler的基本url地址
+    token: 用户登录时的验证token
 
-    token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTVkYjA4Nzk2NjJmZDgyODNjOWNiOWI2NTJmOGM1NWY1NDJhZDM0MmM4MDc0MmZiMDU1Njc0ZWE0ODViZjI5NTAtMg=="
-    url = "http://192.168.9.64:30887/api/v1/airscheduler/task/17/start"
-    response = requests.put(url=url, headers={"token": token})
-    print(json.loads(response.text))
+    return：某个任务的详细信息
+    """
+    return_info = requests.get(url="http://192.168.9.64:30887/api/v1/airscheduler/task/{}/list".format(task_id), headers={"token": token})
+    return_data = json.loads(return_info.text)
+    print(return_data)
 
-    print(response)
-    print(response.message)
-    print(response['data'])
+
+
+
+token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRmNDQ3ZmI3Y2U2ZjNlMDNjOGQyMjUzYzUxNzNjZDA0OWU3OTE1ODkzOWM5OGYwNTVhMDJhMjRlNmFjNTU2NTEtMg=="
+task_id = 67
+k8s_observe_object(token, task_id)
 

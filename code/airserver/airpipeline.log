@@ -1,0 +1,5 @@
+2021-12-27 09:12:08,350 - __main__ - INFO - Start apis and running ...
+
+2021-12-27 09:12:08,377 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2021-12-27 09:12:08,377 - werkzeug - INFO -  * Running on http://172.17.0.6:5000/ (Press CTRL+C to quit)

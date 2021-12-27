@@ -24,27 +24,19 @@ class request_to_k8s_create():
                 'pvc_requests': '100Mi',
                 'pvc_limits': '1Gi'
             },
-            'protocol': 'TCP',
-            # 'container_name': '',
-            'command': ['python3', '/workspace/inference.py', '["/mnt/mfs/data/Airplane/2.tiff"]',
-                        '["/mnt/mfs/data/Airplane/2.test.xml"]'],
-            'cuda_type': ['10.0.130']
+            'command': 'python /app/train.py',
         }
 
         self.task_info = {
             'name': 'aaa123454567',
-            'server_id': 0,
+            'resource_info': "",
             'source_service_id': 0,
             'running_type': 0,
             'working_type': 0,
-            'ip': '192.168.9.62',
-            'port_mapping': 5000,
             'namespace': 'airevaluation',
-            'image_id': None,
             'image_repo_tag': 'onnx:v1.9',
             'retry_policy': None,
             'running_config': None,
-            'events': None,
             'start_now': False
         }
 
@@ -86,6 +78,12 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
         {
         ”debug_user_name“: "airpipeline",
         ”debug_user_pw“: "123456",
+        "resource_info": {
+                "cpu_count": 4,
+                "mem_size": 4,
+                "gpu_dict":
+                "shm_size": 4
+            }
         }
     :return: 负责与资源调度进行交互是否成功
     """
@@ -100,7 +98,7 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
 
     # generate request
     k8s_instance = request_to_k8s_create()
-    k8s_instance.service_data['command'] = ["python", "/app/train.py"]
+    k8s_instance.service_data['command'] = train_cmd
     k8s_instance.service_data['volumes'] = []
     for mount_idx, mount_info in enumerate(volumeMounts):
         k8s_instance.service_data['volumes'].append({
@@ -115,9 +113,12 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     k8s_instance.task_info['namespace'] = lables
     k8s_instance.task_info['image_id'] = image_id
     k8s_instance.task_info['image_repo_tag'] = image_name
-    # k8s_instance.task_info['start_now'] = False
+    k8s_instance.task_info['resource_info'] = params['resource_info']
+
 
     request_to_k8s = k8s_instance.generate_request()
+
+    print(request_to_k8s)
 
     try:
         return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s, headers={"token": token})
@@ -143,7 +144,7 @@ def k8s_delete(pod_name, lables):
     return True, "k8s_delete: delete successful."
 
 
-def k8s_start(token, pod_name, lables, task_id):
+def k8s_start(token, lables, task_id):
     """
     start k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -152,7 +153,6 @@ def k8s_start(token, pod_name, lables, task_id):
     """
 
     logger.info("=============== k8s instance start =================")
-    logger.info("pod_name:{}".format(pod_name))
     logger.info("lables:{}".format(lables))
     logger.info("task_id:{}".format(task_id))
 
@@ -165,7 +165,7 @@ def k8s_start(token, pod_name, lables, task_id):
     return response.status_code, "k8s_start: {}".format(response)
 
 
-def k8s_pause(pod_name, lables):
+def k8s_pause(pod_name, lables, task_id):
     """
     pause k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等

@@ -10,6 +10,8 @@ database:
 
 user:
   usr_url: http://192.168.2.156:31151/api/v1/users/token_check
+  usr_id_to_name: http://192.168.2.156:31151/api/v1/users/
+  usr_get_infos: http://192.168.2.156:31151/api/v1/users/get
 
 notebook:
   cpu: 1
@@ -88,6 +90,8 @@ image:
   default_notebook_image_id: 0
   image_get_info_url: http://192.168.2.156:31152/api/v1/images/get/{}
   image_build: http://192.168.2.156:31152/api/v1/images/build
+  image_get_infos: http://192.168.2.156:31152/api/v1/images/get
+
 
 service_shop:
   create_service: http://192.168.9.64:32295/service
@@ -95,3 +99,6 @@ service_shop:
 sample_set:
   prefix: /mnt/mfs/data
   id2path_url: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}
+
+static_path:
+  prefix_path: /var/nfs/general/data/static/

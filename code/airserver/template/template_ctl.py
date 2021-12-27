@@ -73,7 +73,7 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
 
     if model_path != None:
         # shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
-        shutil.copy(model_path, os.path.join(own_model, model_path.split("/")[-1]))
+        shutil.copy(model_path, own_model)
 
     # 统计文件大小信息　====================================
 
@@ -100,11 +100,10 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
 
 
 def template_edit(token, template_id, template_name, image_id, code_path, model_path,
-                                                description, task_type, algo_framework, train_cmd, infer_cmd, edit_code):
+                                                description, task_type, algo_framework, train_cmd, infer_cmd):
     """
     token: str 用户验证信息
     template_id: int template ID
-    edit_code: bool 编辑代码标志 optional
 
     template_name: str 模板名称
     image_id: int 镜像id
@@ -131,28 +130,6 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
     flag, template_info = DB.query_one(read_sql)
     if template_info == None: return False, "template_edit: template not exists."
     if int(template_info[2]) != user_id: return False, "template_edit: template not belong to user {}.".format(user_id)
-
-    # 如果编辑代码，则将代码挂进k8s进行编辑
-    if edit_code:
-        # 获取镜像名称
-        image_id = get_config("image", "default_notebook_image_id")
-        image_name = image_ctl.image_from_id_to_name(image_id, token)
-
-        # TODO: 需要加默认端口
-        flag, info = k8s_ctl.k8s_create(
-            token=token,
-            pod_name=str(template_id) + "_" + "edit",
-            image_id=image_id,
-            image_name=image_name,
-            lables="airstudio-template",
-            volumeMounts={
-                "/app": template_info[4]  # info[4]为code_path
-            },
-        )
-
-        # TODO: 什么时候关闭容器？
-
-        return flag, info
 
     # 　如果上传新代码
     own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
@@ -181,8 +158,9 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
     model_size = util.trans_size_to_suitable_scale(model_size)
 
     # 更新表单
-    update_sql = "update airpipline_templatetab set name = '{0}', image_id={1}, description='{2}', task_type='{3}', algo_framework='{4}', train_cmd='{5}', infer_cmd='{6}', code_size='{7}', model_size='{8}'  where id = {9}".format(
-        template_name, image_id, description, task_type, algo_framework, train_cmd, infer_cmd, code_size, model_size, template_id)
+    edit_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
+    update_sql = "update airpipline_templatetab set name = '{0}', image_id={1}, description='{2}', task_type='{3}', algo_framework='{4}', train_cmd='{5}', infer_cmd='{6}', code_size='{7}', model_size='{8}', edit_time='{9}'  where id = {10}".format(
+        template_name, image_id, description, task_type, algo_framework, train_cmd, infer_cmd, code_size, model_size, edit_time, template_id)
     flag, info = DB.update(update_sql)
 
     return True, "template_edit: successful"
@@ -240,6 +218,9 @@ def template_query(token, page_size, page_num, grep_condition):
     flag, info = DB.query_all(read_sql)
 
     return_info = []
+    image_ids = []
+    user_ids = []
+
     for item in info:
 
         # 筛选条件
@@ -259,6 +240,9 @@ def template_query(token, page_size, page_num, grep_condition):
             if grep_condition['label_search'] not in item[9]:
                 continue
 
+        # 获取使用次数
+        read_sql = "select src_template from airpipline_trainjobtab"
+        flag, total_used_info = DB.query_all(read_sql)
 
         return_info.append(
             {
@@ -279,13 +263,49 @@ def template_query(token, page_size, page_num, grep_condition):
                 "image_size": item[13],
                 "train_cmd": item[14],
                 "infer_cmd": item[15],
+                # "image_name": image_name,
+
+                "edit_time": item[16],
+                "total_used": total_used_info.count([item[0]]),
+                # 'user_name': user_ctl.user_from_id_to_name(token, item[2]),
+                'params': item[17],
+                'jpg_path':  item[18]
+                # 'image_tag': image_tag
+
             }
         )
-    
-#    print(return_info)
+
+        image_ids.append(item[3])
+        user_ids.append(item[2])
+
+    # 接口请求
+    user_info = user_ctl.user_get_infos(token, user_ids)
+    image_info = image_ctl.image_get_infos(image_ids, token)
+
+    user_id_name = util.get_k_v_dict(user_info, "id", "name")
+    image_id_name = util.get_k_v_dict(image_info, "id", "name")
+    image_id_tag = util.get_k_v_dict(image_info, "id", "image_id")
+
+    for idx, item in enumerate(return_info):
+        item["user_name"] = user_id_name[item["user_id"]]
+
+        if item["image_id"] not in image_id_name.keys():
+            item["image_name"] = "已删除"
+            item["image_tag"] = ""
+            item["image_id"] = "已删除"
+            item["image_size"] = "已删除"
+
+        else:
+            item["image_name"] = image_id_name[item["image_id"]]
+            item["image_tag"] = image_id_tag[item["image_id"]]
+
+
     # 分页
-    return_info = return_info[(page_num-1)*page_size: page_size*page_num]
-    print(return_info)
+    info = return_info[(page_num-1)*page_size: page_size*page_num]
+    return_info = {
+        "data": info,
+        "total_num": len(return_info)
+    }
 
     return True, return_info
 
@@ -379,3 +399,61 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     flag, info = DB.update(update_sql)
 
     return flag, info
+
+def template_save_params(token, template_id, params):
+    """
+    token: str 用户验证信息
+    template_id: str 模板id
+    params: str 配置信息
+
+    :return: bool 成功标志
+    """
+    # 获取用户id
+    user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "template_generate_from_train： user check failed."
+
+    # 查表 判断该请求是否来自该用户
+    read_sql = "select * from airpipline_templatetab where user_id={0} and id={1}".format(user_id, template_id)
+    flag, info = DB.query_all(read_sql)
+
+
+    # 更新表单
+    update_sql = "update airpipline_templatetab set params = '{0}' where id = {1}".format(
+        params, template_id)
+    flag, info = DB.update(update_sql)
+
+    return flag, "template_save_params: success"
+
+def template_save_jpg(token, request):
+    """
+    token: str 用户验证信息
+    template_id: str 模板id
+    request: request request请求
+
+    :return: bool 成功标志
+    """
+    # 获取用户id
+    user_id = user_ctl.user_from_token_to_id(token)
+    if user_id == -1:   return False, "template_generate_from_train： user check failed."
+
+    template_id = request.args.get("template_id")
+
+    # 查表 判断该请求是否来自该用户
+    read_sql = "select * from airpipline_templatetab where user_id={0} and id={1}".format(user_id, template_id)
+    flag, info = DB.query_all(read_sql)
+
+
+    util.create_dir_if_not_exist(os.path.join(get_config('static_path', 'prefix_path'), str(template_id)))
+
+    portrait_file = request.files.get("portrait_file")
+
+    #portrait_file = portrait_file.get("portrait_file")
+
+    file_save_path = os.path.join(get_config('static_path', 'prefix_path'), "airpipeline",  str(template_id)+ ".jpg")
+    portrait_file.save(file_save_path)
+
+    # 更新表单
+    update_sql = "update airpipline_templatetab set jpg_path = '{0}' where id = {1}".format("/static/airpipeline/"+str(template_id)+".jpg", template_id)
+    flag, info = DB.update(update_sql)
+
+    return flag, "template_save_jpg: success"

@@ -27,6 +27,8 @@ class ApisDefinition(object):
         self.template_query = self.apis_demo("/airserver-2.0/template_query/", "POST", "api_run.template_query")
         self.template_generate_from_train = self.apis_demo("/airserver-2.0/template_generate_from_train/", "POST",
                                                            "api_run.template_generate_from_train")
+        self.template_save_params = self.apis_demo("/airserver-2.0/template_save_params/", "POST", "api_run.template_save_params")
+        self.template_save_jpg = self.apis_demo("/airserver-2.0/template_save_jpg/", "POST", "api_run.template_save_jpg")
 
         # ====================== TRAIN ==============================
         # 训练任务定义
@@ -35,10 +37,10 @@ class ApisDefinition(object):
         self.train_pause = self.apis_demo("/airserver-2.0/train_pause/", "PUT", "api_run.train_pause")
         self.train_stop = self.apis_demo("/airserver-2.0/train_stop/", "POST", "api_run.train_stop")
         self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "DELETE", "api_run.train_delete")
-        self.train_query = self.apis_demo("/airserver-2.0/train_query/", "GET", "api_run.train_query")
-        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "GET",
+        self.train_query = self.apis_demo("/airserver-2.0/train_query/", "POST", "api_run.train_query")
+        self.train_get_schedule = self.apis_demo("/airserver-2.0/train_get_schedule/", "POST",
                                                  "api_run.train_get_schedule")
-        self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "GET", "api_run.train_get_visual")
+        self.train_get_visual = self.apis_demo("/airserver-2.0/train_get_visual/", "POST", "api_run.train_get_visual")
         self.train_generate_from_inference = self.apis_demo("/airserver-2.0/train_generate_from_inference/", "POST", "api_run.train_generate_from_inference")
 
         # ====================== INFERENCE ==============================

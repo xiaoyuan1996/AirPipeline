@@ -8,6 +8,8 @@ get_config = globalvar.get_value("get_config")
 
 def sampleset_from_id_to_path(token, dataset_id, class_type='IMAGE'):
     # TODO: 数据库接口 问佳良数据库other是否可行
+    logger.info("sampleset_from_id_to_path: {}".format(dataset_id))
+
     response = requests.get(url=get_config('sample_set', 'id2path_url').format(dataset_id, class_type),
                             headers={"token": token})
     try:

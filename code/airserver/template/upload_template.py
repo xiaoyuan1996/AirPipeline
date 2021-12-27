@@ -1,102 +1,118 @@
-import json
-import globalvar
-import requests
-logger = globalvar.get_value("logger")
-get_config = globalvar.get_value("get_config")
+try:
+    from urlparse import urlparse, quote
+except ImportError:
+    from urllib.parse import urlparse, quote
+import requests, json, flask
+import os, json
+import hashlib
+import time
 
+def similify_json_log(json_data):
+    if isinstance(json_data, list):
+        new_json_data = []
+        for item in json_data:
+            new_json_data.append(similify_json_log(item))
+        return new_json_data
+    elif isinstance(json_data, dict):
+        for key, value in json_data.items():
+            json_data[key] = similify_json_log(value)
+        return json_data
+    elif isinstance(json_data, str):
+        if len(json_data) > 256:
+            return json_data[:256] + "..."
+    return json_data
 
-def image_from_id_to_name(id, token):
+def simulate_request(url, method, headers = None, query_args = None,
+        form = None, json_data = None, upload_files = None,
+        cookies = None, detail = False, auto_cookies_update = True,
+        timeout = None):
     """
-    从镜像id获得镜像名称
-    :param int: 镜像id
-    :param token: token
-    :return: 镜像名称
+    headers 是一个请求头设置数据的dict
+    query_args 是url后置参数的dict
+    form 是一个表单数据dict
+    json_data 是一个JSON数据dict或者JSON字符串
+    upload_files 则是一个上传的文件完整路径dict
+    detail 如果希望获取完整的reponse可以设置为True
+    auto_cookie_update 是否继承上一次请求的Cookie结果
     """
-
-    response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token": token})
-
-    infos = json.loads(response.text)
-    logger.info("image_from_id_to_name: infos:{}".format(infos))
-
-    if infos['code'] != 0:
-        logger.info("image_from_id_to_name: Error:{}".format(infos))
-        return False, -1
-    elif infos['data'] == None:
-        logger.info("image_from_id_to_name: Error:{}".format(infos))
-        return False, -1
+    if not hasattr(simulate_request, 'cookie_jar'):
+        simulate_request.cookie_jar = {}
+    parsed_url = urlparse(url)
+    new_headers = {}
+    # new_headers = fake_headers
+    # new_headers["Host"] = "{}://{}".format(parsed_url.scheme,
+    #         parsed_url.netloc)
+    if headers:
+        new_headers.update(headers)
+    headers = new_headers
+    if cookies is not None:
+        simulate_request.cookie_jar.update(cookies)
+    cookies = simulate_request.cookie_jar if auto_cookies_update else (
+            {} if cookies is None else cookies)
+    query_args = {} if query_args is None else query_args
+    data = {} if form is None else form
+    if json_data is not None and len(data) == 0:
+        data = json.dumps(json_data) if not isinstance(json_data, str) else json_data
+        headers["Content-Type"] = "application/json"
+    upload_files = {} if upload_files is None else upload_files
+    files = {}
+    for file_key, file_path in upload_files.items():
+        files[file_key] = (os.path.split(file_path)[1], open(file_path, 'rb'),
+                "application/octet-stream")
+    if len(files) and timeout is None:
+        timeout = 10800
+    elif timeout is None:
+        timeout = 60
+    try:
+        from .service_util import logger
+    except ImportError:
+        logger = None
+    if logger is not None:
+        logger.info("-" * 32)
+        logger.info("[Internal-Request:Url] " + url)
+        logger.info("[Internal-Request:Headers] " +
+                json.dumps(headers, ensure_ascii=False))
+        logger.info("[Internal-Request:Query] " +
+                json.dumps(query_args, ensure_ascii=False))
+        logger.info("[Internal-Request:Form/Json] " +
+                (json.dumps(data, indent = 4, ensure_ascii=False)
+                        if headers.get("Content-Type") is not None
+                        else str(data)))
+    if method == "POST":
+        response = requests.post(url = url, headers = headers,
+                cookies = cookies, params = query_args,
+                data = data, files = files, stream = False,
+                timeout = timeout)
+    elif method == "GET":
+        response = requests.get(url = url, headers = headers,
+                cookies = cookies, params = query_args, stream = False,
+                timeout = timeout)
+    elif method == "PUT":
+        response = requests.put(url = url, headers = headers,
+                cookies = cookies, params = query_args,
+                data = data, files = files, stream = False,
+                timeout = timeout)
+    elif method == "DELETE":
+        response = requests.delete(url = url, headers = headers,
+                cookies = cookies, params = query_args, stream = False,
+                timeout = timeout)
+    if logger is not None:
+        logger.info("[Internal-Response] Success")
+    if auto_cookies_update:
+        simulate_request.cookie_jar.update(response.cookies)
     else:
-        return True, infos['data']['image_id']
+        simulate_request.cookie_jar = {}
+    if logger is not None:
+        logger.info("[Internal-Response:StatusCode] " + str(response.status_code))
+        logger.info("[Internal-Response:Headers] " +
+                json.dumps(dict(response.headers), ensure_ascii=False))
+        if response.headers.get("Content-Type").find("application/json") != -1:
+            logger.info("[Internal-Response:Json] " +
+                    (json.dumps(similify_json_log(response.json()),
+                            indent = 4, ensure_ascii=False)))
+        logger.info("-" * 32)
+    return response.json() if not detail else response
 
-
-def image_from_id_to_info(id, token):
-    """
-    从镜像id获得镜像名称
-    :param int: 镜像id
-    :param token: token
-    :return: 镜像全部信息
-    """
-
-    response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token": token})
-
-    infos = json.loads(response.text)
-
-    logger.info("image_from_id_to_info: infos:{}".format(infos))
-
-    return infos
-
-def image_get_infos(ids, token):
-    """
-    从用户id获得镜像信息
-    :param token: 用户token
-    :return: 用户ids
-    """
-    response = requests.get(url=get_config('image', 'image_get_infos'), params={"image_ids": json.dumps(ids)}, headers={"token": token})
-
-    infos = json.loads(response.text)
-
-    if infos['code'] != 0:
-        logger.info("image_get_infos: Error:{}".format(infos))
-        return -1
-    else:
-        return infos['data']
-
-
-def image_build_from_dockerfile(token, name, description, docker_file, src_image, spec_label):
-    """
-    根据已有镜像建立新镜像
-
-    :param token: token
-    :param name: 建立镜像名称
-    :param description: 镜像描述
-    :param docker_file: docker_file 地址
-    :param src_image: 原始镜像tag
-    :return:
-    """
-
-    logger.info("==================================")
-
-    logger.info("image_build_from_dockerfile: {}".format(name))
-    logger.info("image_build_from_dockerfile: {}".format(description))
-    logger.info("image_build_from_dockerfile: {}".format(docker_file))
-    logger.info("image_build_from_dockerfile: {}".format(src_image))
-
-    form = {
-        "name": name,
-        "description": description,
-        "docker_file": docker_file,
-        "image_id": "airpipeline-inference-{}-{}".format(spec_label, src_image)
-    }
-
-    response = requests.post(url=get_config('image', 'image_build'), data=form, headers={"token": token})
-
-    response = json.dumps(response.json(), ensure_ascii=False)
-    logger.info("image_build_from_dockerfile: {}".format(response))
-
-    if json.loads(response)['code'] != 0:
-        print("image_build_from_dockerfile: {}".format(response))
-        return False, -1, _
-    else:
-        return True, json.loads(response)['data']['id'], json.loads(response)['data']['image_id']
 
 
 
@@ -256,3 +272,7 @@ def upload_image(user_ip="192.168.2.156:31151", file_ip="192.168.2.156:31153",
     if resp.get("code") is None or resp.get("code") != 0:
         exit()
     return resp["data"].get("id")
+
+if __name__ == "__main__":
+    image_id = upload_image()
+    print("Upload finished, get image_id {}".format(image_id))
