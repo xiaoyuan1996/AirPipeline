@@ -496,7 +496,6 @@ def train_get_visual(token, train_id):
             get_config('path', 'visual_path')
         )
 
-
         return True, "http://192.168.9.62:33137"
 
 def train_generate_from_inference(token, infer_id, train_name, dataset, dist, description, params):
