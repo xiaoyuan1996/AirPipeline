@@ -1,0 +1,9 @@
+{
+  "random_search": {},
+  "bayesian_search": {
+    "verbose": 2 ,
+    "init_points": 0,
+    "random_state": 1
+  },
+  "grid_search": {}
+}

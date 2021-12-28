@@ -44,10 +44,12 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     task_type = info[9]
     algo_framework = info[10]
     train_cmd = info[14]
+    pretrain_model_name = info[19]
+
 
     # 获取镜像名称
     flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
-    status_id = 100
+    status_id = 80
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -78,12 +80,12 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
                             "data")
     util.create_dir_if_not_exist(data_own)
-    model_own_up = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
                              "model")
-    util.create_dir_if_not_exist(model_own_up)
-    visual_own_up = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    util.create_dir_if_not_exist(model_own)
+    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
                               "visual")
-    util.create_dir_if_not_exist(visual_own_up)
+    util.create_dir_if_not_exist(visual_own)
     if code_path != None:
         util.copy_dir(code_path, code_own)
 
@@ -97,84 +99,78 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
 
         util.copy_dir(dataset, data_own)
 
-    # 根据automl数值创建多个输出文件夹
-    task_ids = {
-        "now_task": None,
-        "task_list": []
-    }
-    for train_num_idx in range(params['automl']['niter']):
-        model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                                 "model", str(train_num_idx))
-        util.create_dir_if_not_exist(model_own)
-        visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
-                                  "visual", str(train_num_idx))
-        util.create_dir_if_not_exist(visual_own)
-
-        # 创建挂载
-        volumeMounts = []
-        if dataset_id != None:
-            volumeMounts.append({
-                "host_path": data_own,
-                "mount_path": "/dataset"
-            })
-
-        if code_path != None:
-            volumeMounts.append({
-                "host_path": code_own,
-                "mount_path": "/app"
-            })
-
-        if (model_path != None) and (params["spec_model"] != None):
-            if not os.path.exists(os.path.join(model_path, params["spec_model"])):
-                train_delete(token, train_id)
-                return False, "train_create： model_path not exists in {}.".format(os.path.join(model_path, params["spec_model"]))
-
-            # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
-            shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own))
-
+    # 创建挂载
+    volumeMounts = []
+    if dataset_id != None:
         volumeMounts.append({
-            "host_path": model_own,
-            "mount_path": "/data/model"
-        })
-        volumeMounts.append({
-            "host_path": visual_own,
-            "mount_path": "/data/log"
+            "host_path": data_own,
+            "mount_path": "/dataset"
         })
 
-        if not dist:
-            # 　非分布式
-            task_id, info = k8s_ctl.k8s_create(
-                token=token,
-                pod_name="train-" + str(train_id) + "-" +  str(train_num_idx),
-                image_id=image_id,
-                image_name=image_name,
-                lables="airstudio-train",
-                volumeMounts=volumeMounts,
-                train_cmd=train_cmd,
-                params=params
-            )
-            logger.info("train_create: {},{}".format(task_id, info))
+    if code_path != None:
+        volumeMounts.append({
+            "host_path": code_own,
+            "mount_path": "/app"
+        })
 
-        else:
-            # 分布式
-            task_id, info = k8s_ctl.k8s_create_dist(
-                pod_name="train-" + str(train_id) + "-" + str(train_num_idx),
-                image_name=image_name,
-                lables="airstudio-train",
-                volumeMounts=volumeMounts,
-                params=params,
-                token=token,
-                train_cmd=train_cmd
-            )
-            logger.info("train_create: {},{}".format(task_id, info))
+    # 拼接启动命令
+    if "job_args" in params.keys():
+        for k,v in params["job_args"].items():
+            train_cmd += " --{} {}".format(k, str(v))
 
-        task_ids['task_list'].append(task_id)
+    # 保留 automl 接口
+    if "automl" in params.keys():
+        pass
+
+    if (model_path != None) and (pretrain_model_name != None):
+        if not os.path.exists(os.path.join(model_path, pretrain_model_name)):
+            train_delete(token, train_id)
+            return False, "train_create： model_path not exists in {}.".format(os.path.join(model_path, pretrain_model_name))
+
+        # shutil.copy(os.path.join(model_path, params["spec_model"]), os.path.join(model_own, "cur_model.pth"))
+        shutil.copy(os.path.join(model_path, pretrain_model_name), os.path.join(model_own))
+
+    volumeMounts.append({
+        "host_path": model_own,
+        "mount_path": "/data/model"
+    })
+    volumeMounts.append({
+        "host_path": visual_own,
+        "mount_path": "/data/log"
+    })
 
 
-    status_id = 200 if task_id else 400
+    if not dist:
+        # 　非分布式
+        task_id, info = k8s_ctl.k8s_create(
+            token=token,
+            pod_name="train-" + str(train_id),
+            image_id=image_id,
+            image_name=image_name,
+            lables="airstudio-train",
+            volumeMounts=volumeMounts,
+            train_cmd=train_cmd,
+            params=params
+        )
+        logger.info("train_create: {},{}".format(task_id, info))
+
+    else:
+        # 分布式
+        task_id, info = k8s_ctl.k8s_create_dist(
+            pod_name="train-" + str(train_id),
+            image_name=image_name,
+            lables="airstudio-train",
+            volumeMounts=volumeMounts,
+            params=params,
+            token=token,
+            train_cmd=train_cmd
+        )
+        logger.info("train_create: {},{}".format(task_id, info))
+
+    status_id = 100 if task_id else 80
     # 更新表单
     update_sql = "update airpipline_trainjobtab set status_id = {0}, code_path = '{1}', data_path = '{2}', model_path='{3}', visual_path='{4}', task_id='{5}' where id = {6}".format(
-        status_id, code_own, data_own, model_own_up, visual_own_up, json.dumps(task_ids), train_id)
+        status_id, code_own, data_own, model_own, visual_own, task_id, train_id)
     _, _ = DB.update(update_sql)
 
     return flag, "train_create： create success."
@@ -215,23 +211,18 @@ def train_start(token, train_id):
                     start_time, train_id)
                 _, _ = DB.update(update_sql)
 
-                for t_id in task_id['task_list']:
 
-                    # 启动k8s
-                    flag, info = k8s_ctl.k8s_start(
-                        token=token,
-                        lables="airstudio-train",
-                        task_id=t_id
-                    )
+                # 启动k8s
+                flag, info = k8s_ctl.k8s_start(
+                    token=token,
+                    lables="airstudio-train",
+                    task_id=task_id
+                )
 
-                    # 更新表单
-                    task_id['now_task'] = t_id
-                    update_sql = "update airpipline_trainjobtab set status_id = 200, task_id = '{0}' where id = {1}".format(
-                        task_id['now_task'], train_id)
-                    _, _ = DB.update(update_sql)
-                    #
-                    # 查询任务是否结束
-                    # while
+                # 更新表单
+                update_sql = "update airpipline_trainjobtab set status_id = 200, task_id = '{0}' where id = {1}".format(
+                    task_id, train_id)
+                _, _ = DB.update(update_sql)
 
                 return flag, info
 
@@ -260,7 +251,7 @@ def train_delete(token, train_id):
             flag, info = k8s_ctl.k8s_delete(
                 pod_name=str(train_id) + "_" + info[1],
                 lables="airstudio-train",
-                task_id=t_id
+                task_id=info[1]
             )
 
             # 删除文件
@@ -296,15 +287,11 @@ def train_query(token, page_size, page_num, grep_condition):
 
         # 筛选条件
         if "status_id" in grep_condition.keys():
-            if grep_condition['status_id'] != item[9]:
+            if int(grep_condition['status_id']) != item[9]:
                 continue
 
         if "train_id" in grep_condition.keys():
-            if grep_condition['train_id'] != item[0]:
-                continue
-
-        if "src_template" in grep_condition.keys():
-            if grep_condition['src_template'] != item[19]:
+            if int(grep_condition['train_id']) != item[0]:
                 continue
 
         if "time_range" in grep_condition.keys():
@@ -316,6 +303,16 @@ def train_query(token, page_size, page_num, grep_condition):
         # 获取运行时间
         start_time, end_time = item[17], item[18]
         runing_time = util.get_running_time(start_time, end_time, now_time)
+
+        # 拿模板名称和预训练模型
+        read_sql = "select name, pretrain_model  from airpipline_templatetab where id={0}".format(item[19])
+        _, query_info = DB.query_one(read_sql)
+        template_name = query_info[0]
+        pretrain_model_name = query_info[1]
+
+        if "template_name" in grep_condition.keys():
+            if grep_condition['template_name'] not in template_name:
+                continue
 
         return_info.append(
             {
@@ -335,18 +332,20 @@ def train_query(token, page_size, page_num, grep_condition):
                 "k8s_id": item[13],
                 "task_type": item[14],
                 "algo_framework": item[15],
-                "status_monitor": item[16],
+                "monitor": item[16],
                 "schedule": util.load_schedule(os.path.join(item[6], "schedule.pkl"))[1],
                 "runing_time": runing_time,
                 "start_time": start_time,
                 "end_time": end_time,
                 "src_template": item[19],
                 "src_dataset": item[20],
+                "template_name": template_name,
+                "pretrain_model_name": pretrain_model_name
             }
         )
 
     # 分页
-    info = return_info[(page_num-1)*page_size: page_size*page_num]
+    info = return_info[::-1][(page_num-1)*page_size: page_size*page_num]
 
     # 拿详细模板信息
     if "get_template_info_detail" in grep_condition.keys():
@@ -354,14 +353,6 @@ def train_query(token, page_size, page_num, grep_condition):
             for item in return_info:
                 _, template_info = template_ctl.template_query(token, 1, 1, {"template_id":item["src_template"]})
                 item['template_src_info'] = template_info
-
-    # 拿模板名称
-    for item in return_info:
-        template_id = item['src_template']
-
-        read_sql = "select name from airpipline_templatetab where id={0}".format(template_id)
-        flag, template_name = DB.query_one(read_sql)
-        item['template_name'] = template_name[0]
 
     return_info = {
         "data": info,
