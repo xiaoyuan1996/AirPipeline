@@ -4,7 +4,7 @@ import requests
 
 class TemplateTest(object):
     def __init__(self):
-        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWRmNDQ3ZmI3Y2U2ZjNlMDNjOGQyMjUzYzUxNzNjZDA0OWU3OTE1ODkzOWM5OGYwNTVhMDJhMjRlNmFjNTU2NTEtMg=="
+        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTczMGMwNmRlZDU0NWU4N2U3NDc3MzMzYjg5NDhmNTU2NWE2NDA0YmEzZjJmNjdlNjAxNDQwM2NiMzY0MTVkYzgtMg=="
 
     def template_create(self):
         # 删除notebook
@@ -12,9 +12,9 @@ class TemplateTest(object):
             "token" : self.token
         }
         data = {
-            "template_name": "训练模板 -t 1221 -v 1.3",
+            "template_name": "训练模板 -t 1229 -v1.1",
             "image_id": 4,
-            "code_path": "/mnt/mfs/airpipeline_demo/1209_update/airpipeline_code3.0.tar",
+            "code_path": "/mnt/mfs/airpipeline_demo/1229_update/airpipeline_code_voc.tar",
             "model_path": "/mnt/mfs/airpipeline_demo/1209_update/pretrainmodel.pkl",
             "description": "hello126",
             "task_type": "场景分类",
@@ -147,8 +147,8 @@ if __name__ == "__main__":
     t = TemplateTest()
 
     # t.template_generate_from_train()
-    # t.template_create()
+    t.template_create()
     # t.template_delete()
-    t.template_query()
+    # t.template_query()
     # t.template_edit()
     # t.template_save_params()

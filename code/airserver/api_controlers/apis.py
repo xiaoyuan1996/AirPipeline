@@ -3,8 +3,8 @@ from threading import Timer
 import globalvar
 import util
 from api_controlers.apis_definition import ApisDefinition
-from assist import assist_ctl, status_monitor
-from common.config_manager import get_config
+from assist import assist_ctl
+from monitor import monitor_ctl
 from debug import debug_ctl
 from flask import Flask, request
 from inference import inference_ctl
@@ -13,8 +13,10 @@ from template import template_ctl
 from train import train_ctl
 
 # 变量初始化
+get_config = globalvar.get_value("get_config")
 logger = globalvar.get_value("logger")
-
+DB = globalvar.get_value("DB")
+private_key = globalvar.get_value("private_key")
 
 # 运行程序
 def api_run():
@@ -54,11 +56,12 @@ def api_run():
         dataset = request_data["dataset"] if "dataset" in request_data.keys() else None
         code = request_data["code"] if "code" in request_data.keys() else None
         description = request_data["description"] if "description" in request_data.keys() else None
+        params = request_data["params"] if "params" in request_data.keys() else None
 
         logger.info("notebook_create: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = notebook_ctl.notebook_create(token, notebook_name, image_id, dataset, code, description)
+        flag, info = notebook_ctl.notebook_create(token, notebook_name, image_id, dataset, code, description, params)
 
         return util.get_stand_return(flag, info)
 
@@ -406,7 +409,7 @@ def api_run():
 
         task_type = request_data["task_type"] if "task_type" in request_data.keys() else None
 
-        description = request_data["description"] if "description" in request_data.keys() else None
+        description = request_data["description"] if "description" in request_data.keys() else ""
 
         infer_cmd = request_data["infer_cmd"] if "infer_cmd" in request_data.keys() else None
 
@@ -420,7 +423,7 @@ def api_run():
         else:
             algo_framework = request_data["algo_framework"]
 
-        logger.info("notebook_create: request data: {}".format(request_data))
+        logger.info("template_create: request data: {}".format(request_data))
 
         # 开始处理
         flag, info = template_ctl.template_create(token, template_name, image_id, code_path, model_path, description,
@@ -600,7 +603,7 @@ def api_run():
             return util.get_stand_return(False, "template_generate_from_train: model_name must be required.")
         else:
             model_name = request_data["model_name"]
-        description = request_data["description"] if "description" in request_data.keys() else None
+        description = request_data["description"] if "description" in request_data.keys() else ""
 
         logger.info("template_generate_from_train: request data: {}".format(request_data))
 
@@ -706,7 +709,7 @@ def api_run():
         else:
             dist = request_data["dist"]
 
-        description = request_data["description"] if "description" in request_data.keys() else None
+        description = request_data["description"] if "description" in request_data.keys() else ""
 
         params = request_data["params"] if "params" in request_data.keys() else {}
 
@@ -739,9 +742,52 @@ def api_run():
         else:
             train_id = request_data["train_id"]
 
-        logger.info("notebook_create: request data: {}".format(request_data))
+        logger.info("train_start: request data: {}".format(request_data))
         # 开始处理
         flag, info = train_ctl.train_start(token, train_id)
+
+        return util.get_stand_return(flag, info)
+
+    # 编辑train参数
+    @app.route(_apis.train_edit['url'], methods=_apis.train_edit['method'])
+    def train_edit():
+        """
+        根据train_id 编辑 train
+        token: str 用户验证信息
+        :param train_id: train_id
+
+        :return: bool 成功标志
+        """
+        logger.info("train_start: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        token = request.headers["token"]
+
+        if "train_id" not in request_data.keys():
+            return util.get_stand_return(False, "train_start: train_id must be required.")
+        else:
+            train_id = request_data["train_id"]
+
+        if "train_cmd" not in request_data.keys():
+            return util.get_stand_return(False, "train_create: train_cmd must be required.")
+        else:
+            train_cmd = request_data["train_cmd"]
+        #
+        # if "dist" not in request_data.keys():
+        #     return util.get_stand_return(False, "train_create: dist must be required.")
+        # else:
+        #     dist = request_data["dist"]
+        #
+        # description = request_data["description"] if "description" in request_data.keys() else ""
+
+        params = request_data["params"] if "params" in request_data.keys() else {}
+
+        logger.info("train_start: request data: {}".format(request_data))
+        # 开始处理
+        # flag, info = train_ctl.train_edit(token, train_id, train_name, dist, description, params)
+        flag, info = train_ctl.train_edit(token, train_id, params, train_cmd)
 
         return util.get_stand_return(flag, info)
 
@@ -883,9 +929,11 @@ def api_run():
         else:
             train_ids = request_data["train_ids"]
 
+        automl_idx = request_data["automl_idx"] if "automl_idx" in request_data.keys() else None
+
         logger.info("train_get_schedule: request data: {}".format(request_data))
         # 开始处理
-        flag, info = train_ctl.train_get_schedule(token, train_ids)
+        flag, info = train_ctl.train_get_schedule(token, train_ids, automl_idx)
 
         return util.get_stand_return(flag, info)
 
@@ -910,9 +958,12 @@ def api_run():
         else:
             train_id = request_data["train_id"]
 
+        automl_idx = request_data["automl_idx"] if "automl_idx" in request_data.keys() else None
+
+
         logger.info("train_get_visual: request data: {}".format(request_data))
         # 开始处理
-        flag, info = train_ctl.train_get_visual(token, train_id)
+        flag, info = train_ctl.train_get_visual(token, train_id, automl_idx)
 
         return util.get_stand_return(flag, info)
 
@@ -952,7 +1003,7 @@ def api_run():
         else:
             infer_id = request_data["infer_id"]
 
-        description = request_data["description"] if "description" in request_data.keys() else None
+        description = request_data["description"] if "description" in request_data.keys() else ""
 
         params = request_data["params"] if "params" in request_data.keys() else {}
 
@@ -997,18 +1048,60 @@ def api_run():
         else:
             model_name = request_data["model_name"]
 
-        if "prefix_cmd" not in request_data.keys():
-            return util.get_stand_return(False, "inference_create_from_train: prefix_cmd must be required.")
-        else:
-            prefix_cmd = request_data["prefix_cmd"]
-
-        description = request_data["description"] if "description" in request_data.keys() else None
+        description = request_data["description"] if "description" in request_data.keys() else ""
         params = request_data["params"] if "params" in request_data.keys() else None
 
         logger.info("inference_create_from_train: request data: {}".format(request_data))
         # 开始处理
-        flag, info = inference_ctl.inference_create_from_train(token, infer_name, train_id, model_name, prefix_cmd,
+        flag, info = inference_ctl.inference_create_from_train(token, infer_name, train_id, model_name,
                                                                description, params)
+
+        return util.get_stand_return(flag, info)
+
+    # 发布推理任务
+    @app.route(_apis.inference_publish_to_intelligent_platform['url'], methods=_apis.inference_publish_to_intelligent_platform['method'])
+    def inference_publish_to_intelligent_platform():
+        """
+        token: str 用户验证信息
+        infer_id: int inferID
+
+        :return: bool 成功标志
+        """
+        logger.info("inference_create_from_train: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        if "infer_id" not in request_data.keys():
+            return util.get_stand_return(False, "inference_publish_to_intelligent_platform: infer_id must be required.")
+        else:
+            infer_id = request_data["infer_id"]
+
+        if "class_id" not in request_data.keys():
+            return util.get_stand_return(False, "inference_publish_to_intelligent_platform: class_id must be required.")
+        else:
+            class_id = request_data["class_id"]
+
+        if "data_limit" not in request_data.keys():
+            return util.get_stand_return(False, "inference_publish_to_intelligent_platform: data_limit must be required.")
+        else:
+            data_limit = request_data["data_limit"]
+
+        if "is_formal" not in request_data.keys():
+            return util.get_stand_return(False, "inference_publish_to_intelligent_platform: is_formal must be required.")
+        else:
+            is_formal = request_data["is_formal"]
+
+        if "resource_info" not in request_data.keys():
+            return util.get_stand_return(False, "inference_publish_to_intelligent_platform: resource_info must be required.")
+        else:
+            resource_info = request_data["resource_info"]
+
+        token = request.headers["token"]
+
+        logger.info("inference_publish_to_intelligent_platform: request data: {}".format(request_data))
+        # 开始处理
+        flag, info = inference_ctl.inference_publish_to_intelligent_platform(token, infer_id, class_id, data_limit, is_formal, resource_info)
 
         return util.get_stand_return(flag, info)
 
@@ -1016,6 +1109,70 @@ def api_run():
     @app.route(_apis.inference_create_from_upload['url'], methods=_apis.inference_create_from_upload['method'])
     def inference_create_from_upload(query_path):
         pass
+
+    # 查询inference
+    @app.route(_apis.inference_query['url'], methods=_apis.inference_query['method'])
+    def inference_query():
+        """
+        根据 token 查询 inference 信息
+        token: str 用户验证信息
+
+        :return: 查询到的inference信息
+        """
+        logger.info("inference_query: request verify...")
+
+        # 请求验证
+        token = request.headers["token"]
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        logger.info("inference_query: request data: {}".format(request_data))
+
+        if "page_size" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_size must be required.")
+        else:
+            page_size = request_data["page_size"]
+
+        if "page_num" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_num must be required.")
+        else:
+            page_num = request_data["page_num"]
+
+        grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
+
+        # 开始处理
+        flag, info = inference_ctl.inference_query(token, page_size, page_num, grep_condition)
+
+        return util.get_stand_return(flag, info)
+
+    # 删除inference
+    @app.route(_apis.inference_delete['url'], methods=_apis.inference_delete['method'])
+    def inference_delete():
+        """
+        inference: str 用户验证信息
+        infer_id: int inference_id
+
+        :return: bool 成功标志
+        """
+        logger.info("inference_delete: request verify...")
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        # 请求验证
+        token = request.headers["token"]
+
+        if "infer_id" not in request_data.keys():
+            return util.get_stand_return(False, "inference_delete: infer_id must be required.")
+        else:
+            infer_id = request_data["infer_id"]
+
+        logger.info("inference_delete: request data: {}".format(request_data))
+
+        # 开始处理
+        flag, info = inference_ctl.inference_delete(token, infer_id)
+
+        return util.get_stand_return(flag, info)
+
 
     # ====================== ASSIST ==============================
     # 查询特定路径下的文件
@@ -1067,6 +1224,39 @@ def api_run():
 
         return util.get_stand_return(flag, info)
 
+    # 查询全部名称
+    @app.route(_apis.get_all_name['url'], methods=_apis.get_all_name['method'])
+    def get_all_name():
+        """
+        查询全部名称
+        Returns: 查询得到的存在名称
+            ["测试123", ...]
+        """
+
+        logger.info("get_all_name: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        # 请求验证
+        token = request.headers["token"]
+
+        if "query_type" not in request_data.keys():
+            return util.get_stand_return(False, "get_all_name: query_type must be required.")
+        else:
+            query_type = request_data["query_type"]
+
+        if "query_input" not in request_data.keys():
+            return util.get_stand_return(False, "get_all_name: query_input must be required.")
+        else:
+            query_input = request_data["query_input"]
+
+        flag, info = assist_ctl.get_all_name(token, query_type, query_input)
+
+        return util.get_stand_return(flag, info)
+
+
+
     # 查询全部任务类型
     @app.route(_apis.get_all_tasktypes['url'], methods=_apis.get_all_tasktypes['method'])
     def get_all_tasktypes():
@@ -1088,13 +1278,80 @@ def api_run():
 
         return util.get_stand_return(flag, info)
 
-    # 定时任务
-    # 循环对k8s返回数据进行解析和状态更新
-    # status_monitor_process = Timer(5, status_monitor.status_monitor_runner)
-    # status_monitor_process.start()
+    # 查询全部automl策略
+    @app.route(_apis.get_all_automl_stratage['url'], methods=_apis.get_all_automl_stratage['method'])
+    def get_all_automl_stratage():
+        """
+        查询全部automl策略
+        Returns: 全部automl策略
+            ["grid_search", ...]
+        """
+
+        flag, info = assist_ctl.get_all_automl_stratage()
+
+        return util.get_stand_return(flag, info)
+
+    @app.route(_apis.receive_service['url'], methods=_apis.receive_service['method'])
+    def receive_service():
+        data = {
+                "yaml_content": util.load_from_txt("./common/config/air.yaml")
+                #"/home/iecas/airproject/airserver-2.0/airserver/common/config/air.yaml"
+                }
+
+        return util.get_stand_return(True, data)
+
+    # ====================== USER ==============================
+    # 查询特定路径下的文件
+    @app.route(_apis.user_delete_all_source['url'], methods=_apis.user_delete_all_source['method'])
+    def user_delete_all_source():
+        """
+        删除特定id的所有资源信息
+        Returns: bool
+        """
+        logger.info("user_delete_all_source: request verify...")
+
+        # 请求验证
+        request_data = json.loads(request.data.decode('utf-8'))
+
+        if "user_id" not in request_data.keys():
+            return util.get_stand_return(False, "user_delete_all_source: user_id must be required.")
+        else:
+            user_id = request_data["user_id"]
+
+        # 删除训练
+        read_sql = "select id from airpipline_trainjobtab where user_id = {0}".format(user_id)
+        flag, info = DB.query_all(read_sql)
+        info = map(lambda x:x[0], info)
+        for id in info:
+            train_ctl.train_delete(private_key, id)
+
+        # 删除模板
+        read_sql = "select id from airpipline_templatetab where user_id = {0}".format(user_id)
+        flag, info = DB.query_all(read_sql)
+        info = map(lambda x:x[0], info)
+        for id in info:
+            template_ctl.template_delete(private_key, id)
+
+        return util.get_stand_return(flag, info)
+
+
+    # ====================== TIMER ==============================
+
+    #　定时删除无效任务
+    monitor_delete_invaild_train_task_runner = Timer(5, monitor_ctl.monitor_delete_invaild_train_task)
+    monitor_delete_invaild_train_task_runner.start()
+
+
+    # # 循环对k8s返回数据进行解析和状态更新
+    monitor_running_job_runner = Timer(5, monitor_ctl.monitor_running_job)
+    monitor_running_job_runner.start()
 
 
     app_host = get_config("app_config", "host")
     app_port = get_config("app_config", "port")
 
     app.run(host=app_host, port=app_port)
+
+
+
+

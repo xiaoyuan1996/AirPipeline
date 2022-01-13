@@ -30,9 +30,8 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     """
 
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:
-        return False, "template_create： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 判断是否存在
     read_sql = "select * from airpipline_templatetab where user_id={0} and name='{1}'".format(user_id, template_name)
@@ -51,7 +50,8 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     if info == None:
         template_id = 0
     else:
-        template_id = info[-1][0]
+        info = map(lambda x: x[0], info)
+        template_id = max(info)
 
     # 创建特定模板
     # ========== 创建文件夹
@@ -71,7 +71,7 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     # 拷贝文件
     util.copy_compress_to_dir(code_path, own_code)
 
-    if model_path != None:
+    if model_path != "":
         # shutil.copy(model_path, os.path.join(own_model, "cur_model.pth"))
         shutil.copy(model_path, own_model)
 
@@ -90,10 +90,12 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     model_size = util.getFileFolderSize(own_model)
     model_size = util.trans_size_to_suitable_scale(model_size)
 
+    # 预训练模型名称
+    pretrain_model_name = model_path.split("/")[-1]
+
     # 更新表单
-    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}', image_size='{2}', code_size='{3}', model_size='{4}'  where id = {5}".format(
-        own_code,
-        own_model, image_size, code_size, model_size, template_id)
+    update_sql = "update airpipline_templatetab set code_path = '{0}', model_path='{1}', image_size='{2}', code_size='{3}', model_size='{4}', pretrain_model='{5}',  edit_time='{6}'  where id = {7}".format(
+        own_code, own_model, image_size, code_size, model_size, pretrain_model_name, create_time , template_id )
     flag, info = DB.update(update_sql)
 
     return flag, "template_create： create success."
@@ -121,9 +123,8 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
     :return: bool 成功标志
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:
-        return False, "template_edit： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where id={0}".format(template_id)
@@ -175,8 +176,8 @@ def template_delete(token, template_id):
     :return: bool 成功标志
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:   return False, "template_delete： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select user_id, name from airpipline_templatetab where id={0}".format(template_id)
@@ -210,8 +211,8 @@ def template_query(token, page_size, page_num, grep_condition):
     :return: 查询到的template信息
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1: return False, "template_query： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 查表
     read_sql = "select * from airpipline_templatetab where user_id={0} or privilege=0".format(user_id)
@@ -300,6 +301,9 @@ def template_query(token, page_size, page_num, grep_condition):
             item["image_tag"] = image_id_tag[item["image_id"]]
 
 
+    # 排序
+    return_info = util.rank_dict_based_item(return_info, "template_id")[::-1]
+
     # 分页
     info = return_info[(page_num-1)*page_size: page_size*page_num]
     return_info = {
@@ -321,8 +325,8 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     :return: bool 成功标志
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:   return False, "template_generate_from_train： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_trainjobtab where user_id={0} and id={1}".format(user_id, train_id)
@@ -409,8 +413,8 @@ def template_save_params(token, template_id, params):
     :return: bool 成功标志
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:   return False, "template_generate_from_train： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     # 查表 判断该请求是否来自该用户
     read_sql = "select * from airpipline_templatetab where user_id={0} and id={1}".format(user_id, template_id)
@@ -433,8 +437,8 @@ def template_save_jpg(token, request):
     :return: bool 成功标志
     """
     # 获取用户id
-    user_id = user_ctl.user_from_token_to_id(token)
-    if user_id == -1:   return False, "template_generate_from_train： user check failed."
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
 
     template_id = request.args.get("template_id")
 

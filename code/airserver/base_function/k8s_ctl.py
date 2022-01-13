@@ -29,6 +29,7 @@ class request_to_k8s_create():
 
         self.task_info = {
             'name': 'aaa123454567',
+            'schedule_type': "",
             'resource_info': "",
             'source_service_id': 0,
             'running_type': 0,
@@ -36,6 +37,7 @@ class request_to_k8s_create():
             'namespace': 'airevaluation',
             'image_repo_tag': 'onnx:v1.9',
             'retry_policy': None,
+            'usage': "",
             'running_config': None,
             'start_now': False
         }
@@ -102,8 +104,8 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     k8s_instance.service_data['volumes'] = []
     for mount_idx, mount_info in enumerate(volumeMounts):
         k8s_instance.service_data['volumes'].append({
-            'is_nfs': False,
-            'server': '',
+            'is_nfs': True,
+            'server': get_config('nfs', 'server'),
             'path': mount_info['host_path'],
             'mount_path': mount_info['mount_path'],
             'mount_name': 'mountidx{}'.format(mount_idx)
@@ -114,7 +116,8 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     k8s_instance.task_info['image_id'] = image_id
     k8s_instance.task_info['image_repo_tag'] = image_name
     k8s_instance.task_info['resource_info'] = params['resource_info']
-
+    k8s_instance.task_info['usage'] = pod_name
+    k8s_instance.task_info['schedule_type'] = params['schedule_type']
 
     request_to_k8s = k8s_instance.generate_request()
 
@@ -129,7 +132,7 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
         return False, "k8s_create: Failed."
 
 
-def k8s_delete(pod_name, lables):
+def k8s_delete(token, pod_name, task_id):
     """
     delete k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -138,8 +141,12 @@ def k8s_delete(pod_name, lables):
     """
 
     logger.info("=============== k8s instance delete =================")
-    logger.info("pod_name:{}".format(pod_name))
-    logger.info("lables:{}".format(lables))
+
+    response = requests.delete(url=get_config('k8s', 'k8s_delete'),
+                            json = {"id": task_id},
+                            headers={"token": token},
+                            )
+    print(response)
 
     return True, "k8s_delete: delete successful."
 
@@ -160,7 +167,7 @@ def k8s_start(token, lables, task_id):
 
     response = requests.put(url=get_config('k8s', 'k8s_start').format(task_id), headers={"token": token})
 
-    print(response.text)
+    print(json.loads(response.text))
 
     return response.status_code, "k8s_start: {}".format(response)
 
@@ -180,7 +187,7 @@ def k8s_pause(pod_name, lables, task_id):
     return True, "k8s_pause: pause successful."
 
 
-def k8s_stop(pod_name, lables):
+def k8s_stop(token, lables, task_id):
     """
     stop k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -189,10 +196,28 @@ def k8s_stop(pod_name, lables):
     """
 
     logger.info("=============== k8s instance stop =================")
-    logger.info("pod_name:{}".format(pod_name))
-    logger.info("lables:{}".format(lables))
 
-    return True, "k8s_stop: stop successful."
+    return_info = requests.put(url=get_config('k8s', 'k8s_stop').format(task_id), headers={'token': token})
+    return_data = json.loads(return_info.text)
+
+    return True, return_data
+
+def k8s_observer_object(token, task_id):
+    """
+    task_id: 某个任务id
+    token: 用户登录时的验证token
+
+    return：某个任务的详细信息
+    """
+
+
+    logger.info("=============== k8s observer object =================")
+    return_info = requests.get(url=get_config('k8s', 'k8s_observe_object').format(task_id) , headers={'token': token})
+    return_data = json.loads(return_info.text)
+
+    print(return_data)
+    return return_data['code'], return_data
+
 
 
 def k8s_create_dist(pod_name, image_name, lables, volumeMounts=None, port_map=None, params=None, token=None, train_cmd=None):

@@ -7,6 +7,8 @@ warnings.filterwarnings("ignore")
 from common.config_manager import get_config
 import util
 
+from base_function import register
+
 if __name__ == '__main__':
     # 记录设置
     logging.basicConfig(
@@ -20,6 +22,16 @@ if __name__ == '__main__':
     globalvar.set_value("get_config", get_config)
 
     # 注册
+    token_info = register.register_service(
+       service_name = "airpipeline",
+       register_base_url = get_config('user', 'usr_register'),
+       retry_seconds = 5,
+       urls = {
+           "service_name" : "airpipeline",
+           "user_extend_delete_url" : get_config('user', 'usr_delete')
+        },
+    )
+    globalvar.set_value("private_key", token_info['private_key'])
 
     # 初始化运行存储
     util.init_pipline_data(get_config('path', 'airpipline_path'))

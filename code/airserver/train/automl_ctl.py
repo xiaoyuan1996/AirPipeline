@@ -147,8 +147,8 @@ if __name__ == "__main__":
     # Bounded region of parameter space
     pbounds = {'x': (2, 4), 'y': (-3, 3)}
 
-    max_value, iter_value = bayesian_search(pbounds, black_box_function, n_iter=5)
-    # max_value, iter_value = random_search(pbounds, black_box_function, n_iter=5)
+    # max_value, iter_value = bayesian_search(pbounds, black_box_function, n_iter=5)
+    max_value, iter_value = random_search(pbounds, black_box_function, n_iter=5)
 
 
 

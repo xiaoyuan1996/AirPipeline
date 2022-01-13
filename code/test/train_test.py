@@ -4,7 +4,7 @@ import requests
 
 class TrainTest(object):
     def __init__(self):
-        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTJhMzA2NTczMzgwOWJlYjllM2YwYWU5YjE1Y2QyZjYxNmJjNjI4MDdlODM3MDNhNjQ5NWFlNGE3M2M5OGYyN2YtMg=="
+        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWJmZWZkYTNhMDY2YmY4ODBmNWE2MmYyZTkyNWFjNTQ4MTU1YTIyNWM1ODI2NDczZjFhYjM4YTZjNTFmNGFjMmYtMg=="
     def train_create(self):
         # 创建train
         """
@@ -21,56 +21,58 @@ class TrainTest(object):
             "token": self.token,
         }
         data = {
-            "train_name": "训练1224 -v 2.9",
-            "template_id": 6,
-            "dataset": 634,
+
+            # 第一页信息
+            "train_name": "训练1.1 -v 1.1 automl",  # 需要加东西
+            "template_id": 3,
+            "dataset": 724,
+            "description": "airstudio automl test",
+
+            # 第二页信息
             "dist": False,
-            "description": "airstudio dist test",
             "params": {
-                "resource_info": json.dumps({
-                        "cpu_count": 4,
-                        "mem_size": 4 * 1024 * 1024 *1024,
-                        "gpu_dict": json.dumps({"GeForce RTX 2080 Ti": 1}),
-                        "shm_size": '4Gi'
-                }),
+                    "resource_info": json.dumps({
+                            "cpu_count": 4,
+                            "mem_size": 4 * 1024 * 1024 *1024,
+                            "gpu_dict": json.dumps({"GeForce RTX 2080 Ti": 1}),
+                            "shm_size": '4Gi'
+                    }),
 
-                "spec_model": "pretrainmodel.pkl",
+                    'schedule_type': "",
 
-                "framework": "pytorch",
-                "job_command": "python /app/mnist.py",
-                "job_args": "----batch_size=8",
+                    "master_replicas": 1,
+                    "worker_replicas": 1,
+                    "restart_policy": "Never",
 
-                "master_replicas": 1,
-                "worker_replicas": 1,
-                "restart_policy": "Never",
-                "selector": [
-                    {
-                        "key": "kubernetes.ro/hostname",
-                        "operator": "IN",
-                        "values": ["dell-nf5468m5"]
-                    }
-                ],
-
-                "automl":{
-                    "niter": 1,
-                    "paramters": {
-                        "batch_size": {
-                            "type": "int",
-                            "pounds": (8, 12)
-                        },
+                    # 第三页信息
+                    "job_args": {
+                            # "batch_size": 8,
                         "lr": {
                             "type": "float",
-                            "pounds": (0.0001, 0.0002)
+                            "value":  0.01},
+                        "batch_size": {
+                            "type": "int",
+                            "value": 2},
+                    },
+
+                    "automl":{
+                        "niter": 6,
+                        "strategy": "bayesian_search",
+                        "paramters": {
+                            # "batch_size": {
+                            #     "type": "int",
+                            #     "pounds": (8, 12)
+                            # },
+                            "lr": {
+                                "type": "float",
+                                "pounds": (0.0001, 0.0002)
+                            },
+                            "momentum": {
+                                "type": "float",
+                                "pounds": (0.10, 0.99)
+                            }
                         }
                     }
-                }
-
-                # "gpu_num": 2,
-                # "cpu": 2,
-                # "memory": 4,
-                # "cuda_type": "10.0",
-                # "gpu_type": "2080ti",
-                # "node_host_name": "192.168.14.11"
             }
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_create/'
@@ -78,7 +80,7 @@ class TrainTest(object):
         r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
-    def train_start(self):
+    def train_start(self, train_id):
         # 启动train
         """
         根据train_id 删除 train
@@ -92,9 +94,85 @@ class TrainTest(object):
         }
 
         data = {
-                "train_id": 30,
-        }
+                "train_id": train_id,
+                }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_start/'
+
+        r = requests.post(url, data=json.dumps(data), headers=header)
+        print(r.json())
+
+    def train_edit(self):
+        # 编辑train
+        """
+        根据train_id 删除 train
+        token: str 用户验证信息
+        :param train_id: train_id
+
+        :return: bool 成功标志
+        """
+        header = {
+                "token": self.token
+        }
+
+        data = {
+                "train_id": 7,
+
+                # 第一页信息
+                # "train_name": "训练1229 -v 1.9",  # 需要加东西
+                # "description": "airstudio dist test",
+
+                # 训练命令
+                "train_cmd": "python /app/train.py",
+
+                # 第二页信息
+                # "dist": False,
+                "params": {
+                    # 资源
+                    "resource_info": json.dumps({
+                        "cpu_count": 4,
+                        "mem_size": 4 * 1024 * 1024 * 1024,
+                        "gpu_dict": json.dumps({"GeForce RTX 2080 Ti": 1}),
+                        "shm_size": '4Gi'
+                    }),
+
+                    "master_replicas": 1,
+                    "worker_replicas": 1,
+                    "restart_policy": "Never",
+
+
+                    # 第三页信息
+
+                    "job_args": {
+                            # "batch_size": 8,
+                        "lr": {
+                            "type": "float",
+                            "value":  0.01},
+                        "batch_size": {
+                            "type": "int",
+                            "value": 2},
+                    },
+
+                    "automl": {
+                        "niter": 3 ,
+                        "strategy": "random_search",
+                        "paramters": {
+                            # "batch_size": {
+                            #     "type": "int",
+                            #     "pounds": (8, 12)
+                            # },
+                            "lr": {
+                                "type": "float",
+                                "pounds": (0.0001, 0.0002)
+                            },
+                            # "lamba": {
+                            #     "type": "float",
+                            #     "pounds": (0.02, 0.08)
+                            # }
+                        }
+                    }
+                }
+        }
+        url = 'http://0.0.0.0:5000/airserver-2.0/train_edit/'
 
         r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
@@ -105,11 +183,11 @@ class TrainTest(object):
             "token": self.token
         }
         data = {
-            "train_id": 1,
+            "train_id": 44,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_delete/'
 
-        r = requests.post(url, data=json.dumps(data), headers=header)
+        r = requests.delete(url, data=json.dumps(data), headers=header)
         print(r.json())
 
     def train_pause(self):
@@ -125,13 +203,13 @@ class TrainTest(object):
         r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
-    def train_stop(self):
+    def train_stop(self, train_id):
         # 停止train
         header = {
             "token": self.token,
         }
         data = {
-            "train_id": 2,
+            "train_id": train_id,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_stop/'
 
@@ -153,10 +231,10 @@ class TrainTest(object):
             "page_num": 1,
 
             "grep_condition": {
-                      # "status_id": 400,  # 50：停止   100：初始化  150：暂停  200：运行中  400：运行失败 300：已完成
-                      "train_id": 32,
-                      # "get_template_info_detail": True,
-                    # "src_template": 6
+                      # "status_id": 400,  # 50：停止  80：开始初始化 100：初始化   150：暂停  200：运行中  400：运行失败 300：已完成
+                      "train_id": 26,
+                      "get_template_info_detail": True,
+                # "template_name": "模板",
                     #   "time_range": {
                     #       "start": "2021-12-21 00:00:00",
                     #       "end": "2021-12-22 00:00:00",
@@ -176,7 +254,8 @@ class TrainTest(object):
             "token": self.token,
         }
         data = {
-            "train_ids": 20,
+            "train_ids": 24
+            # "automl_idx": 1
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_get_schedule/'
 
@@ -189,7 +268,8 @@ class TrainTest(object):
             "token": self.token,
         }
         data = {
-            "train_id": 20,
+            "train_id": 35
+            # "automl_idx": 1
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/train_get_visual/'
 
@@ -203,11 +283,12 @@ if __name__ == "__main__":
     # t.train_pause()
     # t.train_stop()
     # t.train_get_schedule()
-    # t.train_get_visual()
+    t.train_get_visual()
     # t.train_create()
-    # t.train_start()
+    # t.train_edit()
+    # t.train_start(train_id=26)
     # t.train_delete()
-    t.train_query()
+    # t.train_query()
 #
 
 # {

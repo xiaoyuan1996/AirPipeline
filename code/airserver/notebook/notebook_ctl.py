@@ -1,5 +1,6 @@
 import os
 import time
+import json
 
 import globalvar
 import util
@@ -10,7 +11,7 @@ DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 
 
-def notebook_create(token, notebook_name, image_id, dataset, code, description):
+def notebook_create(token, notebook_name, image_id, dataset, code, description, params):
     """
     token: str 用户验证信息
     notebook_name: Notebook 名称
@@ -30,12 +31,12 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
     flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
     if not flag: return False, "notebook_create： image_name check failed."
 
-    status_id = 100
+    status_id = 80
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_notebooktab (name,user_id,image_id,create_time,status_id,code_path,data_path,description) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}')".format(
-        notebook_name, user_id, image_id, create_time, status_id, code, dataset, description)
+    sql = "insert into airpipline_notebooktab (name,user_id,image_id,create_time,status_id,code_path,data_path,description,params) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}')".format(
+        notebook_name, user_id, image_id, create_time, status_id, code, dataset, description, json.dumps(params))
 
     flag, data = DB.insert(sql)
 
@@ -45,7 +46,8 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
     if info == None:
         notebook_id = 0
     else:
-        notebook_id = info[-1][0]
+        info = map(lambda x: x[0], info)
+        notebook_id = max(info)
 
     # 创建特定模板
     # ========== 创建文件夹
@@ -63,23 +65,30 @@ def notebook_create(token, notebook_name, image_id, dataset, code, description):
     util.create_dir_if_not_exist(data_own)
 
     # 创建挂载
-    volumeMounts = {}
+    volumeMounts = []
     if dataset != None:
         # 拷贝压缩文件到dataset
         util.copy_compress_to_dir(dataset, data_own)
-        volumeMounts["/dataset"] = data_own
+        volumeMounts.append({
+                "host_path": data_own,
+                "mount_path": "/dataset"
+            })
+
     if code != None:
         # 拷贝压缩文件到code
         util.copy_compress_to_dir(code, code_own)
-        volumeMounts["/app"] = code_own
+        volumeMounts.append({
+            "host_path": code_own,
+            "mount_path": "/app"
+        })
 
     flag, info = k8s_ctl.k8s_create(
         token=token,
-        pod_name=str(notebook_id) + "_" + notebook_name,
-        image_id=image_id,
+        pod_name="notebook-" + str(notebook_id),
         image_name=image_name,
         lables="airstudio-notebook",
         volumeMounts=volumeMounts,
+        params=params
     )
 
     status_id = 200 if flag else 400

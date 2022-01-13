@@ -8,10 +8,29 @@ import zipfile
 from functools import wraps
 from random import choice
 import time
+import random
 
 import requests
 from flask import request, g
 
+k8s_status_map = {
+    -1: 400, # 容器不存在
+    0: 300, # 已完成
+    1: 200, # 进行中
+    2: 400, # 运行失败
+    3: 400,  # 容器不存在
+    4: 200 # 进行中
+}
+
+# 根据字典排序
+def rank_dict_based_item(dicts, key):
+    dicts.sort(key=lambda x:x[key])
+    return dicts
+
+def generate_random_str(lens=4):
+    lists = 'aqwertyuiopasdfghjklzxcvbnm'
+    tmp = random.choices(lists, k=lens)
+    return "".join(tmp)
 
 def get_uid(func):
     @wraps(func)
@@ -233,13 +252,13 @@ def get_string_time_diff(str1, str2):
     else:
         min = 0
 
-    return "{}d {}h {}m".format(day, hour, min)
+    return "{}d {}h {}m".format(int(day), int(hour), int(min))
 
 def get_running_time(start_time, end_time, now_time):
 
-    if start_time == None:
+    if start_time == 'None' or start_time == None:
         runing_time = "-"
-    elif end_time != None:
+    elif end_time != 'None' and end_time != None:
         runing_time = get_string_time_diff(start_time, end_time)
     else:
         runing_time = get_string_time_diff(start_time, now_time)
@@ -292,6 +311,13 @@ def similify_json_log(json_data):
         if len(json_data) > 256:
             return json_data[:256] + "..."
     return json_data
+
+
+try:
+    from urlparse import urlparse, quote
+except ImportError: 
+    from urllib.parse import urlparse, quote
+
 
 def simulate_request(url, method, headers = None, query_args = None,
         form = None, json_data = None, upload_files = None,
@@ -387,6 +413,8 @@ def simulate_request(url, method, headers = None, query_args = None,
 
 def get_k_v_dict(src, k, v):
     result = {}
+    if src == None:
+        return {}
     for d in src:
         result[d[k]] = d[v]
     return result

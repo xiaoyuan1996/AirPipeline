@@ -34,6 +34,7 @@ class ApisDefinition(object):
         # 训练任务定义
         self.train_create = self.apis_demo("/airserver-2.0/train_create/", "POST", "api_run.train_create")
         self.train_start = self.apis_demo("/airserver-2.0/train_start/", "POST", "api_run.train_start")
+        self.train_edit = self.apis_demo("/airserver-2.0/train_edit/", "POST", "api_run.train_edit")
         self.train_pause = self.apis_demo("/airserver-2.0/train_pause/", "PUT", "api_run.train_pause")
         self.train_stop = self.apis_demo("/airserver-2.0/train_stop/", "POST", "api_run.train_stop")
         self.train_delete = self.apis_demo("/airserver-2.0/train_delete/", "DELETE", "api_run.train_delete")
@@ -49,6 +50,10 @@ class ApisDefinition(object):
                                                           "api_run.inference_create_from_train")
         self.inference_create_from_upload = self.apis_demo("/airserver-2.0/inference_create_from_upload/", "POST",
                                                            "api_run.inference_create_from_upload")
+        self.inference_query = self.apis_demo("/airserver-2.0/inference_query/", "POST", "api_run.inference_query")
+        self.inference_delete = self.apis_demo("/airserver-2.0/inference_delete/", "DELETE", "api_run.inference_delete")
+        self.inference_publish_to_intelligent_platform = self.apis_demo("/airserver-2.0/inference_publish_to_intelligent_platform/", "POST", "api_run.inference_publish_to_intelligent_platform")
+
 
         # ====================== ASSIST ==============================
         # 辅助接口
@@ -56,6 +61,15 @@ class ApisDefinition(object):
         self.get_all_frameworks = self.apis_demo("/airserver-2.0/get_all_frameworks/", "GET",
                                                  "api_run.get_all_frameworks")
         self.get_all_tasktypes = self.apis_demo("/airserver-2.0/get_all_tasktypes/", "POST", "api_run.get_all_tasktypes")
+        self.get_all_automl_stratage = self.apis_demo("/airserver-2.0/get_all_automl_stratage/", "GET", "api_run.get_all_automl_stratage")
+        self.get_all_name = self.apis_demo("/airserver-2.0/get_all_name/", "POST", "api_run.get_all_name")
+
+
+        # ====================== register ==============================
+        # 运维接口
+        self.receive_service = self.apis_demo("/api/v1/receive/service", "GET", "api_run.receive_service")
+        self.user_delete_all_source = self.apis_demo("/airserver-2.0/user_delete_all_source", "GET", "api_run.user_delete_all_source")
+
 
     def apis_demo(self, url, method, func):
         return {"url": url, "method": [method], "func": func}

@@ -3,6 +3,9 @@ import os
 import globalvar
 import util
 
+from base_function import user_ctl
+
+
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
@@ -52,12 +55,41 @@ def get_spec_dir(query_type, type_id, subdir):
     else:
         sub_path = visual_path
 
+    if not os.path.exists(sub_path): return False, "get_spec_dir: path not exists."
+
     files = os.listdir(sub_path)
     return True, {"files": files}
 
 def get_all_frameworks():
     algo_frameworks = util.read_json("template/algo_frameworks.json")
     return True, algo_frameworks
+
+def get_all_name(token, query_type, query_input):
+
+    # 获取用户id
+    user_flag, user_id = user_ctl.user_from_token_to_id(token)
+    if user_flag == False: return False, user_id
+
+    flag_exist = False
+    if query_type == "template":
+        # 判断是否存在
+        read_sql = "select * from airpipline_templatetab where (user_id={0}  and name='{1}') or (user_id=0  and name='{1}')".format(user_id, query_input)
+        flag, info = DB.query_all(read_sql)
+
+        if info != []: flag_exist = True
+    elif query_type == "train":
+        # 判断是否存在
+        read_sql = "select * from airpipline_trainjobtab where user_id={0} and name='{1}'".format(user_id, query_input)
+        flag, info = DB.query_all(read_sql)
+        if info != []: flag_exist = True
+    elif query_type == "inference":
+        # 判断是否存在
+        read_sql = "select * from airpipline_infertab where user_id={0} and name='{1}'".format(user_id,
+                                                                                                  query_input)
+        flag, info = DB.query_all(read_sql)
+        if info != []: flag_exist = True
+
+    return True, flag_exist
 
 def get_all_tasktypes(query_text):
     task_types = util.load_from_txt_lines("template/task_types.txt")
@@ -77,3 +109,7 @@ def get_all_tasktypes(query_text):
         word_candidates = set(task_types)
 
     return True, word_candidates
+
+def get_all_automl_stratage():
+    automl_stratages = util.read_json("train/automl_stratage.json")
+    return True, automl_stratages

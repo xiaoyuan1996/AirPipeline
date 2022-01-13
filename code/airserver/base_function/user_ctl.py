@@ -20,9 +20,9 @@ def user_from_token_to_id(token):
 
     if infos['code'] != 0:
         logger.info("user_from_token_to_id: Error:{}".format(infos))
-        return -1
+        return False, infos
     else:
-        return infos['data']['id']
+        return True, infos['data']['id']
 
 
 def user_from_id_to_name(token, id):

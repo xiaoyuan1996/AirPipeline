@@ -12,6 +12,8 @@ user:
   usr_url: http://192.168.2.156:31151/api/v1/users/token_check
   usr_id_to_name: http://192.168.2.156:31151/api/v1/users/
   usr_get_infos: http://192.168.2.156:31151/api/v1/users/get
+  usr_register: 192.168.2.156:31151
+  usr_delete: http://192.168.9.64:33133/airserver-2.0/user_delete_all_source
 
 notebook:
   cpu: 1
@@ -39,6 +41,12 @@ k8s:
   k8s_dist_create: http://192.168.9.64:33185/api/v1/airengine/distribution/
   k8s_create: http://192.168.9.64:30887/api/v1/airscheduler/task/
   k8s_start: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/start
+  k8s_stop: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/stop
+  k8s_delete: http://192.168.9.64:30887/api/v1/airscheduler/task/
+  k8s_observe_object: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/list
+
+nfs:
+  server: 192.168.9.64
 
 pvc:
   prefix_path: /mnt/mfs
@@ -57,7 +65,8 @@ datasetpath:
   path: /mnt/mfs/data
 
 status_monitor:
-  monitor_step_time: 5
+  monitor_delete_invaild_train_task: 30
+  monitor_running_job: 10
 
 job:
   work_dir: /app
@@ -94,11 +103,12 @@ image:
 
 
 service_shop:
-  create_service: http://192.168.9.64:32295/service
+  create_service: http://192.168.9.64:32295/api/v1/service
 
 sample_set:
   prefix: /mnt/mfs/data
   id2path_url: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}
+  ids2infos: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?&sampleSetIdList={}
 
 static_path:
   prefix_path: /var/nfs/general/data/static/

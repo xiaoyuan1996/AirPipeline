@@ -86,13 +86,14 @@ class pg_db(object):
         task_type TEXT,
         algo_framework TEXT NOT NULL,
 
-        status_monitor TEXT,
+        monitor TEXT,
 
         start_time TEXT,
         end_time TEXT,
 
         src_template INT,
-        src_dataset INT      
+        src_dataset INT,
+        train_cmd TEXT      
         );
         ''')
 
@@ -111,7 +112,10 @@ class pg_db(object):
         prefix_cmd TEXT NOT NULL,
         src_image INT NOT NULL,
         task_type TEXT ,
-        algo_framework TEXT NULL     
+        algo_framework TEXT NULL,
+        train_id INT,
+        is_published BOOL,
+        image_size TEXT     
         );
         ''')
 
@@ -130,7 +134,7 @@ class pg_db(object):
         debug_user_pw TEXT NOT NULL,
         host_port int NOT NULL,
 
-        status_monitor TEXT
+        monitor TEXT
         );
         ''')
 
@@ -146,7 +150,9 @@ class pg_db(object):
         data_path TEXT,
         description TEXT,
 
-        status_monitor TEXT     
+        monitor TEXT,
+        host_port INT,
+        params TEXT
         );
         ''')
 
@@ -171,7 +177,8 @@ class pg_db(object):
         edit_time TEXT,
         
         params TEXT,            
-        jpg_path TEXT            
+        jpg_path TEXT,
+        pretrain_model TEXT            
         );
         ''')
 

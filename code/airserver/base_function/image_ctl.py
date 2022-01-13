@@ -15,17 +15,20 @@ def image_from_id_to_name(id, token):
 
     response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token": token})
 
-    infos = json.loads(response.text)
-    logger.info("image_from_id_to_name: infos:{}".format(infos))
+    try:
+        infos = json.loads(response.text)
+        logger.info("image_from_id_to_name: infos:{}".format(infos))
 
-    if infos['code'] != 0:
-        logger.info("image_from_id_to_name: Error:{}".format(infos))
-        return False, -1
-    elif infos['data'] == None:
-        logger.info("image_from_id_to_name: Error:{}".format(infos))
-        return False, -1
-    else:
-        return True, infos['data']['image_id']
+        if infos['code'] != 0:
+            logger.info("image_from_id_to_name: Error:{}".format(infos))
+            return False, -1
+        elif infos['data'] == None:
+            logger.info("image_from_id_to_name: Error:{}".format(infos))
+            return False, -1
+        else:
+            return True, infos['data']['image_id']
+    except:
+        return False, response.text
 
 
 def image_from_id_to_info(id, token):
