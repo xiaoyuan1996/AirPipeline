@@ -6,6 +6,7 @@ import requests
 logger = globalvar.get_value("logger")
 get_config = globalvar.get_value("get_config")
 
+workdir = get_config('path', 'data_path')
 
 class request_to_k8s_create():
     def __init__(self):
@@ -15,8 +16,9 @@ class request_to_k8s_create():
                 {
                     'is_nfs': False,
                     'server': '',
-                    'path': '/mnt/mfs/data',
-                    'mount_path': '/mnt/mfs/data',
+                    # TODO 挂载范围太大了，容易导致数据泄漏
+                    'path': workdir,
+                    'mount_path': workdir,
                     'mount_name': ''
                 }],
 
@@ -29,7 +31,6 @@ class request_to_k8s_create():
 
         self.task_info = {
             'name': 'aaa123454567',
-            'schedule_type': "",
             'resource_info': "",
             'source_service_id': 0,
             'running_type': 0,
@@ -105,7 +106,7 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     for mount_idx, mount_info in enumerate(volumeMounts):
         k8s_instance.service_data['volumes'].append({
             'is_nfs': True,
-            'server': get_config('nfs', 'server'),
+            'server': get_config('IP', 'NFS'),
             'path': mount_info['host_path'],
             'mount_path': mount_info['mount_path'],
             'mount_name': 'mountidx{}'.format(mount_idx)
@@ -117,14 +118,14 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
     k8s_instance.task_info['image_repo_tag'] = image_name
     k8s_instance.task_info['resource_info'] = params['resource_info']
     k8s_instance.task_info['usage'] = pod_name
-    k8s_instance.task_info['schedule_type'] = params['schedule_type']
+    k8s_instance.task_info['schedule_types'] = params['schedule_types']
 
     request_to_k8s = k8s_instance.generate_request()
 
     print(request_to_k8s)
 
     try:
-        return_info = requests.post(get_config('k8s', 'k8s_create'), json=request_to_k8s, headers={"token": token})
+        return_info = requests.post(get_config('k8s', 'k8s_create').format(get_config('IP', 'K8S')), json=request_to_k8s, headers={"token": token})
         c_task_id = json.loads(return_info.text)['data'].get('id')
 
         return c_task_id, "k8s_create: {}.".format(return_info)
@@ -142,8 +143,8 @@ def k8s_delete(token, pod_name, task_id):
 
     logger.info("=============== k8s instance delete =================")
 
-    response = requests.delete(url=get_config('k8s', 'k8s_delete'),
-                            json = {"id": task_id},
+    response = requests.delete(url=get_config('k8s', 'k8s_delete').format(get_config('IP', 'K8S')),
+                            params = {"id": task_id},
                             headers={"token": token},
                             )
     print(response)
@@ -163,11 +164,7 @@ def k8s_start(token, lables, task_id):
     logger.info("lables:{}".format(lables))
     logger.info("task_id:{}".format(task_id))
 
-    print(get_config('k8s', 'k8s_start').format(task_id))
-
-    response = requests.put(url=get_config('k8s', 'k8s_start').format(task_id), headers={"token": token})
-
-    print(json.loads(response.text))
+    response = requests.put(url=get_config('k8s', 'k8s_start').format(get_config('IP', 'K8S'), task_id), headers={"token": token})
 
     return response.status_code, "k8s_start: {}".format(response)
 
@@ -197,8 +194,11 @@ def k8s_stop(token, lables, task_id):
 
     logger.info("=============== k8s instance stop =================")
 
-    return_info = requests.put(url=get_config('k8s', 'k8s_stop').format(task_id), headers={'token': token})
+    return_info = requests.put(url=get_config('k8s', 'k8s_stop').format(get_config('IP', 'K8S'), task_id),
+            headers={'token': token})
+    print(return_info)
     return_data = json.loads(return_info.text)
+
 
     return True, return_data
 
@@ -212,7 +212,7 @@ def k8s_observer_object(token, task_id):
 
 
     logger.info("=============== k8s observer object =================")
-    return_info = requests.get(url=get_config('k8s', 'k8s_observe_object').format(task_id) , headers={'token': token})
+    return_info = requests.get(url=get_config('k8s', 'k8s_observe_object').format(get_config('IP', 'K8S'), task_id) , headers={'token': token})
     return_data = json.loads(return_info.text)
 
     print(return_data)
@@ -280,7 +280,7 @@ def k8s_create_dist(pod_name, image_name, lables, volumeMounts=None, port_map=No
     params['volume'] = volumeMounts
     params['image'] = image_name
 
-    response = requests.post(url=get_config('k8s', 'k8s_dist_create'), data=json.dumps(params),
+    response = requests.post(url=get_config('k8s', 'k8s_dist_create').format(get_config('IP', 'K8S_DIST')), data=json.dumps(params),
                              headers={"token": token})
     return True, "k8s_create_dist: {}.".format(response)
 

@@ -221,7 +221,7 @@ class TrainByAutoml():
             if success_flag != 0: continue
 
             status = return_data['data'][0]['status']
-            status_id = util.k8s_status_map[status]
+            status_id = util.k8s_status_map(status)
 
         # 如果运行失败
         if status_id == 400:

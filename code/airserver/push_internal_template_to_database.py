@@ -16,8 +16,9 @@ if __name__ == '__main__':
 
     # 注册
 
+    airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
     # 初始化运行存储
-    util.init_pipline_data(get_config('path', 'airpipline_path'))
+    util.init_pipline_data(airpipeline_path)
 
     # 数据库初始化 推送内置模板
     from base_function import connectpg

@@ -14,7 +14,7 @@ def user_from_token_to_id(token):
     :return: 用户id
     """
 
-    response = requests.get(url=get_config('user', 'usr_url'), headers={"token": token})
+    response = requests.get(url=get_config('user', 'usr_url').format(get_config('IP', 'USER')), headers={"token": token})
 
     infos = json.loads(response.text)
 
@@ -32,7 +32,7 @@ def user_from_id_to_name(token, id):
     :return: 用户id
     """
 
-    response = requests.get(url=get_config('user', 'usr_id_to_name'), data={"user_ids" : json.dumps([id])}, headers={"token": token})
+    response = requests.get(url=get_config('user', 'usr_id_to_name').format(get_config('IP', 'USER')), data={"user_ids" : json.dumps([id])}, headers={"token": token})
 
     infos = json.loads(response.text)
 
@@ -48,7 +48,7 @@ def user_get_infos(token, ids):
     :param token: 用户token
     :return: 用户ids
     """
-    response = requests.get(url=get_config('user', 'usr_get_infos'), params={"user_ids": json.dumps(ids)}, headers={"token": token})
+    response = requests.get(url=get_config('user', 'usr_get_infos').format(get_config('IP', 'USER')), params={"user_ids": json.dumps(ids)}, headers={"token": token})
 
     infos = json.loads(response.text)
 

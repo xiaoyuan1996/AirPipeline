@@ -12,11 +12,12 @@ from train import train_ctl
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
-
+airpipeline_path = (get_config("path", "data_path") +
+        get_config("path", "airpipeline_path"))
 
 # 发布服务到服务市场
 def inference_to_service_shop(post_query, token):
-    response = requests.post(url=get_config('service_shop', 'create_service'), json=post_query,
+    response = requests.post(url=get_config('service_shop', 'create_service').format(get_config('IP', 'SERVICE_SHOP')), json=post_query,
                              headers={"token": token})
     print("response", response)
     response = json.loads(response.text)
@@ -87,13 +88,13 @@ def inference_create_from_train(token, infer_name, train_id, model_name, descrip
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的train文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer"))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id), "infer"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id)))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id),
+        os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id)))
+    code_own = os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id),
                             "code")
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id),
+    model_own = os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id),
                              "model")
     util.create_dir_if_not_exist(model_own)
     util.create_dir_if_not_exist(code_own)
@@ -110,7 +111,7 @@ def inference_create_from_train(token, infer_name, train_id, model_name, descrip
     Dockerfile = util.load_from_txt("inference/infer_dockerfile")
     Dockerfile = Dockerfile.format(image_name)
     util.log_to_txt(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id),
+        os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id),
                      "Dockerfile"),
         Dockerfile
     )
@@ -158,9 +159,9 @@ def inference_publish_to_intelligent_platform(token, infer_id, class_id, data_li
     # params = info[9]
     prefix_cmd = info[10]
     task_type = info[12]
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id),
+    code_own = os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id),
                             "code")
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id),
+    model_own = os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id),
                              "model")
     algo_framework = info[13]
 
@@ -172,7 +173,7 @@ def inference_publish_to_intelligent_platform(token, infer_id, class_id, data_li
         token=token,
         name=infer_name,
         description=description,
-        docker_file=os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer",
+        docker_file=os.path.join(airpipeline_path, "external", str(user_id), "infer",
                                  str(infer_id), "Dockerfile"),
         src_image=image_name,
         spec_label=infer_id
@@ -372,7 +373,7 @@ def inference_delete(token, infer_id):
 
             # 删除文件
             util.remove_dir(
-                os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "infer", str(infer_id)))
+                os.path.join(airpipeline_path, "external", str(user_id), "infer", str(infer_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_infertab where id={0}".format(infer_id)

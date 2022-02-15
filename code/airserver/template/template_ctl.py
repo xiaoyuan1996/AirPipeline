@@ -9,7 +9,7 @@ from base_function import k8s_ctl, image_ctl, user_ctl
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
-
+airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
 
 def template_create(token, template_name, image_id, code_path, model_path, description, task_type, algo_framework, train_cmd, infer_cmd):
     """
@@ -56,15 +56,15 @@ def template_create(token, template_name, image_id, code_path, model_path, descr
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template"))
+        os.path.join(airpipeline_path, "external", str(user_id), "template"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id)))
-    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+        os.path.join(airpipeline_path, "external", str(user_id), "template", str(template_id)))
+    own_code = os.path.join(airpipeline_path, "external", str(user_id), "template",
                             str(template_id), "code")
     util.create_dir_if_not_exist(own_code)
-    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+    own_model = os.path.join(airpipeline_path, "external", str(user_id), "template",
                              str(template_id), "model")
     util.create_dir_if_not_exist(own_model)
 
@@ -133,7 +133,7 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
     if int(template_info[2]) != user_id: return False, "template_edit: template not belong to user {}.".format(user_id)
 
     # 　如果上传新代码
-    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+    own_code = os.path.join(airpipeline_path, "external", str(user_id), "template",
                             str(template_id), "code")
     if code_path != "":
         src_code_path = template_info[4]
@@ -142,7 +142,7 @@ def template_edit(token, template_id, template_name, image_id, code_path, model_
         util.copy_compress_to_dir(code_path, own_code)
 
     # 　如果上传新模型
-    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+    own_model = os.path.join(airpipeline_path, "external", str(user_id), "template",
                              str(template_id), "model")
     if model_path != "":
         src_model_path = template_info[5]
@@ -190,7 +190,7 @@ def template_delete(token, template_id):
             # 删除数据
             util.remove_dir(
                 os.path.join(
-                    get_config('path', 'airpipline_path'),
+                    airpipeline_path,
                     "external",
                     str(user_id),
                     "template",
@@ -201,6 +201,7 @@ def template_delete(token, template_id):
             delete_sql_image = "delete from airpipline_templatetab where id={0}".format(template_id)
             flag, info = DB.delete(delete_sql_image)
             return flag, "template_delete: delete success."
+        return False, "无权删除目标模板"
 
 
 def template_query(token, page_size, page_num, grep_condition):
@@ -362,15 +363,15 @@ def template_generate_from_train(token, template_name, train_id, model_name, des
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template"))
+        os.path.join(airpipeline_path, "external", str(user_id), "template"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template", str(template_id)))
-    own_code = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+        os.path.join(airpipeline_path, "external", str(user_id), "template", str(template_id)))
+    own_code = os.path.join(airpipeline_path, "external", str(user_id), "template",
                             str(template_id), "code")
     util.create_dir_if_not_exist(own_code)
-    own_model = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "template",
+    own_model = os.path.join(airpipeline_path, "external", str(user_id), "template",
                              str(template_id), "model")
     util.create_dir_if_not_exist(own_model)
 
@@ -447,17 +448,21 @@ def template_save_jpg(token, request):
     flag, info = DB.query_all(read_sql)
 
 
-    util.create_dir_if_not_exist(os.path.join(get_config('static_path', 'prefix_path'), str(template_id)))
+    util.create_dir_if_not_exist(os.path.join(
+            get_config('path', 'data_path') + get_config('path', 'static_path'),
+            "airpipeline", str(template_id)))
 
     portrait_file = request.files.get("portrait_file")
 
-    #portrait_file = portrait_file.get("portrait_file")
-
-    file_save_path = os.path.join(get_config('static_path', 'prefix_path'), "airpipeline",  str(template_id)+ ".jpg")
+    file_save_path = os.path.join(
+            get_config('path', 'data_path') + get_config('path', 'static_path'),
+            "airpipeline",  str(template_id), "model_structure.jpg")
     portrait_file.save(file_save_path)
 
     # 更新表单
-    update_sql = "update airpipline_templatetab set jpg_path = '{0}' where id = {1}".format("/static/airpipeline/"+str(template_id)+".jpg", template_id)
+    update_sql = "update airpipline_templatetab set jpg_path = '{0}' where id = {1}".format(
+            os.path.join("/static/airpipeline/", str(template_id), "model_structure.jpg"),
+            template_id)
     flag, info = DB.update(update_sql)
 
     return flag, "template_save_jpg: success"

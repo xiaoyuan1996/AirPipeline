@@ -13,7 +13,7 @@ def image_from_id_to_name(id, token):
     :return: 镜像名称
     """
 
-    response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token": token})
+    response = requests.get(url=get_config('image', 'image_get_info_url').format(get_config('IP', 'IMAGE'), id), headers={"token": token})
 
     try:
         infos = json.loads(response.text)
@@ -39,7 +39,7 @@ def image_from_id_to_info(id, token):
     :return: 镜像全部信息
     """
 
-    response = requests.get(url=get_config('image', 'image_get_info_url').format(id), headers={"token": token})
+    response = requests.get(url=get_config('image', 'image_get_info_url').format(get_config('IP', 'IMAGE'), id), headers={"token": token})
 
     infos = json.loads(response.text)
 
@@ -53,7 +53,7 @@ def image_get_infos(ids, token):
     :param token: 用户token
     :return: 用户ids
     """
-    response = requests.get(url=get_config('image', 'image_get_infos'), params={"image_ids": json.dumps(ids)}, headers={"token": token})
+    response = requests.get(url=get_config('image', 'image_get_infos').format(get_config('IP', 'IMAGE')), params={"image_ids": json.dumps(ids)}, headers={"token": token})
 
     infos = json.loads(response.text)
 
@@ -90,7 +90,7 @@ def image_build_from_dockerfile(token, name, description, docker_file, src_image
         "image_id": "airpipeline-inference-{}-{}".format(spec_label, src_image)
     }
 
-    response = requests.post(url=get_config('image', 'image_build'), data=form, headers={"token": token})
+    response = requests.post(url=get_config('image', 'image_build').format(get_config('IP', 'IMAGE')), data=form, headers={"token": token})
 
     response = json.dumps(response.json(), ensure_ascii=False)
     logger.info("image_build_from_dockerfile: {}".format(response))

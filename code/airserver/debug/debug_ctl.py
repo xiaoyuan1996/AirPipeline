@@ -8,7 +8,7 @@ from base_function import k8s_ctl, image_ctl, user_ctl
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
-
+airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
 
 def debug_create(token, debug_name, image_id, dataset, code, description):
     """
@@ -53,14 +53,14 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的template文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug"))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id), "debug"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id)))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id),
+        os.path.join(airpipeline_path, "external", str(user_id), "debug", str(debug_id)))
+    code_own = os.path.join(airpipeline_path, "external", str(user_id), "debug", str(debug_id),
                             "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id),
+    data_own = os.path.join(airpipeline_path, "external", str(user_id), "debug", str(debug_id),
                             "data")
     util.create_dir_if_not_exist(data_own)
 
@@ -158,8 +158,9 @@ def debug_stop(token, debug_id):
         if int(info[0]) == user_id:
             # 停止k8s
             flag, info = k8s_ctl.k8s_stop(
-                pod_name=str(debug_id) + "_" + info[1],
-                lables="airstudio-debug",
+                token,
+                "airstudio-debug",
+                info[1]
             )
             # 更新表单
             update_sql = "update airpipline_debugtab set status_id = 50 where id = {0}".format(debug_id)
@@ -256,14 +257,14 @@ def debug_delete(token, debug_id):
     else:
         if int(info[0]) == user_id:
             # 删除k8s
-            flag, info = k8s_ctl.k8s_delete(
+            flag, info = k8s_ctl.k8s_stop(
                 pod_name=str(debug_id) + "_" + info[1],
                 lables="airstudio-debug",
             )
 
             # 删除文件
             util.remove_dir(
-                os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "debug", str(debug_id)))
+                os.path.join(airpipeline_path, "external", str(user_id), "debug", str(debug_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_debugtab where id={0}".format(debug_id)

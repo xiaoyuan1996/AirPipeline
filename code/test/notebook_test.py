@@ -3,17 +3,19 @@ import requests
 
 
 class NotebookTest(object):
+    def __init__(self):
+        self.token = "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNWUyMGQ1ZDJjMWZjNzE1OTA0ZjIwY2UyOTE5MTgyZTQ0NmQ1OTdkMzVlYjk1ZGM5ZWMzZTJjZjQ3YTk5OTA0ZTktMg=="
     def notebook_create(self):
         # 创建notebook
         # image_id: file_path
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token,
         }
         data = {
             "notebook_name": "notebook_1201",
             "image_id": 4,
-            "dataset": "/mnt/mfs/hongkong_BIO.zip",
-            "code": "/mnt/mfs/hongkong_BIO.zip",
+            "dataset": "/var/nfs/general/data/305-car.tar",
+            "code": "/var/nfs/general/data/305-car.tar",
             "description": "airstudio"
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/notebook_create/'
@@ -24,7 +26,7 @@ class NotebookTest(object):
     def notebook_delete(self):
         # 删除notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token,
         }
         data = {
             "notebook_id": 1,
@@ -37,10 +39,10 @@ class NotebookTest(object):
     def notebook_start(self):
         # 启动notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token,
         }
         data = {
-            "notebook_id": 1,
+            "notebook_id": 2,
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/notebook_start/'
 
@@ -50,7 +52,7 @@ class NotebookTest(object):
     def notebook_pause(self):
         # 暂停notebook
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token,
         }
         data = {
             "notebook_id": 1,
@@ -69,7 +71,7 @@ class NotebookTest(object):
         :return: bool 成功标志
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token,
         }
         data = {
             "notebook_id": 1,
@@ -87,11 +89,21 @@ class NotebookTest(object):
         :return: 查询到的template信息
         """
         header = {
-            "token": "ZDQ3MzVlM2EyNjVlMTZlZWUwM2Y1OTcxOGI5YjVkMDMwMTljMDdkOGI2YzUxZjkwZGEzYTY2NmVlYzEzYWIzNTY0Y2U0OGFmYzcyMGRhNjlmZGM3MGY3MTkxNjYyZDhhMmZmMDk4ZjQxNWNjYmU0YzI5NTc2NTYyOTYyZjZlNzItMg==",
+            "token": self.token
+        }
+        data = {
+            "page_size": 1,
+            "page_num": 1,
+            "grep_condition": {
+               # "template_id": 3,
+                # "framework": "Tensorflow",
+                # "name_search": "模板",
+                # "label_search": "分类"
+            }
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/notebook_query/'
 
-        r = requests.post(url, headers=header)
+        r = requests.post(url, data=json.dumps(data), headers=header)
         print(r.json())
 
 
@@ -101,5 +113,5 @@ if __name__ == "__main__":
     # t.notebook_stop()
     # t.notebook_create()
     # t.notebook_query()
-    # t.notebook_start()
-    t.notebook_delete()
+    t.notebook_start()
+    # t.notebook_delete()

@@ -14,7 +14,8 @@ from train import train_utils
 logger = globalvar.get_value("logger")
 DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
-
+airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
+airpipeline_visual_path = (get_config('path', 'data_path') + get_config('path', 'visual_path'))
 
 def train_create(token, train_name, template_id, dataset_id, dist, description, params):
     """
@@ -58,9 +59,9 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     # 数据库插入
     status_id = 80
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template,src_dataset,train_cmd) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}',{15},{16},'{17}')".format(
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework,src_template,src_dataset,train_cmd) values ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', {12}, '{13}', '{14}',{15},{16},'{17}')".format(
         train_name, user_id, image_id, create_time, status_id, code_path, dataset_id, model_path, "", dist, description,
-        json.dumps(params), 'None', task_type, algo_framework, template_id, dataset_id, train_cmd)
+        json.dumps(params), 'null', task_type, algo_framework, template_id, dataset_id, train_cmd)
 
     flag, data = DB.insert(sql)
 
@@ -76,20 +77,20 @@ def train_create(token, train_name, template_id, dataset_id, dist, description, 
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的train文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train"))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id), "train"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+        os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id)))
+    code_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                             "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    data_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                             "data")
     util.create_dir_if_not_exist(data_own)
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    model_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                              "model")
     util.create_dir_if_not_exist(model_own)
-    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    visual_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                               "visual")
     util.create_dir_if_not_exist(visual_own)
     if code_path != None:
@@ -258,8 +259,7 @@ def train_start(token, train_id):
             )
 
             # 更新表单
-            update_sql = "update airpipline_trainjobtab set status_id = 200, task_id = '{0}' where id = {1}".format(
-                task_id, train_id)
+            update_sql = "update airpipline_trainjobtab set status_id = 200 where id = {0}".format(train_id)
             _, _ = DB.update(update_sql)
 
             return flag, info
@@ -319,15 +319,15 @@ def train_delete(token, train_id):
     else:
         if int(info[0]) == user_id:
             # 删除k8s
-            flag, info = k8s_ctl.k8s_delete(
-                token = token,
-                pod_name=str(train_id) + "_" + info[1],
-                task_id=info[1]
+            flag, info = k8s_ctl.k8s_stop(
+                token,
+                str(train_id) + "_" + info[1],
+                info[1]
             )
 
             # 删除文件
             util.remove_dir(
-                os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
+                os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id)))
 
             # 删除表单
             delete_sql_image = "delete from airpipline_trainjobtab where id={0}".format(train_id)
@@ -471,7 +471,6 @@ def train_query(token, page_size, page_num, grep_condition):
         "data": info,
         "total_num": len(return_info)
     }
-    print(info)
 
     return True, return_info
 
@@ -605,15 +604,13 @@ def train_get_visual(token, train_id, automl_idx):
         if automl_idx != None:
             visual_path = os.path.join(util.get_super_dir(visual_path), "automl_outputs", str(automl_idx), "visual")
 
-        if os.path.exists(get_config('path', 'visual_path')):
-            util.remove_dir(get_config('path', 'visual_path'))
+        if os.path.exists(airpipeline_visual_path):
+            util.remove_dir(airpipeline_visual_path)
 
         util.copy_dir(
-            os.path.join(visual_path, "visual"),  # TODO: 检查手册中是否为logs，
-            get_config('path', 'visual_path')
+            os.path.join(visual_path),
+            airpipeline_visual_path
         )
-
-
         return True, "http://192.168.9.62:33137"
 
 def train_generate_from_inference(token, infer_id, train_name, dataset, dist, description, params):
@@ -644,9 +641,9 @@ def train_generate_from_inference(token, infer_id, train_name, dataset, dist, de
 
     # 数据库插入
     create_time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', '{12}', '{13}', '{14}')".format(
+    sql = "insert into airpipline_trainjobtab (name,user_id,image_id,create_time,status_id,code_path,data_path,model_path,visual_path,dist,description, params, task_id, task_type, algo_framework) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}',{9},'{10}','{11}', {12}, '{13}', '{14}')".format(
         train_name, user_id, image_id, create_time, status_id, code_path, dataset, model_path, "", dist, description,
-        json.dumps(params), 'None', task_type, algo_framework)
+        json.dumps(params), 'null', task_type, algo_framework)
     flag, data = DB.insert(sql)
 
     # 查询插入的id
@@ -660,20 +657,20 @@ def train_generate_from_inference(token, infer_id, train_name, dataset, dist, de
     # 创建特定模板
     # ========== 创建文件夹
     # external文件夹下创建对应用户的train文件夹
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id)))
-    util.create_dir_if_not_exist(os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train"))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id)))
+    util.create_dir_if_not_exist(os.path.join(airpipeline_path, "external", str(user_id), "train"))
     util.create_dir_if_not_exist(
-        os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id)))
-    code_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+        os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id)))
+    code_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                             "code")
     util.create_dir_if_not_exist(code_own)
-    data_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    data_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                             "data")
     util.create_dir_if_not_exist(data_own)
-    model_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    model_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                              "model")
     util.create_dir_if_not_exist(model_own)
-    visual_own = os.path.join(get_config('path', 'airpipline_path'), "external", str(user_id), "train", str(train_id),
+    visual_own = os.path.join(airpipeline_path, "external", str(user_id), "train", str(train_id),
                               "visual")
     util.create_dir_if_not_exist(visual_own)
 

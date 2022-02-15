@@ -21,7 +21,7 @@ except:
 class pg_db(object):
     def __init__(self):
         print("init database ...")
-        self.db_host = get_config("database", "dbhost")
+        self.db_host = get_config("IP", "DATABASE")
         self.db_minconn = get_config("database", "minconn")
         self.db_maxconn = get_config("database", "maxconn")
         self.db_user = get_config("database", "user")
@@ -152,7 +152,8 @@ class pg_db(object):
 
         monitor TEXT,
         host_port INT,
-        params TEXT
+        params TEXT,
+        task_id INT
         );
         ''')
 
@@ -221,7 +222,9 @@ class pg_db(object):
 
     def add_internal_template(self):
         # 增加默认模板
-        internal_template_path = os.path.join(get_config('path', 'airpipline_path'), "internal", "template")
+        internal_template_path = os.path.join(
+                get_config('path', 'data_path') + get_config('path', 'airpipeline_path'),
+                "internal", "template")
 
         all_default_templates = os.listdir(internal_template_path)
 

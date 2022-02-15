@@ -24,17 +24,18 @@ if __name__ == '__main__':
     # 注册
     token_info = register.register_service(
        service_name = "airpipeline",
-       register_base_url = get_config('user', 'usr_register'),
+       register_base_url = get_config('user', 'usr_register').format(get_config('IP', 'USER')),
        retry_seconds = 5,
        urls = {
            "service_name" : "airpipeline",
-           "user_extend_delete_url" : get_config('user', 'usr_delete')
+           "user_extend_delete_url" : get_config('user', 'usr_delete').format(get_config('IP', 'USER_DELETE'))
         },
     )
     globalvar.set_value("private_key", token_info['private_key'])
 
+    airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
     # 初始化运行存储
-    util.init_pipline_data(get_config('path', 'airpipline_path'))
+    util.init_pipline_data(airpipeline_path)
 
     # 数据库初始化
     from base_function import connectpg

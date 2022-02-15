@@ -13,14 +13,17 @@ import random
 import requests
 from flask import request, g
 
-k8s_status_map = {
-    -1: 400, # 容器不存在
-    0: 300, # 已完成
-    1: 200, # 进行中
-    2: 400, # 运行失败
-    3: 400,  # 容器不存在
-    4: 200 # 进行中
-}
+def k8s_status_map(origin_status):
+    code = 9999
+    if origin_status == -1:
+        code = 100
+    elif origin_status == 0:
+        code = 300
+    elif origin_status < 100:
+        code = 200
+    elif origin_status > 1000:
+        code = 400
+    return code
 
 # 根据字典排序
 def rank_dict_based_item(dicts, key):
@@ -56,11 +59,10 @@ def get_uid(func):
 
 # 得到标准返回
 def get_stand_return(flag, message):
-    code = 0 if flag else 400
     return_json = {
-        'code': code,
-        "message": "success" if flag else "failure",
-        "data": message
+        'code': 0 if flag else 400,
+        "message": message if not flag else "Success",
+        "data": message if flag else None
     }
     return return_json
 

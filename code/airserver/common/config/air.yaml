@@ -1,5 +1,15 @@
+IP:
+  DATABASE: 192.168.9.64
+  USER: 192.168.2.156:31151
+  USER_DELETE: 192.168.9.64:33133
+  K8S: 192.168.9.64:30887
+  K8S_DIST: 192.168.9.64:33185
+  NFS: 192.168.9.64
+  IMAGE: 192.168.2.156:31152
+  SERVICE_SHOP: 192.168.9.64:32295
+  SAMPLE_SET: 192.168.9.64:28000
+
 database:
-  dbhost: 192.168.9.64
   minconn: 5
   maxconn: 200
   user: iecas
@@ -9,11 +19,11 @@ database:
   cursor_factory: psycopg2.extras.DictCursor
 
 user:
-  usr_url: http://192.168.2.156:31151/api/v1/users/token_check
-  usr_id_to_name: http://192.168.2.156:31151/api/v1/users/
-  usr_get_infos: http://192.168.2.156:31151/api/v1/users/get
-  usr_register: 192.168.2.156:31151
-  usr_delete: http://192.168.9.64:33133/airserver-2.0/user_delete_all_source
+  usr_url: http://{}/api/v1/users/token_check
+  usr_id_to_name: http://{}/api/v1/users/
+  usr_get_infos: http://{}/api/v1/users/get
+  usr_register: "{}"
+  usr_delete: http://{}/airserver-2.0/user_delete_all_source
 
 notebook:
   cpu: 1
@@ -38,31 +48,18 @@ gateway:
   domain: http://MASTER_IP:31173
 
 k8s:
-  k8s_dist_create: http://192.168.9.64:33185/api/v1/airengine/distribution/
-  k8s_create: http://192.168.9.64:30887/api/v1/airscheduler/task/
-  k8s_start: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/start
-  k8s_stop: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/stop
-  k8s_delete: http://192.168.9.64:30887/api/v1/airscheduler/task/
-  k8s_observe_object: http://192.168.9.64:30887/api/v1/airscheduler/task/{}/list
-
-nfs:
-  server: 192.168.9.64
-
-pvc:
-  prefix_path: /mnt/mfs
+  k8s_dist_create: http://{}/api/v1/airengine/distribution/
+  k8s_create: http://{}/api/v1/airscheduler/task/
+  k8s_start: http://{}/api/v1/airscheduler/task/{}/start
+  k8s_stop: http://{}/api/v1/airscheduler/task/{}/stop
+  k8s_delete: http://{}/api/v1/airscheduler/task/
+  k8s_observe_object: http://{}/api/v1/airscheduler/task/{}/list
 
 path:
-  airStudio_path: /mnt/mfs/airstudio
-  airPaas_path: /mnt/mfs/airpaas
-  paas_dockerfile_path: /mnt/mfs/airpaas/service
-  image_tmp: /mnt/mfs/image_tmp
-  document_path: /mnt/mfs/data/static/assets/airstudio_pdf_manager
-  static_path: http://192.168.9.64:31153/api/v1/static/assets/airstudio_pdf_manager
-  airpipline_path: /var/nfs/general/airpipline_all_data
-  visual_path: /var/nfs/general/airpipline_all_visual/logs
-
-datasetpath:
-  path: /mnt/mfs/data
+    data_path: /var/nfs/general/data
+    static_path: /static
+    airpipeline_path: /airpipeline/base
+    visual_path: /airpipeline/visual
 
 status_monitor:
   monitor_delete_invaild_train_task: 30
@@ -97,18 +94,14 @@ app_config:
 
 image:
   default_notebook_image_id: 0
-  image_get_info_url: http://192.168.2.156:31152/api/v1/images/get/{}
-  image_build: http://192.168.2.156:31152/api/v1/images/build
-  image_get_infos: http://192.168.2.156:31152/api/v1/images/get
+  image_get_info_url: http://{}/api/v1/images/get/{}
+  image_build: http://{}/api/v1/images/build
+  image_get_infos: http://{}/api/v1/images/get
 
 
 service_shop:
-  create_service: http://192.168.9.64:32295/api/v1/service
+  create_service: http://{}/api/v1/service
 
 sample_set:
-  prefix: /mnt/mfs/data
-  id2path_url: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}
-  ids2infos: http://192.168.9.64:28000/geoapi/V1/sampleset-platform/sampleset/condition/list?&sampleSetIdList={}
-
-static_path:
-  prefix_path: /var/nfs/general/data/static/
+  id2path_url: http://{}/geoapi/V1/sampleset-platform/sampleset/condition/list?id={}&sampleSetClassification={}
+  ids2infos: http://{}/geoapi/V1/sampleset-platform/sampleset/condition/list?&sampleSetIdList={}

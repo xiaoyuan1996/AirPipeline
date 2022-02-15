@@ -86,7 +86,7 @@ def api_run():
         else:
             notebook_id = request_data["notebook_id"]
 
-        logger.info("notebook_create: request data: {}".format(request_data))
+        logger.info("notebook_start: request data: {}".format(request_data))
         # 开始处理
         flag, info = notebook_ctl.notebook_start(token, notebook_id)
 
@@ -183,12 +183,27 @@ def api_run():
         :return: 查询到的notebook信息
         """
         logger.info("notebook_query: request verify...")
+        request_data = json.loads(request.data.decode('utf-8'))
+
         token = request.headers["token"]
 
         logger.info("notebook_query: request data: {}".format(token))
 
+        if "page_size" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_size must be required.")
+        else:
+            page_size = request_data["page_size"]
+
+        if "page_num" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_num must be required.")
+        else:
+            page_num = request_data["page_num"]
+
+        grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
+
+
         # 开始处理
-        flag, info = notebook_ctl.notebook_query(token)
+        flag, info = notebook_ctl.notebook_query(token, page_size, page_num, grep_condition)
 
         return util.get_stand_return(flag, info)
 
