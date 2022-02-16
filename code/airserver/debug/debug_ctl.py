@@ -1,4 +1,4 @@
-import os
+import os, json
 import time
 
 import globalvar
@@ -10,7 +10,7 @@ DB = globalvar.get_value("DB")
 get_config = globalvar.get_value("get_config")
 airpipeline_path = (get_config('path', 'data_path') + get_config('path', 'airpipeline_path'))
 
-def debug_create(token, debug_name, image_id, dataset, code, description):
+def debug_create(token, debug_name, image_id, dataset, code, description, resource_params):
     """
     token: str 用户验证信息
     debug_name: Notebook 名称
@@ -36,9 +36,9 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
     debug_user_name = "airpipeline"
     debug_user_pw = util.gen_password()
     host_port = 0  # TODO 怎样获取闲置的 host_port
-    sql = "insert into airpipline_debugtab (name,user_id,image_id,create_time,status_id,code_path,data_path,description,debug_user_name,debug_user_pw,host_port) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}','{9}',{10})".format(
+    sql = "insert into airpipline_debugtab (name,user_id,image_id,create_time,status_id,code_path,data_path,description,debug_user_name,debug_user_pw,host_port,resource_params) values  ('{0}',{1},{2},'{3}',{4},'{5}','{6}','{7}','{8}','{9}',{10})".format(
         debug_name, user_id, image_id, create_time, status_id, code, dataset, description, debug_user_name,
-        debug_user_pw, host_port)
+        debug_user_pw, host_port, json.dumps(resource_params))
 
     flag, data = DB.insert(sql)
 
@@ -73,10 +73,36 @@ def debug_create(token, debug_name, image_id, dataset, code, description):
     if code != None:
         util.copy_compress_to_dir(code, code_own)
 
+    # 创建挂载
+    volumeMounts = []
+    volumeMounts.append({
+        "host_path": data_path,
+        "mount_path": "/dataset"
+    })
+    volumeMounts.append({
+        "host_path": code_path,
+        "mount_path": "/app"
+    })
+
+    # 增加用户名和用户密码
+    resource_params['debug_user_name'] = debug_user_name
+    resource_params['debug_user_pw'] = debug_user_pw
+
+    task_id, info = k8s_ctl.k8s_create(
+        token=token,
+        pod_name="debug-{}-{}".format(debug_id, util.generate_random_str()),
+        image_id=image_id,
+        image_name=image_name,
+        lables="airstudio-debug",
+        volumeMounts=volumeMounts,
+        port_map= [22],
+        params=resource_params,
+        working_type = 1
+    )
 
     status_id = 100
     # 更新表单
-    update_sql = "update airpipline_debugtab set status_id = {0}, code_path = '{1}', data_path = '{2}' where id = {3}".format(
+    update_sql = "update airpipline_debugtab set status_id = {0}, code_path = '{1}', data_path = '{2}'  where id = {3}".format(
         status_id, code_own, data_own, debug_id)
     flag, info = DB.update(update_sql)
 
@@ -167,7 +193,7 @@ def debug_start(token, debug_id):
     if int(info[0]) != user_id: return False, "debug_start: debug not belong to user_id {}.".format(info[0])
 
     # 参数解析
-    image_id, code_path, data_path, debug_user_name, debug_user_pw  = info[3], info[6], info[7], info[9], info[10]
+    image_id, code_path, data_path, debug_user_name, debug_user_pw, resource_params  = info[3], info[6], info[7], info[9], info[10], info[13]
 
     # 获取镜像名称
     flag, image_name = image_ctl.image_from_id_to_name(image_id, token)
@@ -194,10 +220,7 @@ def debug_start(token, debug_id):
         image_name=image_name,
         lables="airstudio-debug",
         volumeMounts=volumeMounts,
-        port_map={
-            # host_port: host_port,
-            # 5000: 5000
-        },
+        port_map=[22],
         params={
             "debug_user_name": debug_user_name,
             "debug_user_pw": debug_user_pw,

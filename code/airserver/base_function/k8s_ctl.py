@@ -22,10 +22,11 @@ class request_to_k8s_create():
                     'mount_name': ''
                 }],
 
-            'pvc': {
+            'pvc': [{
                 'pvc_requests': '100Mi',
                 'pvc_limits': '1Gi'
-            },
+            }],
+            'port': [],
             'command': 'python /app/train.py',
         }
 
@@ -48,7 +49,8 @@ class request_to_k8s_create():
         return self.task_info
 
 
-def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None, params=None, train_cmd=None):
+def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None, port_map=None,
+               params=None, train_cmd=None, working_type=0, start_now=False):
     """
     create k8s instance
     :param lables: 标签 如 airstudio-train、airstudio-debug等
@@ -66,16 +68,9 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
                 "mount_path": "/mnt/mfs/code/airserver"
             }
         ]
-    :param port_map: 端口映射 list格式 容器端口:宿主机端口
+    :param port_map: 端口映射 list格式 容器端口
         [
-            {
-                "src": 33134,
-                "dst": 33134
-            }
-            {
-                "src": 5000,
-                "dst": 5000
-            }
+            22, 5000
         ]
     :param params: 其他参数 json格式
         {
@@ -101,7 +96,13 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
 
     # generate request
     k8s_instance = request_to_k8s_create()
+
+    # 启动命令
+    if ("debug_user_name" in params) and ("debug_user_pw" in params):
+        train_cmd = "useradd {} | passwd {}".format(params['debug_user_name'], params['debug_user_pw'])
     k8s_instance.service_data['command'] = train_cmd
+
+    # 设置挂载
     k8s_instance.service_data['volumes'] = []
     for mount_idx, mount_info in enumerate(volumeMounts):
         k8s_instance.service_data['volumes'].append({
@@ -112,12 +113,36 @@ def k8s_create(token, pod_name, image_id, image_name, lables, volumeMounts=None,
             'mount_name': 'mountidx{}'.format(mount_idx)
         })
 
+    # 设置映射端口
+    if port_map != None:
+        for port in port_map:
+            k8s_instance.service_data['port'].append({
+                'container_port': port
+            })
+
+    # 设置 pod_name
     k8s_instance.task_info['name'] = pod_name
+
+    # 设置 命名空间
     k8s_instance.task_info['namespace'] = lables
+
+    # 设置 服务类型
+    k8s_instance.task_info['working_type'] = working_type
+
+    # 设置 使用镜像
     k8s_instance.task_info['image_id'] = image_id
     k8s_instance.task_info['image_repo_tag'] = image_name
+
+    # 设置立即启动
+    k8s_instance.task_info['start_now'] = start_now
+
+    # 设置资源信息
     k8s_instance.task_info['resource_info'] = params['resource_info']
+
+    # 设置使用说明
     k8s_instance.task_info['usage'] = pod_name
+
+    # 设置调度类型
     k8s_instance.task_info['schedule_types'] = params['schedule_types']
 
     request_to_k8s = k8s_instance.generate_request()

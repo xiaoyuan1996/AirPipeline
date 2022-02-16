@@ -134,7 +134,8 @@ class pg_db(object):
         debug_user_pw TEXT NOT NULL,
         host_port int NOT NULL,
 
-        monitor TEXT
+        monitor TEXT,
+        resource_params JSON
         );
         ''')
 

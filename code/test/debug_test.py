@@ -17,7 +17,20 @@ class DebugTest(object):
             "image_id": 4,
             "dataset": "/var/nfs/general/data/305-car.tar",
             "code": "/var/nfs/general/data/305-car.tar",
-            "description": "airstudio"
+            "description": "airstudio",
+            "params": {
+                "resource_info": json.dumps({
+                    "cpu_count": 4,
+                    "mem_size": 4 * 1024 * 1024 * 1024,
+                    "gpu_dict": json.dumps({"GeForce RTX 2080 Ti": 1}),
+                    "shm_size": '4Gi'
+                }),
+
+                'schedule_type': "",
+
+                "master_replicas": 1,
+                "worker_replicas": 1,
+                "restart_policy": "Never",}
         }
         url = 'http://0.0.0.0:5000/airserver-2.0/debug_create/'
 

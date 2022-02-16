@@ -241,11 +241,12 @@ def api_run():
         dataset = request_data["dataset"] if "dataset" in request_data.keys() else None
         code = request_data["code"] if "code" in request_data.keys() else None
         description = request_data["description"] if "description" in request_data.keys() else None
+        params = request_data["params"] if "params" in request_data.keys() else {}
 
         logger.info("notebook_create: request data: {}".format(request_data))
 
         # 开始处理
-        flag, info = debug_ctl.debug_create(token, debug_name, image_id, dataset, code, description)
+        flag, info = debug_ctl.debug_create(token, debug_name, image_id, dataset, code, description, params)
 
         return util.get_stand_return(flag, info)
 
