@@ -38,7 +38,7 @@ def monitor_running_job():
                 if int(minutes) >= 1:  # 如果大于1分钟则开始监控
                     success_flag, return_data = k8s_ctl.k8s_observer_object(private_key, task_id)
                     if success_flag != 0: continue
-                    status = return_data['data'][0]['status']
+                    status = return_data['data']['status']
                     status_id = util.k8s_status_map(status)
                     if status_id == 200:
                         update_sql = ("update airpipline_trainjobtab set end_time = null,"

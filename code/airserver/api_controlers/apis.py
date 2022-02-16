@@ -370,11 +370,24 @@ def api_run():
 
         # 请求验证
         token = request.headers["token"]
+        request_data = json.loads(request.data.decode('utf-8'))
 
         logger.info("debug_query: request data: {}".format(token))
 
+        if "page_size" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_size must be required.")
+        else:
+            page_size = request_data["page_size"]
+
+        if "page_num" not in request_data.keys():
+            return util.get_stand_return(False, "train_query: page_num must be required.")
+        else:
+            page_num = request_data["page_num"]
+
+        grep_condition = request_data["grep_condition"] if "grep_condition" in request_data.keys() else None
+
         # 开始处理
-        flag, info = debug_ctl.debug_query(token)
+        flag, info = debug_ctl.debug_query(token, page_size, page_num, grep_condition)
 
         return util.get_stand_return(flag, info)
 

@@ -214,8 +214,8 @@ def k8s_observer_object(token, task_id):
     logger.info("=============== k8s observer object =================")
     return_info = requests.get(url=get_config('k8s', 'k8s_observe_object').format(get_config('IP', 'K8S'), task_id) , headers={'token': token})
     return_data = json.loads(return_info.text)
-
     print(return_data)
+
     return return_data['code'], return_data
 
 
